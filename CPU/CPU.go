@@ -48,6 +48,7 @@ var (
 
 )
 
+
 // Initialization
 func Initialize() {
 
@@ -64,6 +65,7 @@ func Initialize() {
 
 }
 
+
 // Reset Vector // 0xFFFC | 0xFFFD (Little Endian)
 func Reset() {
 	// Read the Opcode from PC+1 and PC bytes (Little Endian)
@@ -71,9 +73,47 @@ func Reset() {
 	fmt.Printf("\n%04X\n",PC)
 }
 
-func Show() {
-	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%X(%d)\tA: %d\tX: 0x%02X\tY: %02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0] )
+
+func DecodeTwoComplement(num byte) int8 {
+
+	var sum int8 = 0
+
+	for i := 0 ; i < 8 ; i++ {
+		// Sum each bit and sum the value of the bit power of i (<<i)
+		sum += (int8(num) >> i & 0x01) << i
+	}
+	fmt.Printf("\n")
+
+	return sum
 }
+
+
+func Show() {
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: %d\tX: 0x%02X\tY: %02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0] )
+}
+
+
+//-------------------------------------------------- Processor Flags --------------------------------------------------//
+func flags_Z(value byte) {
+	fmt.Printf("\n\tFlag Z: %d ->", P[1])
+	// Check if final value is 0
+	if value == 0 {
+		P[1] = 1
+	} else {
+		P[1] = 0
+	}
+	fmt.Printf(" %d", P[1])
+}
+
+func flags_N(value byte) {
+	fmt.Printf("\n\tFlag N: %d ->", P[7])
+	// Set Negtive flag to the the MSB of the value
+	P[7] = value >> 7
+
+	fmt.Printf(" %d | Value = %08b", P[7], value)
+}
+
+
 
 // CPU Interpreter
 func Interpreter() {
@@ -99,7 +139,7 @@ func Interpreter() {
 			P[2]	=  1
 			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tSEI  Set Interrupt Disable Status\tP[2]=1\n\n", Opcode)
+				fmt.Printf("\n\tOpcode %02X\tSEI  Set Interrupt Disable Status\tP[2]=1\n", Opcode)
 			}
 
 		// CLD  Clear Decimal Mode
@@ -114,7 +154,7 @@ func Interpreter() {
 			P[3]	=  0
 			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tCLD  Clear Decimal Mode\tP[3]=0\n\n", Opcode)
+				fmt.Printf("\n\tOpcode %02X\tCLD  Clear Decimal Mode\tP[3]=0\n", Opcode)
 			}
 
 		// LDX  Load Index X with Memory
@@ -127,10 +167,14 @@ func Interpreter() {
 		//      immidiate     LDX #oper     A2    2     2
 		case 0xA2: // LDX immidiate
 			X = Memory[PC+1]
-			PC	+= 2
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tLDX  Load Index X with Memory (immidiate)\tX = Memory[%02X] (%d)\n\n", Opcode, PC+1, X)
+				fmt.Printf("\n\tOpcode %02X\tLDX  Load Index X with Memory (immidiate)\tX = Memory[%02X] (%d)\n", Opcode, PC+1, X)
 			}
+			PC	+= 2
+
+			flags_Z(X)
+			flags_N(X)
+
 
 		// TXA  Transfer Index X to Accumulator
 		//
@@ -142,10 +186,12 @@ func Interpreter() {
 		//      implied       TXA           8A    1     2
 		case 0x8A: // TXA
 			A = X
-			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tTXA  Transfer Index X to Accumulator\tA = X (%d)\n\n", Opcode, X)
+				fmt.Printf("\n\tOpcode %02X\tTXA  Transfer Index X to Accumulator\tA = X (%d)\n", Opcode, X)
 			}
+			PC	+= 1
+			flags_Z(A)
+			flags_N(A)
 
 		// TAY  Transfer Accumulator to Index Y
 		//
@@ -157,10 +203,12 @@ func Interpreter() {
 		//      implied       TAY           A8    1     2
 		case 0xA8: // TAY
 			Y = A
-			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tTAY  Transfer Accumulator to Index Y\tA = X (%d)\n\n", Opcode, X)
+				fmt.Printf("\n\tOpcode %02X\tTAY  Transfer Accumulator to Index Y\tA = X (%d)\n", Opcode, X)
 			}
+			PC	+= 1
+			flags_Z(Y)
+			flags_N(Y)
 
 		// DEX  Decrement Index X by One
 		//
@@ -172,10 +220,12 @@ func Interpreter() {
 		//      implied       DEC           CA    1     2
 		case 0xCA: // DEX
 			X--
-			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tDEX  Decrement Index X by One\tX-- (%d)\n\n", Opcode, X)
+				fmt.Printf("\n\tOpcode %02X\tDEX  Decrement Index X by One\tX-- (%d)\n", Opcode, X)
 			}
+			PC	+= 1
+			flags_Z(X)
+			flags_N(X)
 
 		// TXS  Transfer Index X to Stack Register
 		//
@@ -187,10 +237,10 @@ func Interpreter() {
 		//      implied       TXS           9A    1     2
 		case 0x9A: // TXS
 			SP	= X
-			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tTXS  Transfer Index X to Stack Register\tSP = X (%d)\n\n", Opcode, SP)
+				fmt.Printf("\n\tOpcode %02X\tTXS  Transfer Index X to Stack Register\tSP = X (%d)\n", Opcode, SP)
 			}
+			PC	+= 1
 
 		// PHA  Push Accumulator on Stack
 		//
@@ -202,13 +252,13 @@ func Interpreter() {
 		//      implied       PHA           48    1     3
 		case 0x48: // PHA
 			Memory[SP]	= A
-			PC	+= 1
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tPHA  Push Accumulator on Stack\tMemory[%02X] = A (%d) | SP--\n\n", Opcode, SP ,Memory[SP])
+				fmt.Printf("\n\tOpcode %02X\tPHA  Push Accumulator on Stack\tMemory[%02X] = A (%d) | SP--\n", Opcode, SP ,Memory[SP])
 			}
+			PC	+= 1
 			SP--
 
-		// BNE  Branch on Result not Zero (Accumulator)
+		// BNE  Branch on Result not Zero
 		//
 		//      branch on Z = 0                  N Z C I D V
 		//                                       - - - - - -
@@ -216,26 +266,25 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      relative      BNE oper      D0    2     2**
+		// ** The offset is a signed byte, so it can jump a maximum of 127 bytes forward, or 128 bytes backward. **
 		case 0xD0: // BNE
 
-			// Test A and set or no the Zero Flag
-			if A == 0 {
-				P[1] = 1
-			} else {
-				P[1] = 0
-			}
-
-			// 1    Z     Zero          (0=Nonzero, 1=Zero)
+			// If P[1] = 1 (Zero Flag)
 			if P[1] == 1 {
-				PC	+= 2
+
 				if debug {
-					fmt.Printf("\n\tOpcode %02X\tBNE  Branch on Result not Zero (Accumulator)\tZero Flag(P1) = %d | PC += 2\n\n", Opcode ,Memory[SP])
+					fmt.Printf("\n\tOpcode %02X\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode , Memory[SP])
 				}
+				PC	+= 2
 
 			} else {
-				PC = uint16(Memory[PC+1])
+				offset := DecodeTwoComplement(Memory[PC+1])
+				//fmt.Printf("\tOffset(%02X): %d \n", Memory[PC+1], offset)
+
+				// Increment PF + the offset
+				PC += 2 + uint16(offset)
 				if debug {
-					fmt.Printf("\n\tOpcode %02X\tBNE  Branch on Result not Zero (Accumulator)\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n\n", Opcode ,Memory[SP], PC+1, Memory[PC+1])
+					fmt.Printf("\tOpcode %02X\tBNE  Branch on Result not Zero\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n", Opcode ,Memory[SP], PC, Memory[PC])
 				}
 			}
 
@@ -248,12 +297,13 @@ func Interpreter() {
 			//      --------------------------------------------
 			//      zeropage      STX oper      86    2     3
 			case 0x86: // STX
-				Memory[PC+1]	= X
+
+				Memory[Memory[PC+1]] = X
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tSTX  Store Index X in Memory (zeropage)\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], X)
+				}
 
 				PC	+= 2
-				if debug {
-					fmt.Printf("\n\tOpcode %02X\tSTX  Store Index X in Memory (zeropage)\tMemory[%02X] = X (%d)\n\n", Opcode, PC+1, X)
-				}
 
 			// LDA  Load Accumulator with Memory (immidiate)
 			//
@@ -264,13 +314,27 @@ func Interpreter() {
 			//      --------------------------------------------
 			//      immidiate     LDA #oper     A9    2     2
 			case 0xA9: // LDA (immidiate)
+
 				A = Memory[PC+1]
-
-				PC	+= 2
 				if debug {
-					fmt.Printf("\n\tOpcode %02X\tLDA  Load Accumulator with Memory (immidiate)\tA = Memory[%02X] (%d)\n\n", Opcode, PC+1, A)
+					fmt.Printf("\n\tOpcode %02X\tLDA  Load Accumulator with Memory (immidiate)\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], A)
 				}
+				PC	+= 2
 
+			// STA  Store Accumulator in Memory (zeropage)
+			//
+			//      A -> M                           N Z C I D V
+			//                                       - - - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      zeropage      STA oper      85    2     3
+			case 0x85: // STA (zeropage)
+				Memory[Memory[PC+1]] = A
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tSTA  Store Accumulator in Memory (zeropage)\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[Memory[PC+1]] )
+				}
+				PC	+= 2
 
 		default:
 			fmt.Printf("\n\tOPCODE %X NOT IMPLEMENTED!\n\n", Opcode)
