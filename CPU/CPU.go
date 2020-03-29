@@ -72,8 +72,7 @@ func Reset() {
 }
 
 func Show() {
-	// fmt.Printf("Cycle: %d\tOpcode: %04X(%04X)\tPC: %d(0x%X)\tSP: %d\tStack: %d\tV: %d\tI: %d\tDT: %d\tST: %d\tKey: %d\n", Cycle, Opcode, Opcode & 0xF000, PC, PC,  SP, Stack, V, I, DelayTimer, SoundTimer, Key)
-	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: %d(0x%X)\tA: %d\tX: %d\tY: %d\tP: %d", Cycle, Opcode, PC, PC, A, X, Y, P)
+	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%X(%d)\tA: %d\tX: 0x%02X\tY: %02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0] )
 }
 
 // CPU Interpreter
@@ -127,10 +126,10 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      immidiate     LDX #oper     A2    2     2
 		case 0xA2: // LDX immidiate
-			Memory[PC+1]	=  X
+			X = Memory[PC+1]
 			PC	+= 2
 			if debug {
-				fmt.Printf("\n\tOpcode %02X\tLDX  Load Index X with Memory (immidiate)\tMemory[%02X]	=  X (%d)\n\n", Opcode, PC+1, X)
+				fmt.Printf("\n\tOpcode %02X\tLDX  Load Index X with Memory (immidiate)\tX = Memory[%02X] (%d)\n\n", Opcode, PC+1, X)
 			}
 
 		// TXA  Transfer Index X to Accumulator
@@ -162,6 +161,116 @@ func Interpreter() {
 			if debug {
 				fmt.Printf("\n\tOpcode %02X\tTAY  Transfer Accumulator to Index Y\tA = X (%d)\n\n", Opcode, X)
 			}
+
+		// DEX  Decrement Index X by One
+		//
+		//      X - 1 -> X                       N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      implied       DEC           CA    1     2
+		case 0xCA: // DEX
+			X--
+			PC	+= 1
+			if debug {
+				fmt.Printf("\n\tOpcode %02X\tDEX  Decrement Index X by One\tX-- (%d)\n\n", Opcode, X)
+			}
+
+		// TXS  Transfer Index X to Stack Register
+		//
+		//      X -> SP                          N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      implied       TXS           9A    1     2
+		case 0x9A: // TXS
+			SP	= X
+			PC	+= 1
+			if debug {
+				fmt.Printf("\n\tOpcode %02X\tTXS  Transfer Index X to Stack Register\tSP = X (%d)\n\n", Opcode, SP)
+			}
+
+		// PHA  Push Accumulator on Stack
+		//
+		//      push A                           N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      implied       PHA           48    1     3
+		case 0x48: // PHA
+			Memory[SP]	= A
+			PC	+= 1
+			if debug {
+				fmt.Printf("\n\tOpcode %02X\tPHA  Push Accumulator on Stack\tMemory[%02X] = A (%d) | SP--\n\n", Opcode, SP ,Memory[SP])
+			}
+			SP--
+
+		// BNE  Branch on Result not Zero (Accumulator)
+		//
+		//      branch on Z = 0                  N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      relative      BNE oper      D0    2     2**
+		case 0xD0: // BNE
+
+			// Test A and set or no the Zero Flag
+			if A == 0 {
+				P[1] = 1
+			} else {
+				P[1] = 0
+			}
+
+			// 1    Z     Zero          (0=Nonzero, 1=Zero)
+			if P[1] == 1 {
+				PC	+= 2
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tBNE  Branch on Result not Zero (Accumulator)\tZero Flag(P1) = %d | PC += 2\n\n", Opcode ,Memory[SP])
+				}
+
+			} else {
+				PC = uint16(Memory[PC+1])
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tBNE  Branch on Result not Zero (Accumulator)\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n\n", Opcode ,Memory[SP], PC+1, Memory[PC+1])
+				}
+			}
+
+			// STX  Store Index X in Memory (zeropage)
+			//
+			//      X -> M                           N Z C I D V
+			//                                       - - - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      zeropage      STX oper      86    2     3
+			case 0x86: // STX
+				Memory[PC+1]	= X
+
+				PC	+= 2
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tSTX  Store Index X in Memory (zeropage)\tMemory[%02X] = X (%d)\n\n", Opcode, PC+1, X)
+				}
+
+			// LDA  Load Accumulator with Memory (immidiate)
+			//
+			//      M -> A                           N Z C I D V
+			//                                       + + - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      immidiate     LDA #oper     A9    2     2
+			case 0xA9: // LDA (immidiate)
+				A = Memory[PC+1]
+
+				PC	+= 2
+				if debug {
+					fmt.Printf("\n\tOpcode %02X\tLDA  Load Accumulator with Memory (immidiate)\tA = Memory[%02X] (%d)\n\n", Opcode, PC+1, A)
+				}
+
 
 		default:
 			fmt.Printf("\n\tOPCODE %X NOT IMPLEMENTED!\n\n", Opcode)
