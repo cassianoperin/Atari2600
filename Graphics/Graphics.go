@@ -132,6 +132,8 @@ func drawGraphics() {
 			imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
 			imd.Line(height)
 			imd.Draw(win)
+			draws ++
+
 
 			line ++
 			CPU.DrawVSYNC = false

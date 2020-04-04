@@ -61,9 +61,9 @@ func readROM(filename string) {
 	}
 
 	//Print Memory
-	for i := 0; i < len(CPU.Memory); i++ {
-		fmt.Printf("%X ", CPU.Memory[i])
-	}
+	// for i := 0; i < len(CPU.Memory); i++ {
+	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// }
 	// os.Exit(2)
 
 
@@ -98,7 +98,7 @@ func main() {
 
 	// Read ROM to the memory
 	//readROM(os.Args[1])
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/3rainbow.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/4playfieldborder.bin")
 
 	// Reset system
 	CPU.Reset()
