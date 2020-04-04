@@ -8,7 +8,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
-	"golang.org/x/image/colornames"
 	"Atari2600/Palettes"
 	"Atari2600/CPU"
 	"image/color"
@@ -28,7 +27,7 @@ var (
 
 	// Emulate CRT Electron beam
 	beam_index		int = 0
-	line_color		= colornames.Red
+
 	//0000-002C - TIA (write)
 	VSYNC 			byte = 0x00		//Vertical Sync Set-Clear
 	VBLANK			byte = 0x01		//Vertical Blank Set-Clear
@@ -38,12 +37,15 @@ var (
 	COLUP1			byte = 0x07
 	COLUPF			byte	= 0x08
 	COLUBK			byte	= 0x09
+	PF0 				byte	= 0x0D		//Playfield Register Byte 0
+	PF1 				byte	= 0x0E		//Playfield Register Byte 1
+	PF2 				byte	= 0x0F		//Playfield Register Byte 2
 	// GRP0				byte = 0			// Graphic Player 0 position
 	// GRP1				byte = 0			// Graphic Player 1 position
 	// Flag used to put different colors in scores
 	drawing_score		bool = false
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
-	playfield			[40]int			//Improve to binary
+	playfield			[40]byte			//Improve to binary
 	pixelSize			float64 = 4.0
 
 	// CTRLPLF (8 bits register)
@@ -67,10 +69,6 @@ var (
 
 	// Flag used to dont draw vblank before VSYNC
 	vsync_started		bool = false
-
-
-
-
 
 )
 
@@ -96,12 +94,35 @@ func renderGraphics() {
 	}
 }
 
+func readPF0() {
+	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF0])
+	for i := 4 ; i < 8 ; i++ {
+		playfield[i-4] = ( CPU.Memory[PF0] >> byte(i) ) & 0x01
+	}
+	// fmt.Printf("%d", playfield)
+
+}
+
+func readPF1() {
+	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF1])
+	for i := 0 ; i < 8 ; i++ {
+		playfield[11-i] = ( CPU.Memory[PF1] >> byte(i) ) & 0x01
+	}
+	// fmt.Printf("%d", playfield)
+}
+
+func readPF2() {
+	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF2])
+	for i := 0 ; i < 8 ; i++ {
+		playfield[12+i] = ( CPU.Memory[PF2] >> byte(i) ) & 0x01
+	}
+	// fmt.Printf("%d", playfield)
+}
 
 
 func drawGraphics() {
 
 	imd	= imdraw.New(nil)
-
 
 	// Draw conten on every WSYNC from CPU
 	if CPU.DrawVSYNC {
@@ -125,17 +146,21 @@ func drawGraphics() {
 				fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
 			}
 
-			R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			// R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+			// imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			//
+			// imd.Push(pixel.V(	0				, float64(232-line)*height ))
+			// imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
+			// imd.Line(height)
+			// imd.Draw(win)
+			// draws ++
 
-			imd.Push(pixel.V(	0				, float64(232-line)*height ))
-			imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
-			imd.Line(height)
-			imd.Draw(win)
-			draws ++
+			readPF0()
+			readPF1()
+			readPF2()
+			drawVisibleModeLine()
 
 
-			line ++
 			CPU.DrawVSYNC = false
 		}
 
@@ -143,104 +168,17 @@ func drawGraphics() {
 	}
 
 
-	// // If Vertical Sync is set
-	// if CPU.Memory[VSYNC] == 2 {
-	// 	// Draw when CPU sends the instruction
-	//
-	// }
-	//
-
-	// // Mostrar agora o VBLANK tb
-	// if CPU.Memory[VBLANK] == 2 {
-	// 	if CPU.DrawVSYNC {
-	// 		fmt.Printf("\nLine: %d\VBLANK: %02X", line, CPU.Memory[VSYNC])
-	// 	}
-	// }
-
-	// if CPU.Memory[VBLANK] == 2 {
-	// 	if CPU.Memory[VSYNC] == 2 {
-	// 		if CPU.Memory[WSYNC] == 2 {
-	// 			vsync_started = true
-	// 		}
-	// 	} else if CPU.Memory[VBLANK] == 2 {
-	// 		if CPU.Memory[WSYNC] == 2 {
-	// 			if vsync_started {
-	// 				fmt.Printf("\nVBLANK: %02X", CPU.Memory[VBLANK])
-	// 			}
-	// 		}
-	// 	}
-	// } else {
-	// 	vsync_started = false
-	// }
-
-	// if CPU.Memory[VSYNC] == 2 {
-	//
-	// } else if CPU.Memory[VBLANK] == 2 {
-	// }
-	// // Skip draw ultil Visible Area
-	// if line < 40 {
-	//
-	// 	// 3 first lines = VERTICAL SYNC
-	// 	if (line < 2) {
-	// 		if
-	// 		if debug {
-	// 			fmt.Printf("Line: %d\t VERTICAL SYNC\n", line)
-	// 		}
-	// 	} else if (line == 2) {
-	//
-	// 		drawLine()
-	//
-	// 	// Next 37 = VERTICAL BLANK
-	// 	} else if line < 39 {
-	// 		if debug {
-	// 			fmt.Printf("Line: %d\t VERTICAL BLANK\n", line)
-	// 		}
-	// 	} else if line == 39 {
-	// 		if debug {
-	// 			fmt.Printf("Line: %d\t VERTICAL BLANK - Draw Line\n", line)
-	// 		}
-	//
-	// 		drawLine()
-	//
-	// 		// Count draw operations number per second
-	// 		draws ++
-	// 	}
-	//
-	// 	line ++
-	//
-	// // DRAW VISIBLE LINES
-	// } else if line < 232 {
-	//
-	// 	// Draw 3 pixels each CPU Cycle
-	// 	// NTSC TV specification
-	// 	// NO PLAYFIELD DRAW IMPLEMENTED
-	// 	if draw_mode_hw {
-	// 		drawVisibleModeHW()
-	// 	// Draw line mode (Optimized)
-	// 	} else {
-	// 		drawVisibleModeLine()
-	// 	}
-	//
-	//
-	// // OVERSCAN - Last 30 lines
-	// } else if line == 232 {
-	// 	if debug {
-	// 		fmt.Printf("Line: %d\t OVERSCAN - Draw Line\n", line)
-	// 	}
-	//
-	// 	drawLine()
-	//
-	// 	line ++
-	// } else {
-	// 	if debug {
-	// 		fmt.Printf("Line: %d\t OVERSCAN\n", line)
-	// 	}
-	// }
 
 
-	// draws ++
-	// win.Update()
-	// Every Cycle Control the clock!!!
+
+
+
+
+
+
+
+
+
 	select {
 	case <-CPU.ScreenRefresh.C:
 	// When ticker run (60 times in a second, check de DelayTimer)
@@ -251,8 +189,6 @@ func drawGraphics() {
 			// No timer to handle
 	}
 
-	//CPU.DrawVSYNC = false
-	//fmt.Printf("\tCycle: %d\tLine: %d\n", CPU.Cycle, line)
 
 }
 
@@ -296,10 +232,6 @@ func Run() {
 			//fmt.Printf("Beam index: %d\n", beam_index)
 
 
-			//drawPlayfield()
-			//drawScore()
-
-
 			if !CPU.Pause {
 				if !CPU.DrawVSYNC {
 					CPU.Interpreter()
@@ -341,28 +273,114 @@ func Run() {
 
 
 
-
-
-
-
-
-
-
-
-func drawLine() {
+func drawVisibleModeLine() {
 	if debug {
-		fmt.Printf("Line: %d\t VERTICAL SYNC - Draw Line\n", line)
+		fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
 	}
 
-	imd.Color = line_color
+	// // 1 = Reflect first 20 sprites to the last 20
+	// if D0_Reflect {
+	// 	j := 0
+	// 	for i := len(playfield) - 1; i > 19  ; i-- {
+	// 		playfield[i] = playfield[j]
+	// 		j++
+	// 	}
+	// // Duplicate last 20 sprites with first 20
+	// }  else {
+	// 	for i := 20 ; i < len(playfield) ; i++ {
+	// 		playfield[i] = playfield[i-20]
+	// 	}
+	// }
 
-	imd.Push(pixel.V(	0				, float64(line_max-line)*height ))
-	imd.Push(pixel.V(	win.Bounds().W()	, float64(line_max-line)*height ))
+	// Value that Im looking for repetitions
+	search := playfield[0]
+	// Where to draw
+	index := 0
+	count := 1
+
+	for i := 0 ; i < len(playfield) -1; i++ {
+
+		if playfield[i+1] == search {
+			// fmt.Printf("\nI: %d\tRepeated Number\n",i)
+			count++
+		} else {
+			// Set color (0: Background | 1: Playfield)
+			if search == 0 {
+				// READ COLUBK (Memory[0x09]) - Set the Background Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+				fmt.Printf("\nBackground 0-39: %d, %d, %d\n\n\n\n\n\n\n\n", R, G, B)
+			} else {
+				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			}
+
+			// // If it is rendering the playfield
+			// if search == 1 {
+			// 	// If it is rendering a scoreboard
+			// 	if drawing_score {
+			// 		// Check D1 status to use color of players in the score
+			// 		if D1_Score {
+			// 			// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
+			// 			R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+			// 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			// 			// Set P1 Color
+			// 			if i<20 {
+			// 				// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
+			// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+			// 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			// 			}
+			// 		}
+			// 	}
+			// }
+
+
+			// R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+			// imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+			//
+			// imd.Push(pixel.V(	0				, float64(232-line)*height ))
+			// imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
+
+			// Draw
+			//fmt.Printf("\ni: %d\tIndex: %d\tNumber of repeated %d: %d\n", i, index, search,count)
+			imd.Push(pixel.V(  (float64(index) *pixelSize)*width								, float64(232-line)*height ))
+			imd.Push(pixel.V(  (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(232-line)*height ))
+			// fmt.Printf("%f %f", (68 + (float64(index) *5)),	(68) + (float64(index) *5) +float64(count*5) )
+			imd.Line(height)
+			count = 1
+			index = i+1
+			search = playfield[i+1]
+		}
+	}
+
+	// Process the last value [19]
+	if search == 0 {
+		// READ COLUBK (Memory[0x09]) - Set the Background Color
+		R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+	} else {
+		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+		R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
+		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+	}
+
+	//fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
+	imd.Push(pixel.V(  (float64(index) *pixelSize)*width								, float64(232-line)*height ))
+	imd.Push(pixel.V(  (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(232-line)*height ))
+	//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
 	imd.Line(height)
+
 	imd.Draw(win)
 	// Count draw operations number per second
 	draws ++
+	line ++
 }
+
+
+
+
+
 
 
 // func drawVisibleModeHW() {
@@ -404,103 +422,4 @@ func drawLine() {
 // 	imd.Draw(win)
 // 	// Count draw operations number per second
 // 	draws ++
-// }
-
-//
-// func drawVisibleModeLine() {
-// 	if debug {
-// 		fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
-// 	}
-//
-// 	// 1 = Reflect first 20 sprites to the last 20
-// 	if D0_Reflect {
-// 		j := 0
-// 		for i := len(playfield) - 1; i > 19  ; i-- {
-// 			playfield[i] = playfield[j]
-// 			j++
-// 		}
-// 	// Duplicate last 20 sprites with first 20
-// 	}  else {
-// 		for i := 20 ; i < len(playfield) ; i++ {
-// 			playfield[i] = playfield[i-20]
-// 		}
-// 	}
-//
-// 	// Value that Im looking for repetitions
-// 	search := playfield[0]
-// 	// Where to draw
-// 	index := 0
-// 	count := 1
-//
-// 	for i := 0 ; i < len(playfield) -1; i++ {
-//
-// 		if playfield[i+1] == search {
-// 			// fmt.Printf("\nI: %d\tRepeated Number\n",i)
-// 			count++
-// 		} else {
-// 			// Set color (0: Background | 1: Playfield)
-// 			if search == 0 {
-// 				// READ COLUBK (Memory[0x09]) - Set the Background Color
-// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-// 				imd.Color = pixel.RGB(R, G, B)
-// 				fmt.Printf("\nBackground 0-39: %d, %d, %d\n\n\n\n\n\n\n\n", R, G, B)
-// 			} else {
-// 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
-// 				imd.Color = pixel.RGB(R, G, B)
-// 			}
-//
-// 			// If it is rendering the playfield
-// 			if search == 1 {
-// 				// If it is rendering a scoreboard
-// 				if drawing_score {
-// 					// Check D1 status to use color of players in the score
-// 					if D1_Score {
-// 						// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
-// 						R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
-// 						imd.Color = pixel.RGB(R, G, B)
-// 						// Set P1 Color
-// 						if i<20 {
-// 							// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
-// 							R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
-// 							imd.Color = pixel.RGB(R, G, B)
-// 						}
-// 					}
-// 				}
-// 			}
-//
-// 			// Draw
-// 			//fmt.Printf("\ni: %d\tIndex: %d\tNumber of repeated %d: %d\n", i, index, search,count)
-// 			imd.Push(pixel.V(  (68*width) + (float64(index) *pixelSize)*width								, float64(line_max-line)*height ))
-// 			imd.Push(pixel.V(  (68*width) + (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(line_max-line)*height ))
-// 			//fmt.Printf("%f %f", (68 + (float64(index) *5)),	(68) + (float64(index) *5) +float64(count*5) )
-// 			imd.Line(height)
-// 			count = 1
-// 			index = i+1
-// 			search = playfield[i+1]
-// 		}
-// 	}
-//
-// 	// Process the last value [19]
-// 	if search == 0 {
-// 		// READ COLUBK (Memory[0x09]) - Set the Background Color
-// 		R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-// 		imd.Color = pixel.RGB(R, G, B)
-// 		fmt.Printf("\nBackground: %f, %f, %f\n\n\n\n\n\n\n\n", R, G, B)
-// 	} else {
-// 		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-// 		R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
-// 		imd.Color = pixel.RGB(R, G, B)
-// 	}
-//
-// 	//fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
-// 	imd.Push(pixel.V(  (68*width) + (float64(index) *pixelSize)*width						, float64(line_max-line)*height ))
-// 	imd.Push(pixel.V(  (68*width) + (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(line_max-line)*height ))
-// 	//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
-// 	imd.Line(height)
-//
-// 	imd.Draw(win)
-// 	// Count draw operations number per second
-// 	draws ++
-// 	line ++
 // }
