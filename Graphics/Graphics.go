@@ -29,17 +29,19 @@ var (
 	beam_index		int = 0
 
 	//0000-002C - TIA (write)
-	VSYNC 			byte = 0x00		//Vertical Sync Set-Clear
-	VBLANK			byte = 0x01		//Vertical Blank Set-Clear
-	WSYNC			byte = 0x02		//Wait for Horizontal Blank
-	RSYNC			byte = 0x03		//Reset Horizontal Sync Counter
-	COLUP0			byte = 0x06
-	COLUP1			byte = 0x07
-	COLUPF			byte	= 0x08
-	COLUBK			byte	= 0x09
-	PF0 				byte	= 0x0D		//Playfield Register Byte 0
-	PF1 				byte	= 0x0E		//Playfield Register Byte 1
-	PF2 				byte	= 0x0F		//Playfield Register Byte 2
+	VSYNC 			byte = 0x00		//0000 00x0   Vertical Sync Set-Clear
+	VBLANK			byte = 0x01		//xx00 00x0   Vertical Blank Set-Clear
+	WSYNC			byte = 0x02		//---- ----   Wait for Horizontal Blank
+	RSYNC			byte = 0x03		//---- ----   Reset Horizontal Sync Counter
+	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
+	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
+	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
+	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
+	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
+	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
+	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
+	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
+	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
 	// GRP0				byte = 0			// Graphic Player 0 position
 	// GRP1				byte = 0			// Graphic Player 1 position
 	// Flag used to put different colors in scores
@@ -49,7 +51,7 @@ var (
 	pixelSize			float64 = 4.0
 
 	// CTRLPLF (8 bits register)
-	// D0 = Reflect, false = Repeat
+	// D0 = Reflect the PF, false = Repeat
 	D0_Reflect			bool = false
 	// D1 = Score == Color of the score will be the same as player
 	D1_Score				bool = true
@@ -278,19 +280,22 @@ func drawVisibleModeLine() {
 		fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
 	}
 
-	// // 1 = Reflect first 20 sprites to the last 20
-	// if D0_Reflect {
-	// 	j := 0
-	// 	for i := len(playfield) - 1; i > 19  ; i-- {
-	// 		playfield[i] = playfield[j]
-	// 		j++
-	// 	}
-	// // Duplicate last 20 sprites with first 20
-	// }  else {
-	// 	for i := 20 ; i < len(playfield) ; i++ {
-	// 		playfield[i] = playfield[i-20]
-	// 	}
-	// }
+	fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n%08b\n\n\n\n\n\n\n\n\n\n\n",CPU.Memory[CTRLPF])
+	fmt.Printf("%d\n\n\n\n\n\n\n\n\n\n\n",CPU.Memory[CTRLPF] & 0x01)
+
+	// D0 = 1 = Reflect first 20 sprites of the PF to the last 20
+	if (CPU.Memory[CTRLPF] & 0x01) == 1 {
+		j := 0
+		for i := len(playfield) - 1; i > 19  ; i-- {
+			playfield[i] = playfield[j]
+			j++
+		}
+	// Duplicate last 20 sprites with first 20
+	}  else {
+		for i := 20 ; i < len(playfield) ; i++ {
+			playfield[i] = playfield[i-20]
+		}
+	}
 
 	// Value that Im looking for repetitions
 	search := playfield[0]
@@ -309,7 +314,6 @@ func drawVisibleModeLine() {
 				// READ COLUBK (Memory[0x09]) - Set the Background Color
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-				fmt.Printf("\nBackground 0-39: %d, %d, %d\n\n\n\n\n\n\n\n", R, G, B)
 			} else {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
