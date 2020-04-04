@@ -78,7 +78,7 @@ func Initialize() {
 func Reset() {
 	// Read the Opcode from PC+1 and PC bytes (Little Endian)
 	PC = uint16(Memory[0xFFFD])<<8 | uint16(Memory[0xFFFC])
-	fmt.Printf("\nRESET: %04X\n",PC)
+	//fmt.Printf("\nRESET: %04X\n",PC)
 }
 
 
@@ -377,7 +377,7 @@ func Interpreter() {
 				// if A == 0x02 {
 					if Memory[PC+1] == 2 {
 						DrawVSYNC = true
-						fmt.Printf("\nDrawsSync")
+						// fmt.Printf("\nDrawsSync")
 					}
 				// }
 

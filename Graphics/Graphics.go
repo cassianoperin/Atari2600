@@ -11,6 +11,7 @@ import (
 	"golang.org/x/image/colornames"
 	"Atari2600/Palettes"
 	"Atari2600/CPU"
+	"image/color"
 
 )
 
@@ -106,29 +107,31 @@ func drawGraphics() {
 	if CPU.DrawVSYNC {
 		// 3 lines VSYNC
 		if CPU.Memory[VBLANK] == 2 && CPU.Memory[VSYNC] == 2  {
-			fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[VSYNC])
-			// drawLine()
+			if debug {
+				fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[VSYNC])
+			}
 			line ++
 			CPU.DrawVSYNC = false
 		// 37 lines VBLANK
 		} else if CPU.Memory[VBLANK] == 2 {
-			fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[VBLANK])
-			// drawLine()
+			if debug {
+				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[VBLANK])
+			}
 			line ++
 			CPU.DrawVSYNC = false
 		// 192 Visible Area
 		} else {
-			fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
+			if debug {
+				fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
+			}
 
 			R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-			imd.Color = pixel.RGB(R, G, B)
-			//imd.Color = line_color
+			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 			imd.Push(pixel.V(	0				, float64(232-line)*height ))
 			imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
 			imd.Line(height)
 			imd.Draw(win)
-
 
 			line ++
 			CPU.DrawVSYNC = false
@@ -252,7 +255,6 @@ func drawGraphics() {
 }
 
 
-
 func Run() {
 
 	//imd := imdraw.New(nil)
@@ -308,7 +310,9 @@ func Run() {
 
 			// When finished drawing the screen, reset and start a new frame
 			if line == line_max + 1 {
-				fmt.Printf("\nFinished the screen height, start a new frame.\n")
+				if debug {
+					fmt.Printf("\nFinished the screen height, start a new frame.\n")
+				}
 				line = 1
 				frames ++
 			}

@@ -1,9 +1,5 @@
 package main
 
-
-
-
-
 import (
 	"os"
 	"log"
@@ -74,12 +70,10 @@ func readROM(filename string) {
 }
 
 func checkArgs() {
-
 	if len(os.Args) != 2 {
 		fmt.Printf("Usage: %s ROM_FILE\n\n", os.Args[0] )
 		os.Exit(2)
 	}
-
 }
 
 func testFile(filename string) {
@@ -111,4 +105,5 @@ func main() {
 
 	// Start Window System and draw Graphics
 	pixelgl.Run(Graphics.Run)
+
 }
