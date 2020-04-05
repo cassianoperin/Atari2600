@@ -309,24 +309,22 @@ func drawVisibleModeLine() {
 			}
 
 
-			// // If it is rendering the playfield
-			// if search == 1 {
-			// 	// If it is rendering a scoreboard
-			// 	if drawing_score {
-			// 		// Check D1 status to use color of players in the score
-			// 		if D1_Score {
-			// 			// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
-			// 			R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
-			// 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			// 			// Set P1 Color
-			// 			if i<20 {
-			// 				// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
-			// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
-			// 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			// 			}
-			// 		}
-			// 	}
-			// }
+			// If it is rendering the playfield
+			if search == 1 {
+				// Check D1 status to use color of players in the score
+				if (CPU.Memory[CTRLPF] & 0x02) >> 1 == 1  {
+					// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
+					R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					// Set P1 Color
+					if i < 20 {
+						// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
+						R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+				}
+
+			}
 
 			// Draw
 			//fmt.Printf("\ni: %d\tIndex: %d\tNumber of repeated %d: %d\n", i, index, search,count)
