@@ -428,6 +428,8 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
 				}
 
+				Beam_index += 3
+
 				// Wait for a new line and authorize graphics to draw the line
 				// Wait for Horizontal Blank to draw the new line
 				if Memory[PC+1] == WSYNC {
@@ -436,19 +438,34 @@ func Interpreter() {
 				}
 
 				if Memory[PC+1] == GRP0 {
-					DrawP0 = true
-					DrawP0VertPosition = Beam_index
-					// fmt.Printf("\nDraw P0")
+					if Memory[GRP0] != 0 {
+						// for i:=0 ; i <=7 ; i++{
+						// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
+						// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
+						// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
+						// os.Exit(2)
+						DrawP0 = true
+						DrawP0VertPosition = Beam_index
+						// fmt.Printf("\nDraw P0")
+					}
+
 				}
 
 				if Memory[PC+1] == GRP1 {
-					DrawP1 = true
-					DrawP1VertPosition = Beam_index
-					// fmt.Printf("\nDraw P0")
+					if Memory[GRP1] != 0 {
+						// for i:=0 ; i <=7 ; i++{
+						// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
+						// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
+						// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
+						// os.Exit(2)
+						DrawP1 = true
+						DrawP1VertPosition = Beam_index
+						// fmt.Printf("\nDraw P0")
+					}
+
 				}
 
 				PC += 2
-				Beam_index += 3
 
 
 			// LDY  Load Index Y with Memory (immidiate)
@@ -501,6 +518,8 @@ func Interpreter() {
 			case 0xB9: // LDA (absolute,Y)
 				tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
 				A = Memory[tmp + uint16(Y)]
+				// fmt.Printf("\n\n\n%08b", A)
+				// fmt.Printf("\n\n\n%d", A)
 				if debug {
 					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
 				}
@@ -539,7 +558,7 @@ func Interpreter() {
 				tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
 				//fmt.Printf("\n%04X\n",tmp)
 				if debug {
-					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[tmp](%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp])
+					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[%d](%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp])
 				}
 				PC = tmp
 				Beam_index += 3

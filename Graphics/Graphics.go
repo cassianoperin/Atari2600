@@ -25,9 +25,6 @@ var (
 	line				int = 1
 	line_max			int = 262
 
-	// Emulate CRT Electron beam
-	beam_index		int = 0
-
 	//0000-002C - TIA (write)
 	VSYNC 			byte = 0x00		//0000 00x0   Vertical Sync Set-Clear
 	VBLANK			byte = 0x01		//xx00 00x0   Vertical Blank Set-Clear
@@ -125,18 +122,14 @@ func drawGraphics() {
 			if debug {
 				fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[VSYNC])
 			}
-			line ++
-			CPU.DrawLine = false
-			CPU.Beam_index = 0
+
 
 		// 37 lines VBLANK
 		} else if CPU.Memory[VBLANK] == 2 {
 			if debug {
 				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[VBLANK])
 			}
-			line ++
-			CPU.DrawLine = false
-			CPU.Beam_index = 0
+
 
 		// 192 Visible Area
 		} else if line <= 232 {
@@ -148,23 +141,46 @@ func drawGraphics() {
 			readPF1()
 			readPF2()
 
-			// * Control the line addiction inside drawVisibleModeLine function
 			drawVisibleModeLine()
-			drawPlayer0()
+			// drawPlayer0()
 
-			CPU.DrawLine = false
-			CPU.Beam_index = 0
 
 		} else {
 			if debug {
 				fmt.Printf("\nLine: %d\tOVERSCAN", line)
 			}
-			line ++
-			CPU.DrawLine = false
-			CPU.Beam_index = 0
+
 		}
 
+		line ++
+		CPU.DrawLine = false
+		CPU.Beam_index = 0
+		// CPU.Beam_index = 0
 	}
+
+	if CPU.DrawP0 {
+		line --
+
+		drawPlayer0()
+		line ++
+		// CPU.DrawLine = false
+
+		CPU.DrawP0 = false
+		CPU.DrawP0VertPosition = 0
+	}
+
+	if CPU.DrawP1 {
+		line --
+
+		drawPlayer1()
+		line ++
+		// CPU.DrawLine = false
+
+		CPU.DrawP1 = false
+		CPU.DrawP1VertPosition = 0
+	}
+
+
 
 	select {
 	case <-CPU.ScreenRefresh.C:
@@ -181,27 +197,72 @@ func drawGraphics() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-		R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
-		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
+		fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
+		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		for i:=0 ; i <=7 ; i++{
+			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
+			//fmt.Printf("%d",bit)
 
-		// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
-		// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
-		// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
+			if bit == 1 {
+				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-		fmt.Printf("\nDrawP0VertPosition: %d\n", CPU.DrawP0VertPosition)
-		imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3) )*width								, float64(232-line)*height ))
-		imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3) )*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
-		//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
-		imd.Line(height)
+				// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
+				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
+				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
 
-		imd.Draw(win)
-		// Count draw operations number per second
-		draws ++
+				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
+				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
+				imd.Line(height)
+
+				imd.Draw(win)
+				// Count draw operations number per second
+				draws ++
+				// CPU.Pause = true
+			}
+		}
 		CPU.DrawP0 = false
 	}
 }
 
+
+func drawPlayer1() {
+	if CPU.DrawP1 {
+		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP1: %08b\n\n\n", CPU.Memory[GRP1])
+		fmt.Printf("\nPosition: %d", CPU.DrawP1VertPosition)
+		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		for i:=0 ; i <=7 ; i++{
+			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
+			//fmt.Printf("%d",bit)
+
+			if bit == 1 {
+				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+				// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
+				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
+				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
+
+				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
+				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
+				imd.Line(height)
+
+				imd.Draw(win)
+				// Count draw operations number per second
+				draws ++
+				// CPU.Pause = true
+			}
+		}
+		CPU.DrawP1 = false
+	}
+}
 
 
 func Run() {
@@ -226,8 +287,6 @@ func Run() {
 			if CPU.Pause {
 				CPU.Pause = false
 				fmt.Printf("\t\tPAUSE mode Disabled\n")
-			 	// drawGraphics()
-				// win.Update()
 				time.Sleep(500 * time.Millisecond)
 			} else {
 				CPU.Pause = true
@@ -236,17 +295,27 @@ func Run() {
 			}
 		}
 
+		// Step Forward
+		if win.Pressed(pixelgl.KeyI) {
+			if CPU.Pause {
+				fmt.Printf("\t\tStep Forward\n")
+				CPU.Interpreter()
+				time.Sleep(400 * time.Millisecond)
+			}
+		}
+
+
 		// Every Cycle Control the clock!!!
 		select {
 		case <-CPU.Clock.C:
 
 
 			if !CPU.Pause {
-				if !CPU.DrawLine {
+				// if !CPU.DrawLine {
 					CPU.Interpreter()
-				} else {
-					fmt.Printf("\nWAIT FOR WSYNC!!!!")
-				}
+				// } else {
+					// fmt.Printf("\nWAIT FOR WSYNC!!!!")
+				// }
 
 			}
 			// DRAW
@@ -330,7 +399,7 @@ func drawVisibleModeLine() {
 					R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
 					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					// Set P1 Color
-					if i < 20 {
+					if i >= 20 {
 						// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
 						R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
@@ -371,5 +440,4 @@ func drawVisibleModeLine() {
 	imd.Draw(win)
 	// Count draw operations number per second
 	draws ++
-	line ++
 }
