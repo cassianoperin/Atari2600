@@ -37,26 +37,22 @@ var (
 	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
 	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
 	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
+	// CTRLPLF (8 bits register)
 	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
+	// D1 = Score == Color of the score will be the same as player
+	// D2 = Priority == Player behind the playfield
+	// D4-5 = Ball Size (1, 2, 4, 8)
 	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
 	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
 	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
 	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
-	// GRP0				byte = 0			// Graphic Player 0 position
-	// GRP1				byte = 0			// Graphic Player 1 position
-	// Flag used to put different colors in scores
-	drawing_score		bool = false
+	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
+	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
+	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
+	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
 	playfield			[40]byte			//Improve to binary
-	pixelSize			float64 = 4.0
-
-	// CTRLPLF (8 bits register)
-	// D0 = Reflect the PF, false = Repeat
-	D0_Reflect			bool = false
-	// D1 = Score == Color of the score will be the same as player
-	D1_Score				bool = true
-	// D2 = Priority == Player behind the playfield
-	// D4-5 = Ball Size (1, 2, 4, 8)
+	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
 
 	// FPS count
 	frames			= 0
@@ -66,11 +62,7 @@ var (
 	draw_mode_hw		bool = true
 
 	// Debug mode
-	debug			bool = false
-
-
-	// Flag used to dont draw vblank before VSYNC
-	vsync_started		bool = false
+	debug			bool = true
 
 )
 
@@ -127,23 +119,27 @@ func drawGraphics() {
 	imd	= imdraw.New(nil)
 
 	// Draw conten on every WSYNC from CPU
-	if CPU.DrawVSYNC {
+	if CPU.DrawLine {
 		// 3 lines VSYNC
 		if CPU.Memory[VBLANK] == 2 && CPU.Memory[VSYNC] == 2  {
 			if debug {
 				fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[VSYNC])
 			}
 			line ++
-			CPU.DrawVSYNC = false
+			CPU.DrawLine = false
+			CPU.Beam_index = 0
+
 		// 37 lines VBLANK
 		} else if CPU.Memory[VBLANK] == 2 {
 			if debug {
 				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[VBLANK])
 			}
 			line ++
-			CPU.DrawVSYNC = false
+			CPU.DrawLine = false
+			CPU.Beam_index = 0
+
 		// 192 Visible Area
-		} else {
+		} else if line <= 232 {
 			if debug {
 				fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
 			}
@@ -151,26 +147,24 @@ func drawGraphics() {
 			readPF0()
 			readPF1()
 			readPF2()
+
+			// * Control the line addiction inside drawVisibleModeLine function
 			drawVisibleModeLine()
+			drawPlayer0()
 
+			CPU.DrawLine = false
+			CPU.Beam_index = 0
 
-			CPU.DrawVSYNC = false
+		} else {
+			if debug {
+				fmt.Printf("\nLine: %d\tOVERSCAN", line)
+			}
+			line ++
+			CPU.DrawLine = false
+			CPU.Beam_index = 0
 		}
 
-
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 	select {
 	case <-CPU.ScreenRefresh.C:
@@ -184,6 +178,30 @@ func drawGraphics() {
 
 
 }
+
+func drawPlayer0() {
+	if CPU.DrawP0 {
+		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+		R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+		// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
+		// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
+		// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
+
+		fmt.Printf("\nDrawP0VertPosition: %d\n", CPU.DrawP0VertPosition)
+		imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3) )*width								, float64(232-line)*height ))
+		imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3) )*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
+		//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
+		imd.Line(height)
+
+		imd.Draw(win)
+		// Count draw operations number per second
+		draws ++
+		CPU.DrawP0 = false
+	}
+}
+
 
 
 func Run() {
@@ -221,15 +239,13 @@ func Run() {
 		// Every Cycle Control the clock!!!
 		select {
 		case <-CPU.Clock.C:
-			//fmt.Printf("CPU Cycle: %d\n", cycle)
-			//fmt.Printf("Beam index: %d\n", beam_index)
 
 
 			if !CPU.Pause {
-				if !CPU.DrawVSYNC {
+				if !CPU.DrawLine {
 					CPU.Interpreter()
 				} else {
-					fmt.Printf("\nWAIT FOR SYNC!!!!")
+					fmt.Printf("\nWAIT FOR WSYNC!!!!")
 				}
 
 			}
@@ -267,9 +283,6 @@ func Run() {
 
 
 func drawVisibleModeLine() {
-	if debug {
-		fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
-	}
 
 	// D0 = 1 = Reflect first 20 sprites of the PF to the last 20
 	if (CPU.Memory[CTRLPF] & 0x01) == 1 {
@@ -360,50 +373,3 @@ func drawVisibleModeLine() {
 	draws ++
 	line ++
 }
-
-
-
-
-
-
-
-// func drawVisibleModeHW() {
-// 	// Dont draw first 68 pixels (Horizontal Blank)
-// 	if ( beam_index > 67 ) {
-// 		if debug {
-// 			fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
-// 		}
-//
-//
-// 		// 3 pixels per cycle
-// 		for i := 0 ; i < 3 ; i++ {
-// 			//fmt.Printf("Line: %d, i: %d | beam_index: %d\n", line, i, beam_index)
-//
-// 			// Test if the beam is inside the X range and draw
-// 			if ( beam_index + i < int(sizeX) ) {
-// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-// 				imd.Color = pixel.RGB(R, G, B)
-// 				imd.Push(pixel.V( width*float64(beam_index + i)        , height*float64(line_max-line) ))
-// 				imd.Push(pixel.V( width*float64(beam_index + i) + width, height*float64(line_max-line) ))
-// 				imd.Line(height)
-// 			}
-// 		}
-//
-// 		// Each CPU Cycle, sends 3 pixels to be drawed
-// 		if (beam_index + 3 < int(sizeX)) {
-// 			beam_index += 3
-// 		} else {
-// 			// Start drawing a new line
-// 			beam_index = 0
-// 			line ++
-// 		}
-//
-// 	// Skip drawing in Horizontal Blank
-// 	} else {
-// 		beam_index ++
-// 	}
-//
-// 	imd.Draw(win)
-// 	// Count draw operations number per second
-// 	draws ++
-// }

@@ -35,6 +35,13 @@ var (
 	// 1    Z     Zero          (0=Nonzero, 1=Zero)
 	// 0    C     Carry         (0=No Carry, 1=Carry)
 
+	// Memory Positions
+	WSYNC		byte = 0x02		//---- ----   Wait for Horizontal Blank
+	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
+	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
+	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
+	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
+
 	// CPU Variables
 	Opcode		uint16		// CPU Operation Code
 	Cycle		uint16		// CPU Cycle
@@ -44,13 +51,26 @@ var (
 	ScreenRefresh		*time.Ticker	// Screen Refresh
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
+
+
+
+	// *************** Personal Control Flags *************** //
+	// Beam index to control where to draw objects using cpu cycles
+	Beam_index	byte = 0
+	// Instruct Graphics to draw a new line
+	DrawLine		bool = false
+	// Instruct Graphics to draw Player 0 sprite
+	DrawP0		bool = false
+	DrawP0VertPosition	byte = 0
+	// Instruct Graphics to draw Player 1 sprite
+	DrawP1		bool = false
+	DrawP1VertPosition	byte = 0
+
 	// Pause
 	Pause		bool = false
 
-	debug 		bool = true
-
-	DrawVSYNC		bool = false
-
+	//Debug
+	debug 		bool = false
 )
 
 
@@ -176,6 +196,24 @@ func Interpreter() {
 			if debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tSEI  Set Interrupt Disable Status.\tP[2]=1\n", Opcode)
 			}
+			Beam_index += 2
+
+		// SEC  Set Carry Flag
+		//
+		// 1 -> C                           N Z C I D V
+		//                                  - - 1 - - -
+		//
+		// addressing    assembler    opc  bytes  cyles
+		// --------------------------------------------
+		// implied       SEC           38    1     2
+		case 0x38: // SEC
+			P[0]	=  1
+			PC += 1
+			if debug {
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tSEC  Set Carry Flag.\tP[0]=1\n", Opcode)
+			}
+			Beam_index += 2
+
 
 		// CLD  Clear Decimal Mode
 		//
@@ -191,6 +229,8 @@ func Interpreter() {
 			if debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tCLD  Clear Decimal Mode.\tP[3]=0\n", Opcode)
 			}
+			Beam_index += 2
+
 
 		// LDX  Load Index X with Memory
 		//
@@ -209,6 +249,7 @@ func Interpreter() {
 
 			flags_Z(X)
 			flags_N(X)
+			Beam_index += 2
 
 
 		// TXA  Transfer Index X to Accumulator
@@ -227,6 +268,8 @@ func Interpreter() {
 			PC += 1
 			flags_Z(A)
 			flags_N(A)
+			Beam_index += 2
+
 
 		// TAY  Transfer Accumulator to Index Y
 		//
@@ -244,6 +287,8 @@ func Interpreter() {
 			PC += 1
 			flags_Z(Y)
 			flags_N(Y)
+			Beam_index += 2
+
 
 		// DEX  Decrement Index X by One
 		//
@@ -261,6 +306,8 @@ func Interpreter() {
 			PC += 1
 			flags_Z(X)
 			flags_N(X)
+			Beam_index += 2
+
 
 		// TXS  Transfer Index X to Stack Register
 		//
@@ -276,6 +323,8 @@ func Interpreter() {
 				fmt.Printf("\n\tOpcode %02X [1 bytes]\tTXS  Transfer Index X to Stack Pointer.\tSP = X (%d)\n", Opcode, SP)
 			}
 			PC += 1
+			Beam_index += 2
+
 
 		// PHA  Push Accumulator on Stack
 		//
@@ -292,6 +341,8 @@ func Interpreter() {
 			}
 			PC += 1
 			SP--
+			Beam_index += 3
+
 
 		// BNE  Branch on Result not Zero
 		//
@@ -322,6 +373,8 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n", Opcode, Memory[PC+1], Memory[SP], PC, Memory[PC])
 				}
 			}
+			Beam_index += 3 // ************** PODE VARIAR!!! IMPLEMENTAR **************
+
 
 			// STX  Store Index X in Memory (zeropage)
 			//
@@ -339,6 +392,8 @@ func Interpreter() {
 				}
 
 				PC += 2
+				Beam_index += 3
+
 
 			// LDA  Load Accumulator with Memory (immidiate)
 			//
@@ -355,6 +410,8 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (immidiate).\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], A)
 				}
 				PC += 2
+				Beam_index += 2
+
 
 			// STA  Store Accumulator in Memory (zeropage)
 			//
@@ -370,16 +427,29 @@ func Interpreter() {
 				if debug {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
 				}
-				// Force VSync
-				// if A == 0x02 {
-					if Memory[PC+1] == 2 {
-						DrawVSYNC = true
-						// fmt.Printf("\nDrawsSync")
-					}
-				// }
 
+				// Wait for a new line and authorize graphics to draw the line
+				// Wait for Horizontal Blank to draw the new line
+				if Memory[PC+1] == WSYNC {
+					DrawLine = true
+					// fmt.Printf("\nDraw New line")
+				}
+
+				if Memory[PC+1] == GRP0 {
+					DrawP0 = true
+					DrawP0VertPosition = Beam_index
+					// fmt.Printf("\nDraw P0")
+				}
+
+				if Memory[PC+1] == GRP1 {
+					DrawP1 = true
+					DrawP1VertPosition = Beam_index
+					// fmt.Printf("\nDraw P0")
+				}
 
 				PC += 2
+				Beam_index += 3
+
 
 			// LDY  Load Index Y with Memory (immidiate)
 			//
@@ -398,6 +468,8 @@ func Interpreter() {
 
 				flags_Z(X)
 				flags_N(X)
+				Beam_index += 2
+
 
 			// STY  Store Index Y in Memory (zeropage)
 			//
@@ -415,6 +487,8 @@ func Interpreter() {
 				}
 
 				PC += 2
+				Beam_index += 3
+
 
 			// LDA  Load Accumulator with Memory (absolute,Y)
 			//
@@ -433,6 +507,8 @@ func Interpreter() {
 				PC += 3
 				flags_Z(A)
 				flags_N(X)
+				Beam_index += 4
+
 
 			// STA  Store Accumulator in Memory (zeropage,X)
 			//
@@ -448,6 +524,7 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage, X).\tMemory[%02X] = A (%d)\n", Opcode,Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
 				}
 				PC += 2
+				Beam_index += 4
 
 
 			// JMP  Jump to New Location (absolute)
@@ -465,9 +542,9 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[tmp](%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp])
 				}
 				PC = tmp
+				Beam_index += 3
 
 			// FF (Filled ROM)
-			// NOT CONFIRMED!!!!
 			case 0xFF:
 				if debug {
 					fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
@@ -490,6 +567,8 @@ func Interpreter() {
 				// IRQ Enabled
 				P[2] = 1
 				Break()
+				Beam_index += 7
+
 
 			// INY  Increment Index Y by One
 			//
@@ -507,6 +586,8 @@ func Interpreter() {
 				flags_Z(A)
 				flags_N(X)
 				PC++
+				Beam_index += 2
+
 
 			// CPY  Compare Memory and Index Y
 			//
@@ -519,8 +600,6 @@ func Interpreter() {
 			//
 			//
 			case 0xC0: //CPY
-
-			fmt.Printf("PC+1: %d\n", PC+1)
 
 				tmp := Y - Memory[PC+1]
 
@@ -537,6 +616,7 @@ func Interpreter() {
 				flags_C(Y,Memory[PC+1])
 
 				PC += 2
+				Beam_index += 2
 
 
 			// CPY  Compare Memory and Index Y (zeropage)
@@ -548,8 +628,6 @@ func Interpreter() {
 			//      --------------------------------------------
 			//      zeropage      CPY oper      C4    2     3
 			case 0xC4: //CPY
-
-			fmt.Printf("PC+1: %d\n", PC+1)
 
 				tmp := Y - Memory[Memory[PC+1]]
 
@@ -566,6 +644,32 @@ func Interpreter() {
 				flags_C(Y,Memory[PC+1])
 
 				PC += 2
+				Beam_index += 3
+
+
+			// SBC  Subtract Memory from Accumulator with Borrow
+			//
+		     // A - M - C -> A                   N Z C I D V
+		     //                                  + + + - - +
+			//
+		     // addressing    assembler    opc  bytes  cyles
+		     // --------------------------------------------
+		     // zeropage      SBC oper      E5    2     3
+			case 0xE5: // SBC
+				fmt.Printf("\n%d", A)
+				fmt.Printf("\n%d", Memory[Memory[PC+1]])
+				A = A - Memory[Memory[PC+1]] - 1
+				fmt.Printf("\n%d", A)
+
+				// Memory[Memory[PC+1]] = X
+				if debug {
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\t xxx\n", Opcode, Memory[PC+1])
+				}
+				os.Exit(2)
+				// PC += 2
+
+
+
 
 
 		default:
