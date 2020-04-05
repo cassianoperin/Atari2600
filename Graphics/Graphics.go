@@ -148,15 +148,6 @@ func drawGraphics() {
 				fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
 			}
 
-			// R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-			// imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			//
-			// imd.Push(pixel.V(	0				, float64(232-line)*height ))
-			// imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
-			// imd.Line(height)
-			// imd.Draw(win)
-			// draws ++
-
 			readPF0()
 			readPF1()
 			readPF2()
@@ -280,9 +271,6 @@ func drawVisibleModeLine() {
 		fmt.Printf("Line: %d\t VISIBLE AREA\n", line)
 	}
 
-	fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n%08b\n\n\n\n\n\n\n\n\n\n\n",CPU.Memory[CTRLPF])
-	fmt.Printf("%d\n\n\n\n\n\n\n\n\n\n\n",CPU.Memory[CTRLPF] & 0x01)
-
 	// D0 = 1 = Reflect first 20 sprites of the PF to the last 20
 	if (CPU.Memory[CTRLPF] & 0x01) == 1 {
 		j := 0
@@ -320,6 +308,7 @@ func drawVisibleModeLine() {
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 			}
 
+
 			// // If it is rendering the playfield
 			// if search == 1 {
 			// 	// If it is rendering a scoreboard
@@ -338,13 +327,6 @@ func drawVisibleModeLine() {
 			// 		}
 			// 	}
 			// }
-
-
-			// R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
-			// imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			//
-			// imd.Push(pixel.V(	0				, float64(232-line)*height ))
-			// imd.Push(pixel.V(	win.Bounds().W()	, float64(232-line)*height ))
 
 			// Draw
 			//fmt.Printf("\ni: %d\tIndex: %d\tNumber of repeated %d: %d\n", i, index, search,count)

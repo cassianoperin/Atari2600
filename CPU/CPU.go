@@ -80,6 +80,13 @@ func Reset() {
 }
 
 
+func Break() {
+	// Read the Opcode from PC+1 and PC bytes (Little Endian)
+	PC = uint16(Memory[0xFFFF])<<8 | uint16(Memory[0xFFFE])
+	//fmt.Printf("\nRESET: %04X\n",PC)
+}
+
+
 func DecodeTwoComplement(num byte) int8 {
 
 	var sum int8 = 0
@@ -126,7 +133,20 @@ func flags_N(value byte) {
 	}
 }
 
-
+func flags_C(value1, value2 byte) {
+	if debug {
+		fmt.Printf("\n\tFlag C: %d ->", P[0])
+	}
+	// Check if final value is 0
+	if value1 >= value2 {
+		P[0] = 1
+	} else {
+		P[0] = 0
+	}
+	if debug {
+		fmt.Printf(" %d", P[0])
+	}
+}
 
 // CPU Interpreter
 func Interpreter() {
@@ -379,7 +399,7 @@ func Interpreter() {
 				flags_Z(X)
 				flags_N(X)
 
-			// STY  Sore Index Y in Memory (zeropage)
+			// STY  Store Index Y in Memory (zeropage)
 			//
 			//      Y -> M                           N Z C I D V
 			//                                       - - - - - -
@@ -391,7 +411,7 @@ func Interpreter() {
 
 				Memory[Memory[PC+1]] = Y
 				if debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTY  Sore Index Y in Memory (zeropage).\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Y)
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTY  Store Index Y in Memory (zeropage).\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Y)
 				}
 
 				PC += 2
@@ -405,19 +425,14 @@ func Interpreter() {
 			//      --------------------------------------------
 			//      absolute,Y    LDA oper,Y    B9    3     4*
 			case 0xB9: // LDA (absolute,Y)
-				tmp := uint16(Memory[PC+1])<<8 | uint16(Memory[PC+2])
-				fmt.Printf("\n%04X\n",tmp)
-				A = Memory[tmp] + Y
+				tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
+				A = Memory[tmp + uint16(Y)]
 				if debug {
-					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X](%d) + Y(%d) (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp], Y ,A)
+					fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
 				}
 				PC += 3
 				flags_Z(A)
 				flags_N(X)
-				// MEMORIA TA INVERTIDA
-
-				os.Exit(2)
-
 
 			// STA  Store Accumulator in Memory (zeropage,X)
 			//
@@ -470,12 +485,88 @@ func Interpreter() {
 			//      implied       BRK           00    1     7
 			case 0x00: //BRK
 				if debug {
-					fmt.Printf("\n\tOpcode %02X [1 byte]\tBRK  Force Break.\tRESET!\n", Opcode)
-					fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+					fmt.Printf("\n\tOpcode %02X [1 byte]\tBRK  Force Break.\tBREAK!\n", Opcode)
 				}
 				// IRQ Enabled
 				P[2] = 1
-				Reset()
+				Break()
+
+			// INY  Increment Index Y by One
+			//
+			//      Y + 1 -> Y                       N Z C I D V
+			//                                       + + - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      implied       INY           C8    1     2
+			case 0xC8: //INY
+				Y++
+				if debug {
+					fmt.Printf("\n\tOpcode %02X [1 byte]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
+				}
+				flags_Z(A)
+				flags_N(X)
+				PC++
+
+			// CPY  Compare Memory and Index Y
+			//
+			//      Y - M                            N Z C I D V
+			//                                       + + + - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      immidiate     CPY #oper     C0    2     2
+			//
+			//
+			case 0xC0: //CPY
+
+			fmt.Printf("PC+1: %d\n", PC+1)
+
+				tmp := Y - Memory[PC+1]
+
+				if debug {
+					if tmp == 0 {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (immidiate).\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					} else {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (immidiate).\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					}
+				}
+
+				flags_Z(tmp)
+				flags_N(tmp)
+				flags_C(Y,Memory[PC+1])
+
+				PC += 2
+
+
+			// CPY  Compare Memory and Index Y (zeropage)
+			//
+			//      Y - M                            N Z C I D V
+			//                                       + + + - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      zeropage      CPY oper      C4    2     3
+			case 0xC4: //CPY
+
+			fmt.Printf("PC+1: %d\n", PC+1)
+
+				tmp := Y - Memory[Memory[PC+1]]
+
+				if debug {
+					if tmp == 0 {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (zeropage).\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					} else {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (zeropage).\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					}
+				}
+
+				flags_Z(tmp)
+				flags_N(tmp)
+				flags_C(Y,Memory[PC+1])
+
+				PC += 2
+
 
 		default:
 			fmt.Printf("\n\tOPCODE %X NOT IMPLEMENTED!\n\n", Opcode)

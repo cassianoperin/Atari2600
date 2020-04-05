@@ -98,7 +98,7 @@ func main() {
 
 	// Read ROM to the memory
 	//readROM(os.Args[1])
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/4playfieldborder.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/5playerscoreboard.bin")
 
 	// Reset system
 	CPU.Reset()
