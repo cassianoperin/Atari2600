@@ -70,12 +70,14 @@ var (
 	Pause		bool = false
 
 	//Debug
-	debug 		bool = false
+	debug 		bool = true
 )
 
 
 // Initialization
 func Initialize() {
+
+
 
 	// Clean Memory Array
 	Memory		= [65536]byte{}
@@ -88,6 +90,11 @@ func Initialize() {
 	Clock		= time.NewTicker(time.Nanosecond)	// CPU Clock
 	// Clock		= time.NewTicker(time.Second/60)	// CPU Clock
 	ScreenRefresh	= time.NewTicker(time.Second / 60)	// 60Hz Clock for screen refresh rate
+
+	// Initialize Vertifical position of objects
+	// Made by CLEAN_START macro automatically
+	// Memory[RESP0] = 23
+	// Memory[RESP1] = 13
 
 }
 
@@ -445,7 +452,7 @@ func Interpreter() {
 						// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
 						// os.Exit(2)
 						DrawP0 = true
-						DrawP0VertPosition = Beam_index
+						// DrawP0VertPosition = Beam_index
 						// fmt.Printf("\nDraw P0")
 					}
 
@@ -459,7 +466,7 @@ func Interpreter() {
 						// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
 						// os.Exit(2)
 						DrawP1 = true
-						DrawP1VertPosition = Beam_index
+						// DrawP1VertPosition = Beam_index
 						// fmt.Printf("\nDraw P0")
 					}
 
@@ -563,6 +570,7 @@ func Interpreter() {
 				PC = tmp
 				Beam_index += 3
 
+			// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
 			// FF (Filled ROM)
 			case 0xFF:
 				if debug {

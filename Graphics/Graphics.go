@@ -55,11 +55,8 @@ var (
 	frames			= 0
 	draws			= 0
 
-	// Draw 3 pixels per cycle or in optimized mode
-	draw_mode_hw		bool = true
-
 	// Debug mode
-	debug			bool = true
+	debug			bool = false
 
 )
 
@@ -144,12 +141,11 @@ func drawGraphics() {
 			drawVisibleModeLine()
 			// drawPlayer0()
 
-
+		// Overscan
 		} else {
 			if debug {
 				fmt.Printf("\nLine: %d\tOVERSCAN", line)
 			}
-
 		}
 
 		line ++
@@ -197,9 +193,9 @@ func drawGraphics() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
-		fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
-		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		// fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
+		// fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
+		// fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
 			//fmt.Printf("%d",bit)
@@ -209,13 +205,9 @@ func drawPlayer0() {
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
-				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
-				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
-
 				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
-				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width + width	, float64(232-line)*height ))
 				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
 				imd.Line(height)
 
@@ -232,9 +224,9 @@ func drawPlayer0() {
 
 func drawPlayer1() {
 	if CPU.DrawP1 {
-		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP1: %08b\n\n\n", CPU.Memory[GRP1])
-		fmt.Printf("\nPosition: %d", CPU.DrawP1VertPosition)
-		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		// fmt.Printf("\n\n\n\n\n\n\n\n\nGRP1: %08b\n\n\n", CPU.Memory[GRP1])
+		// fmt.Printf("\nPosition: %d", CPU.DrawP1VertPosition)
+		// fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
 			//fmt.Printf("%d",bit)
@@ -244,13 +236,9 @@ func drawPlayer1() {
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				// //fmt.Printf("\ni: 19\tIndex: %d\tNumber of repeated %d: %d\n",  index, search,count)
-				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width								, float64(232-line)*height ))
-				// imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition) *pixelSize)*width +float64(int(pixelSize))*width	, float64(232-line)*height ))
-
 				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
-				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.DrawP0VertPosition*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height ))
 				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
 				imd.Line(height)
 
@@ -266,6 +254,8 @@ func drawPlayer1() {
 
 
 func Run() {
+
+
 
 	//imd := imdraw.New(nil)
 
@@ -312,6 +302,7 @@ func Run() {
 
 			if !CPU.Pause {
 				// if !CPU.DrawLine {
+
 					CPU.Interpreter()
 				// } else {
 					// fmt.Printf("\nWAIT FOR WSYNC!!!!")
