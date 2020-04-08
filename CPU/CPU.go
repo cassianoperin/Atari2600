@@ -128,11 +128,12 @@ func DecodeTwoComplement(num byte) int8 {
 
 
 func Show() {
-		fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tCOLUBK: %02X\tCOLUPF: %02X\tVSYNC: %02X\tVBLANK: %02X", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[0x09], Memory[0x08], Memory[0x00], Memory[0x01] )
-}
+		fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0] )}
 
 
 //-------------------------------------------------- Processor Flags --------------------------------------------------//
+
+// Zero Flag
 func flags_Z(value byte) {
 	if debug {
 		fmt.Printf("\n\tFlag Z: %d ->", P[1])
@@ -148,6 +149,7 @@ func flags_Z(value byte) {
 	}
 }
 
+// Negative Flag
 func flags_N(value byte) {
 	if debug {
 		fmt.Printf("\n\tFlag N: %d ->", P[7])
@@ -160,6 +162,7 @@ func flags_N(value byte) {
 	}
 }
 
+// Carry Flag
 func flags_C(value1, value2 byte) {
 	if debug {
 		fmt.Printf("\n\tFlag C: %d ->", P[0])
@@ -172,6 +175,19 @@ func flags_C(value1, value2 byte) {
 	}
 	if debug {
 		fmt.Printf(" %d", P[0])
+	}
+}
+
+// Overflow Flag
+func flags_V(value byte) {
+	if debug {
+		fmt.Printf("\n\tFlag N: %d ->", P[7])
+	}
+	// Set Negtive flag to the the MSB of the value
+	P[7] = value >> 7
+
+	if debug {
+		fmt.Printf(" %d | Value = %08b", P[7], value)
 	}
 }
 
@@ -683,20 +699,100 @@ func Interpreter() {
 		     // --------------------------------------------
 		     // zeropage      SBC oper      E5    2     3
 			case 0xE5: // SBC
-				fmt.Printf("\n%d", A)
-				fmt.Printf("\n%d", Memory[Memory[PC+1]])
-				A = A - Memory[Memory[PC+1]] - 1
-				fmt.Printf("\n%d", A)
-
 				// Memory[Memory[PC+1]] = X
 				if debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\t xxx\n", Opcode, Memory[PC+1])
+					fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - 1)
 				}
-				os.Exit(2)
-				// PC += 2
+
+				// A-M-(1-Carry)
+				A = A - Memory[Memory[PC+1]] - (1-P[0])
+
+				flags_Z(A)
+				flags_N(A)
+				// flags_C will be cleared if overflow in bit 7
+				// FALTA TRATAR OVERFLOW
+
+				PC += 2
+				Beam_index += 3
 
 
+			// CMP  Compare Memory with Accumulator
+			//
+			//      A - M                          N Z C I D V
+			//                                     + + + - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      zeropage      CMP oper      C5    2     3
+			case 0xC5: // CMP
 
+				tmp := A - Memory[Memory[PC+1]]
+
+				if debug {
+					if tmp == 0 {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					} else {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+					}
+				}
+
+				flags_Z(tmp)
+				flags_N(tmp)
+				flags_C(A,Memory[Memory[PC+1]])
+
+				PC += 2
+				Beam_index += 3
+
+
+			// BCC  Branch on Carry Clear
+			//
+			//      branch on C = 0                  N Z C I D V
+			//                                       - - - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      relative      BCC oper      90    2     2**
+			case 0x90: // BCC
+				// If carry is clear
+				if P[0] == 0 {
+					if debug {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
+					}
+					PC += 2
+				// If carry is set
+				} else {
+					if debug {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC NOT EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
+					}
+
+					// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
+					PC+=2+uint16(Memory[PC+1])
+
+				}
+
+				Beam_index += 2
+
+
+			// DEC  Decrement Memory by One
+			//
+			//      M - 1 -> M                       N Z C I D V
+			//                                       + + - - - -
+			//
+			//      addressing    assembler    opc  bytes  cyles
+			//      --------------------------------------------
+			//      zeropage      DEC oper      C6    2     5
+			case 0xC6: // DEC
+
+				if debug {
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tDEC  Decrement Memory by One.\tMemory[%02X] -= 1 (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] - 1 )
+				}
+				Memory[Memory[PC+1]] -= 1
+
+				flags_Z(Memory[Memory[PC+1]])
+				flags_N(Memory[Memory[PC+1]])
+
+				PC += 2
+				Beam_index += 5
 
 
 		default:

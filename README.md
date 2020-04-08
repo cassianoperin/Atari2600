@@ -24,12 +24,8 @@ NTSC Palette:
 http://www.qotile.net/minidig/docs/tia_color.html
 
 
-Missing
+Missing:
 - Input
-- sound
-- opcodes
-- beam index:
- BNE:   ** add 1 to cycles if branch occurs on same page
-     add 2 to cycles if branch occurs to different page
- LDA: *  add 1 to cycles if page boundery is crossed
- - drawing in the OVERSCAN
+- Sound
+- Opcodes
+- Implement V (overflow flag - wrong sign) for ADC and SBC
