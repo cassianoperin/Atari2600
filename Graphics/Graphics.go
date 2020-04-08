@@ -63,15 +63,17 @@ var (
 const (
 	sizeX			float64	= 160.0 	// 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
 	sizeY			float64	= 192.0	// 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
-	screenWidth		= float64(sizeX*3)
-	screenHeight		= float64(sizeY*1.5)
+	// screenWidth		= float64(sizeX*3)
+	// screenHeight		= float64(sizeY*1.5)
+	screenWidth		= float64(sizeX*6)
+	screenHeight		= float64(sizeY*3)
 	width			= screenWidth  / sizeX
 	height			= screenHeight / sizeY
 )
 
 func renderGraphics() {
 	cfg = pixelgl.WindowConfig{
-		Title:  "NTSC CRT TV Emulator",
+		Title:  "Atari 2600",
 		Bounds: pixel.R(0, 0, screenWidth, screenHeight),
 		VSync:  false,
 	}
@@ -139,7 +141,23 @@ func drawGraphics() {
 			readPF2()
 
 			drawVisibleModeLine()
-			// drawPlayer0()
+
+			// DRAW PLAYER 0
+			if CPU.DrawP0 {
+				drawPlayer0()
+
+				CPU.DrawP0 = false
+				CPU.DrawP0VertPosition = 0
+			}
+
+			// DRAW PLAYER 1
+			if CPU.DrawP1 {
+				drawPlayer1()
+
+				CPU.DrawP1 = false
+				CPU.DrawP1VertPosition = 0
+			}
+
 
 		// Overscan
 		} else {
@@ -152,28 +170,6 @@ func drawGraphics() {
 		CPU.DrawLine = false
 		CPU.Beam_index = 0
 		// CPU.Beam_index = 0
-	}
-
-	if CPU.DrawP0 {
-		line --
-
-		drawPlayer0()
-		line ++
-		// CPU.DrawLine = false
-
-		CPU.DrawP0 = false
-		CPU.DrawP0VertPosition = 0
-	}
-
-	if CPU.DrawP1 {
-		line --
-
-		drawPlayer1()
-		line ++
-		// CPU.DrawLine = false
-
-		CPU.DrawP1 = false
-		CPU.DrawP1VertPosition = 0
 	}
 
 
@@ -193,27 +189,24 @@ func drawGraphics() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
-		fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
-		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		// fmt.Printf("\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
+
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
-			//fmt.Printf("%d",bit)
 
 			if bit == 1 {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width			, float64(232-line)*height ))
 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width + width	, float64(232-line)*height ))
-				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
 				imd.Line(height)
 
 				imd.Draw(win)
 				// Count draw operations number per second
 				draws ++
+
 				// CPU.Pause = true
 			}
 		}
@@ -224,9 +217,8 @@ func drawPlayer0() {
 
 func drawPlayer1() {
 	if CPU.DrawP1 {
-		// fmt.Printf("\n\n\n\n\n\n\n\n\nGRP1: %08b\n\n\n", CPU.Memory[GRP1])
-		// fmt.Printf("\nPosition: %d", CPU.DrawP1VertPosition)
-		// fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
+
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
 			//fmt.Printf("%d",bit)
@@ -236,16 +228,13 @@ func drawPlayer1() {
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				// fmt.Printf("\n\n\n\n\n\n\n\n\nLine: %d\t DrawP0VertPosition: %d\n\n\n\n\n\n\n\n", line, CPU.DrawP0VertPosition)
 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height ))
-				//fmt.Printf("%f %f", (68 + (float64(index) *5)) ,	(68) + (float64(index) *5) +float64(count*5) )
 				imd.Line(height)
 
 				imd.Draw(win)
 				// Count draw operations number per second
 				draws ++
-				// CPU.Pause = true
 			}
 		}
 		CPU.DrawP1 = false
@@ -299,7 +288,6 @@ func Run() {
 		select {
 		case <-CPU.Clock.C:
 
-
 			if !CPU.Pause {
 				// if !CPU.DrawLine {
 
@@ -339,8 +327,6 @@ func Run() {
 	}
 
 }
-
-
 
 func drawVisibleModeLine() {
 
