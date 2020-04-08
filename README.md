@@ -27,5 +27,5 @@ http://www.qotile.net/minidig/docs/tia_color.html
 Missing:
 - Input
 - Sound
-- Opcodes
+- Opcodes X from 56
 - Implement V (overflow flag - wrong sign) for ADC and SBC

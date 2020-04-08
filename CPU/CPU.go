@@ -70,7 +70,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	debug 		bool = true
+	debug 		bool = false
 )
 
 
@@ -701,7 +701,7 @@ func Interpreter() {
 			case 0xE5: // SBC
 				// Memory[Memory[PC+1]] = X
 				if debug {
-					fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - 1)
+					fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - (1-P[0]))
 				}
 
 				// A-M-(1-Carry)
@@ -730,9 +730,9 @@ func Interpreter() {
 
 				if debug {
 					if tmp == 0 {
-						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], tmp)
 					} else {
-						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], tmp)
 					}
 				}
 
@@ -756,17 +756,18 @@ func Interpreter() {
 				// If carry is clear
 				if P[0] == 0 {
 					if debug {
-						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
-					}
-					PC += 2
-				// If carry is set
-				} else {
-					if debug {
-						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC NOT EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
 					}
 
 					// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 					PC+=2+uint16(Memory[PC+1])
+					// Pause = true
+				// If carry is set
+				} else {
+					if debug {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tC NOT EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
+					}
+					PC += 2
 
 				}
 

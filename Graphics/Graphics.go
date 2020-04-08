@@ -193,9 +193,9 @@ func drawGraphics() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		// fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
-		// fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
-		// fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
+		fmt.Printf("\n\n\n\n\n\n\n\n\nGRP0: %08b\n\n\n", CPU.Memory[GRP0])
+		fmt.Printf("\nPosition: %d", CPU.DrawP0VertPosition)
+		fmt.Printf("\nBeamIndex: %d", CPU.Beam_index)
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
 			//fmt.Printf("%d",bit)
