@@ -71,6 +71,7 @@ const (
 	height			= screenHeight / sizeY
 )
 
+
 func renderGraphics() {
 	cfg = pixelgl.WindowConfig{
 		Title:  "Atari 2600",
@@ -84,6 +85,7 @@ func renderGraphics() {
 	}
 }
 
+
 func readPF0() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF0])
 	for i := 4 ; i < 8 ; i++ {
@@ -93,6 +95,7 @@ func readPF0() {
 
 }
 
+
 func readPF1() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF1])
 	for i := 0 ; i < 8 ; i++ {
@@ -101,12 +104,69 @@ func readPF1() {
 	// fmt.Printf("%d", playfield)
 }
 
+
 func readPF2() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF2])
 	for i := 0 ; i < 8 ; i++ {
 		playfield[12+i] = ( CPU.Memory[PF2] >> byte(i) ) & 0x01
 	}
 	// fmt.Printf("%d", playfield)
+}
+
+
+
+func drawPlayer0() {
+	if CPU.DrawP0 {
+		// fmt.Printf("\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
+
+		for i:=0 ; i <=7 ; i++{
+			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
+
+			if bit == 1 {
+				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				imd.Line(height)
+
+				imd.Draw(win)
+				// Count draw operations number per second
+				draws ++
+
+				// CPU.Pause = true
+			}
+		}
+		CPU.DrawP0 = false
+	}
+}
+
+
+func drawPlayer1() {
+	if CPU.DrawP1 {
+		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
+
+		for i:=0 ; i <=7 ; i++{
+			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
+			//fmt.Printf("%d",bit)
+
+			if bit == 1 {
+				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height ))
+				imd.Line(height)
+
+				imd.Draw(win)
+				// Count draw operations number per second
+				draws ++
+			}
+		}
+		CPU.DrawP1 = false
+	}
 }
 
 
@@ -187,70 +247,14 @@ func drawGraphics() {
 
 }
 
-func drawPlayer0() {
-	if CPU.DrawP0 {
-		// fmt.Printf("\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
-
-		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
-
-			if bit == 1 {
-				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width + width	, float64(232-line)*height ))
-				imd.Line(height)
-
-				imd.Draw(win)
-				// Count draw operations number per second
-				draws ++
-
-				// CPU.Pause = true
-			}
-		}
-		CPU.DrawP0 = false
-	}
-}
-
-
-func drawPlayer1() {
-	if CPU.DrawP1 {
-		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
-
-		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
-			//fmt.Printf("%d",bit)
-
-			if bit == 1 {
-				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height ))
-				imd.Line(height)
-
-				imd.Draw(win)
-				// Count draw operations number per second
-				draws ++
-			}
-		}
-		CPU.DrawP1 = false
-	}
-}
 
 
 func Run() {
-
-
 
 	//imd := imdraw.New(nil)
 
 	// Set up render system
 	renderGraphics()
-
 
 
 	// Main Infinite Loop
@@ -289,13 +293,8 @@ func Run() {
 		case <-CPU.Clock.C:
 
 			if !CPU.Pause {
-				// if !CPU.DrawLine {
-
-					CPU.Interpreter()
-				// } else {
-					// fmt.Printf("\nWAIT FOR WSYNC!!!!")
-				// }
-
+				CPU.Interpreter()
+				// CPU.Flags_V_SBC(5,15)
 			}
 			// DRAW
 

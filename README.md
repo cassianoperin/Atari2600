@@ -23,6 +23,12 @@ NTSC Palette:
 
 http://www.qotile.net/minidig/docs/tia_color.html
 
+Cycles counting:
+https://www.randomterrain.com/atari-2600-memories-guide-to-cycle-counting.html
+
+Overflow flag:
+http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+ 
 
 Missing:
 - Input
