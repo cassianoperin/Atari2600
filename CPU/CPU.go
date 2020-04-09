@@ -399,6 +399,24 @@ func Interpreter() {
 			flags_N(X)
 			Beam_index += 2
 
+		// DEY  Decrement Index Y by One
+		//
+		//      Y - 1 -> Y                       N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      implied       DEC           88    1     2
+		case 0x88:
+			Y--
+			if debug {
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tDEY  Decrement Index Y by One.\tY-- (%d)\n", Opcode, Y)
+			}
+			PC += 1
+			flags_Z(Y)
+			flags_N(Y)
+			Beam_index += 2
+
 
 		// TXS  Transfer Index X to Stack Register
 		//
@@ -461,7 +479,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      implied       INY           C8    1     2
-		case 0xC8: //INY
+		case 0xC8:
 			Y++
 			if debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
@@ -470,6 +488,28 @@ func Interpreter() {
 			flags_N(Y)
 			PC++
 			Beam_index += 2
+
+
+		// INC  Increment Memory by One
+		//
+		//      M + 1 -> M                       N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      zeropage      INC oper      E6    2     5
+		case 0xE6:
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tINC  Increment Memory[%02X](%d) by One (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]], Memory[Memory[PC+1]] + 1)
+			}
+
+			Memory[Memory[PC+1]] = Memory[Memory[PC+1]] + 1
+
+			flags_Z(Memory[Memory[PC+1]])
+			flags_N(Memory[Memory[PC+1]])
+			PC+=2
+			Beam_index += 5
 
 
 		//-------------------------------------------------- Branches --------------------------------------------------//
@@ -552,7 +592,7 @@ func Interpreter() {
 				if debug {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
 				}
-				fmt.Printf("\nmem %02X",Memory[PC+1])
+
 				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
 
@@ -775,6 +815,28 @@ func Interpreter() {
 			Beam_index += 2
 
 
+		// LDY  Load Index Y with Memory (zeropage)
+		//
+		//      M -> Y                           N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      zeropage      LDY oper      A4    2     3
+		case 0xA4:
+			Y = Memory[Memory[PC+1]]
+			if debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDY  Load Index y with Memory (zeropage).\tY = Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]], Y)
+			}
+			PC += 2
+
+			flags_Z(Y)
+			flags_N(Y)
+			Beam_index += 3
+
+
+
+
 		//-------------------------------------------------- STY --------------------------------------------------//
 
 
@@ -949,7 +1011,7 @@ func Interpreter() {
 
 			PC += 2
 			Beam_index += 2
-			Pause = true
+			// Pause = true
 
 
 		//-------------------------------------------------- CMP --------------------------------------------------//
@@ -1030,6 +1092,61 @@ func Interpreter() {
 			flags_N(A)
 
 			PC += 2
+			Beam_index += 2
+
+
+		//-------------------------------------------------- AND --------------------------------------------------//
+
+
+		// EOR  Exclusive-OR Memory with Accumulator (immidiate)
+		//
+		//      A EOR M -> A                     N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      immidiate     EOR #oper     49    2     2
+		case 0x49:
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tEOR  Exclusive-OR Memory with Accumulator (immidiate).\tA = A(%d) XOR Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], A ^ Memory[PC+1] )
+			}
+
+			A = A ^ Memory[PC+1]
+
+			flags_Z(A)
+			flags_N(A)
+
+			PC += 2
+			Beam_index += 2
+
+
+
+		//-------------------------------------------------- EOR --------------------------------------------------//
+
+
+		// ASL  Shift Left One Bit (Memory or Accumulator) (accumulator)
+		//
+		//      C <- [76543210] <- 0             N Z C I D V
+		//                                       + + + - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      accumulator   ASL A         0A    1     2
+		case 0x0A:
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tASL  Shift Left One Bit (Memory or Accumulator) (accumulator).\tA = A(%d) Shift Left 1 bit\t(%d)\n", Opcode, A, A << 1 )
+			}
+
+			flags_C(A, A << 1)
+
+			A = A << 1
+
+			flags_N(A)
+			flags_Z(A)
+
+			PC += 1
 			Beam_index += 2
 
 
