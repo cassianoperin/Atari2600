@@ -5,10 +5,17 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 
 Emulation status:
 - CRT NTSC TV Display: OK
+- Graphics: Background: OK
+- Graphics: Playfield: OK
+- Graphics: Scoreboard: OK
+- Graphics: Player 0 and Player 1: OK
+- Graphics: Player Vertical Movement: OK
+- CPU Opcodes: 36/150
 
 Missing:
-- CPU Opcodes: 36/150
-- Sound
+- Graphics: Player Horizontal Movement
+- Graphics: Ball
+- Graphics: Missiles
 - Input
 - Sound
 
@@ -16,6 +23,7 @@ Missing:
 Documentation:
 
 General:
+
 https://cdn.hackaday.io/files/1646277043401568/Atari_2600_Programming_for_Newbies_Revised_Edition.pdf
 
 https://www.atariarchives.org/roots/chapter_6.php
