@@ -10,7 +10,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 - Graphics: Scoreboard: OK
 - Graphics: Player 0 and Player 1: OK
 - Graphics: Player Vertical Movement: OK
-- CPU Opcodes: 36/150
+- 6502/6507 CPU Opcodes: 36/150
 
 ## Missing:
 - Graphics: Player Horizontal Movement
@@ -66,8 +66,4 @@ https://www.pagetable.com/?p=410
 
 ### PIXEL:
 https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
-
-
-
-
 
