@@ -2,7 +2,25 @@
 
 Initial stage Atari 2600 VCS Emulator writen in GO
 
+
+Emulation status:
+- CRT NTSC TV Display: OK
+
+Missing:
+- CPU Opcodes: 36/150
+- Sound
+- Input
+- Sound
+
+
 Documentation:
+
+General:
+https://cdn.hackaday.io/files/1646277043401568/Atari_2600_Programming_for_Newbies_Revised_Edition.pdf
+
+https://www.atariarchives.org/roots/chapter_6.php
+
+https://pt.slideshare.net/chesterbr/atari-2600programming
 
 Opcodes:
 
@@ -15,14 +33,6 @@ Addressing:
 http://www.obelisk.me.uk/6502/addressing.html#ABY
 
 http://www.emulator101.com/6502-addressing-modes.html
-
-General:
-https://cdn.hackaday.io/files/1646277043401568/Atari_2600_Programming_for_Newbies_Revised_Edition.pdf
-
-https://www.atariarchives.org/roots/chapter_6.php
-
-https://pt.slideshare.net/chesterbr/atari-2600programming
-
 
 FLAGS:
 http://www.obelisk.me.uk/6502/reference.html#CPY
@@ -46,8 +56,4 @@ https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
 
 
 
-Missing:
-- Input
-- Sound
-- Opcodes X from 56
-- Implement V (overflow flag - wrong sign) for ADC and SBC
+
