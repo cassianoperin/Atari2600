@@ -3,7 +3,7 @@
 Initial stage Atari 2600 VCS Emulator writen in GO
 
 
-Emulation status:
+## Emulation status:
 - CRT NTSC TV Display: OK
 - Graphics: Background: OK
 - Graphics: Playfield: OK
@@ -12,17 +12,17 @@ Emulation status:
 - Graphics: Player Vertical Movement: OK
 - CPU Opcodes: 36/150
 
-Missing:
+## Missing:
 - Graphics: Player Horizontal Movement
 - Graphics: Ball
 - Graphics: Missiles
 - Input
 - Sound
+- Graphical speed improvements
 
+## Documentation:
 
-Documentation:
-
-General:
+### General:
 
 https://cdn.hackaday.io/files/1646277043401568/Atari_2600_Programming_for_Newbies_Revised_Edition.pdf
 
@@ -30,35 +30,41 @@ https://www.atariarchives.org/roots/chapter_6.php
 
 https://pt.slideshare.net/chesterbr/atari-2600programming
 
-Opcodes:
+### Opcodes:
 
 https://www.masswerk.at/6502/6502_instruction_set.html#CLD
 
 https://problemkaputt.de/2k6specs.htm
 
-Addressing:
+
+### Addressing:
 
 http://www.obelisk.me.uk/6502/addressing.html#ABY
 
 http://www.emulator101.com/6502-addressing-modes.html
 
-FLAGS:
+
+### FLAGS:
 http://www.obelisk.me.uk/6502/reference.html#CPY
 
-NTSC Palette:
+
+### NTSC Palette:
 
 http://www.qotile.net/minidig/docs/tia_color.html
 
 Cycles counting:
 https://www.randomterrain.com/atari-2600-memories-guide-to-cycle-counting.html
 
-Overflow flag:
+
+### Overflow flag:
 http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
 
-BRK/IRQ/NMI/RESET:
+
+### BRK/IRQ/NMI/RESET:
 https://www.pagetable.com/?p=410
 
-PIXEL:
+
+### PIXEL:
 https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
 
 
