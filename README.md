@@ -30,6 +30,9 @@ https://www.atariarchives.org/roots/chapter_6.php
 
 https://pt.slideshare.net/chesterbr/atari-2600programming
 
+https://www.randomterrain.com/atari-2600-memories-tutorial-andrew-davie-01.html#basics
+
+
 ### Opcodes:
 
 https://www.masswerk.at/6502/6502_instruction_set.html#CLD
@@ -52,7 +55,7 @@ http://www.obelisk.me.uk/6502/reference.html#CPY
 
 http://www.qotile.net/minidig/docs/tia_color.html
 
-Cycles counting:
+### Cycles counting:
 https://www.randomterrain.com/atari-2600-memories-guide-to-cycle-counting.html
 
 
@@ -66,4 +69,3 @@ https://www.pagetable.com/?p=410
 
 ### PIXEL:
 https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
-

@@ -56,7 +56,7 @@ var (
 	draws			= 0
 
 	// Debug mode
-	debug			bool = false
+	debug			bool = true
 
 )
 
@@ -117,7 +117,7 @@ func readPF2() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		// fmt.Printf("\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
+		fmt.Printf("\n\n\n\n\n\n\n\n\n\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
 
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
@@ -283,7 +283,7 @@ func Run() {
 			if CPU.Pause {
 				fmt.Printf("\t\tStep Forward\n")
 				CPU.Interpreter()
-				time.Sleep(400 * time.Millisecond)
+				time.Sleep(50 * time.Millisecond)
 			}
 		}
 

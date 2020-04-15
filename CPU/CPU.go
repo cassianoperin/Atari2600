@@ -39,8 +39,10 @@ var (
 	WSYNC		byte = 0x02		//---- ----   Wait for Horizontal Blank
 	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
 	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
-	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
-	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
+	RESP0 			byte = 0x10		//---- ----   Reset Player 0
+	RESP1 			byte = 0x11		//---- ----   Reset Player 1
+	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
+	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
 
 	// CPU Variables
 	Opcode		uint16		// CPU Operation Code
@@ -128,7 +130,7 @@ func DecodeTwoComplement(num byte) int8 {
 
 
 func Show() {
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0] )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
 }
 
 
@@ -758,34 +760,41 @@ func Interpreter() {
 			// Wait for Horizontal Blank to draw the new line
 			if Memory[PC+1] == WSYNC {
 				DrawLine = true
-				// fmt.Printf("\nDraw New line")
-			}
 
-			if Memory[PC+1] == GRP0 {
 				if Memory[GRP0] != 0 {
-					// for i:=0 ; i <=7 ; i++{
-					// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
-					// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
-					// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
-					// os.Exit(2)
 					DrawP0 = true
-					// DrawP0VertPosition = Beam_index
-					// fmt.Printf("\nDraw P0")
+					// Pause = true
 				}
 
-			}
-
-			if Memory[PC+1] == GRP1 {
 				if Memory[GRP1] != 0 {
-					// for i:=0 ; i <=7 ; i++{
-					// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
-					// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
-					// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
-					// os.Exit(2)
 					DrawP1 = true
-					// DrawP1VertPosition = Beam_index
-					// fmt.Printf("\nDraw P0")
 				}
+
+			// if Memory[PC+1] == GRP0 {
+			// 	if Memory[GRP0] != 0 {
+			// 		// for i:=0 ; i <=7 ; i++{
+			// 		// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
+			// 		// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
+			// 		// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
+			// 		// os.Exit(2)
+			// 		DrawP0 = true
+			// 		// DrawP0VertPosition = Beam_index
+			// 		// fmt.Printf("\nDraw P0")
+			// 	}
+			//
+			// }
+
+			// if Memory[PC+1] == GRP1 {
+			// 	if Memory[GRP1] != 0 {
+			// 		// for i:=0 ; i <=7 ; i++{
+			// 		// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
+			// 		// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
+			// 		// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
+			// 		// os.Exit(2)
+			// 		DrawP1 = true
+			// 		// DrawP1VertPosition = Beam_index
+			// 		// fmt.Printf("\nDraw P0")
+			// 	}
 
 			}
 
@@ -815,7 +824,7 @@ func Interpreter() {
 			Beam_index += 2
 
 
-		// LDY  Load Index Y with Memory (zeropage)
+		// LDY  Load Index Y with Memory (zeropage) //  Same as absolute but in the first page
 		//
 		//      M -> Y                           N Z C I D V
 		//                                       + + - - - -
@@ -824,11 +833,12 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      zeropage      LDY oper      A4    2     3
 		case 0xA4:
-			Y = Memory[Memory[PC+1]]
+			Y = Memory[PC+1]
 			if debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDY  Load Index y with Memory (zeropage).\tY = Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]], Y)
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDY  Load Index y with Memory (zeropage).\tY = Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], PC+1, Memory[PC+1], Y)
 			}
 			PC += 2
+
 
 			flags_Z(Y)
 			flags_N(Y)
@@ -849,7 +859,6 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      zeropage      STY oper      84    2     3
 		case 0x84: // STY
-
 			Memory[Memory[PC+1]] = Y
 			if debug {
 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTY  Store Index Y in Memory (zeropage).\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Y)
@@ -951,7 +960,6 @@ func Interpreter() {
 
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
-//** IMPLEMENT OVERFLOW **//
 		// SBC  Subtract Memory from Accumulator with Borrow
 		//
 	     // A - M - C -> A                   N Z C I D V
