@@ -13,12 +13,11 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 - 6502/6507 CPU Opcodes: 36/150
 
 ## Missing:
-- Graphics: Player Horizontal Movement
+- Graphics: Player Horizontal Movement - Measurement with CPU cycles
 - Graphics: Ball
 - Graphics: Missiles
 - Input
 - Sound
-- Graphical speed improvements
 
 ## Documentation:
 
