@@ -47,6 +47,9 @@ var (
 	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
 	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
 	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
+	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
+	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
+
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
 	playfield			[40]byte			//Improve to binary
 	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
@@ -117,7 +120,9 @@ func readPF2() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		fmt.Printf("\n\n\n\n\n\n\n\n\n\nLine: %d\tGRP0: %08b\n", line, CPU.Memory[GRP0])
+		fmt.Printf("\nLine: %d\tGRP0: %08b\tXPosition: %d\tHMP0: %d", line, CPU.Memory[GRP0], CPU.XPosition, CPU.Memory[HMP0])
+
+		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
@@ -127,8 +132,11 @@ func drawPlayer0() {
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP0]*3+byte(i)) )*width + width	, float64(232-line)*height + height))
+				// imd.Push(pixel.V(  (float64(CPU.XPosition*3+byte(i)) )*width			, float64(232-line)*height ))
+				// imd.Push(pixel.V(  (float64(CPU.XPosition*3+byte(i)) )*width + width	, float64(232-line)*height + height))
+
+				imd.Push(pixel.V(  (float64(   (CPU.XPosition*3) +byte(i)  +CPU.Memory[HMP0]) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(   (CPU.XPosition*3) +byte(i)  +CPU.Memory[HMP0]) )*width + width	, float64(232-line)*height + height))
 				imd.Rectangle(0)
 
 				imd.Draw(win)
@@ -228,8 +236,7 @@ func drawGraphics() {
 
 		line ++
 		CPU.DrawLine = false
-		CPU.Beam_index = 0
-		// CPU.Beam_index = 0
+
 	}
 
 

@@ -43,7 +43,8 @@ var (
 	RESP1 			byte = 0x11		//---- ----   Reset Player 1
 	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
 	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
-
+	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
+	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
 	// CPU Variables
 	Opcode		uint16		// CPU Operation Code
 	Cycle		uint16		// CPU Cycle
@@ -54,7 +55,7 @@ var (
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
 
-
+	XPosition byte
 
 	// *************** Personal Control Flags *************** //
 	// Beam index to control where to draw objects using cpu cycles
@@ -72,7 +73,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	debug 		bool = false
+	debug 		bool = true
 )
 
 
@@ -130,7 +131,8 @@ func DecodeTwoComplement(num byte) int8 {
 
 
 func Show() {
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
+	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b\tXPosition: %d\tHMP0: %d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF], XPosition, Memory[HMP0] )
 }
 
 
@@ -547,7 +549,7 @@ func Interpreter() {
 					Beam_index += 1
 				}
 			}
-			Beam_index += 2 // ************** PODE VARIAR!!! IMPLEMENTAR **************
+			Beam_index += 3 // ************** PODE VARIAR!!! IMPLEMENTAR **************
 
 
 		// BCC  Branch on Carry Clear
@@ -750,16 +752,18 @@ func Interpreter() {
 		case 0x85: // STA (zeropage)
 
 			Memory[Memory[PC+1]] = A
-			if debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
-			}
+			// if debug {
+			// 	fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
+			// }
 
-			Beam_index += 3
 
 			// Wait for a new line and authorize graphics to draw the line
 			// Wait for Horizontal Blank to draw the new line
 			if Memory[PC+1] == WSYNC {
 				DrawLine = true
+				// fmt.Printf("\n\nWSYNC\n\n")
+				Beam_index = 0
+
 
 				if Memory[GRP0] != 0 {
 					DrawP0 = true
@@ -770,33 +774,18 @@ func Interpreter() {
 					DrawP1 = true
 				}
 
-			// if Memory[PC+1] == GRP0 {
-			// 	if Memory[GRP0] != 0 {
-			// 		// for i:=0 ; i <=7 ; i++{
-			// 		// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
-			// 		// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
-			// 		// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
-			// 		// os.Exit(2)
-			// 		DrawP0 = true
-			// 		// DrawP0VertPosition = Beam_index
-			// 		// fmt.Printf("\nDraw P0")
-			// 	}
-			//
-			// }
-
-			// if Memory[PC+1] == GRP1 {
-			// 	if Memory[GRP1] != 0 {
-			// 		// for i:=0 ; i <=7 ; i++{
-			// 		// 	bit := CPU.Memory[GRP0] >> 7-byte(i) & 0x01
-			// 		// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", Memory[GRP0])
-			// 		// fmt.Printf("\nmem: %08b\n",Memory[0x1B])
-			// 		// os.Exit(2)
-			// 		DrawP1 = true
-			// 		// DrawP1VertPosition = Beam_index
-			// 		// fmt.Printf("\nDraw P0")
-			// 	}
-
 			}
+
+			if Memory[PC+1] == RESP0 {
+
+				if Memory[RESP0] != 0 {
+					// Pause = true
+					XPosition = Beam_index
+					fmt.Printf("\nRESPO0 SET\tXPosition: %d\n\n", XPosition)
+				}
+			}
+
+			Beam_index += 3
 
 			PC += 2
 
@@ -970,10 +959,11 @@ func Interpreter() {
 	     // zeropage      SBC oper      E5    2     3
 		case 0xE5: // SBC
 			// Memory[Memory[PC+1]] = X
+
+
 			if debug {
 				fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - (1-P[0]))
 			}
-
 			// A-M-(1-Carry)
 			A = A - Memory[Memory[PC+1]] - (1-P[0])
 
@@ -981,6 +971,7 @@ func Interpreter() {
 			flags_N(A)
 			// flags_C will be cleared if overflow in bit 7
 			// FALTA TRATAR OVERFLOW
+			Pause = true
 
 			PC += 2
 			Beam_index += 3
@@ -997,10 +988,15 @@ func Interpreter() {
 		case 0xE9: // SBC
 			// Memory[Memory[PC+1]] = X
 			if debug {
-				fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], P[0] , A - Memory[PC+1] - (1-P[0]))
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], P[0] , A - Memory[PC+1] - (1-P[0]))
 			}
 
+			fmt.Printf("\n\n%d\n\n",A)
+
 			flags_C(A,Memory[PC+1])
+
+			// A = A - Memory[PC+1] - (1-P[0])
+
 			Flags_V_SBC(A,Memory[PC+1])
 
 			// A-M-(1-Carry)
@@ -1009,7 +1005,8 @@ func Interpreter() {
 			flags_Z(A)
 			flags_N(A)
 
-
+			fmt.Printf("\n\n%d\n\n",A)
+			Pause = true
 
 
 			// Clear Carry if overflow in bit 7
