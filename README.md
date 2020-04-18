@@ -3,17 +3,36 @@
 Initial stage Atari 2600 VCS Emulator writen in GO
 
 
+**Horizontal Movement** | **Vertical Movement**
+:-------------------------:|:-------------------------:
+<img width="430" alt="horizontal" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/HorizontalMovement.gif">  |  <img width="430" alt="vertical" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/VerticalMovement.gif">
+
+**Players and Scoreboard** | **Scoreboard Colors**
+:-------------------------:|:-------------------------:
+<img width="430" alt="players" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayersScoreboard.png"> | <img width="430" alt="scoreboard" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayersScoreboardColor.png">
+
+**Background and Playfield** | **Playfield Reflection**
+:-------------------------:|:-------------------------:
+<img width="430" alt="background" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Playfield.png"> | <img width="430" alt="reflection" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayfieldReflex.png">
+
+**NTSC Palette** | 
+:-------------------------:|
+<img width="430" alt="palette" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Palette.png"> | >
+
 ## Emulation status:
-- CRT NTSC TV Display: OK
-- Graphics: Background: OK
-- Graphics: Playfield: OK
-- Graphics: Scoreboard: OK
-- Graphics: Player 0 and Player 1: OK
-- Graphics: Player Vertical Movement: OK
-- 6502/6507 CPU Opcodes: 36/150
+| Name  | Status |
+| :------------ | :----- |
+| CRT NTSC TV Display | OK |
+| Graphics: NTSC Color Palette | OK | |
+| Graphics: Background | OK |
+| Graphics: Playfield | OK |
+| Graphics: Scoreboard | OK |
+| Graphics: Player 0 and Player 1 | OK |
+| Graphics: Player Vertical Movement | OK |
+| Graphics: Player Horizontal Movement | OK |
+| 6502/6507 CPU Opcodes | 36 / 150 |
 
 ## Missing:
-- Graphics: Player Horizontal Movement - Measurement with CPU cycles
 - Graphics: Ball
 - Graphics: Missiles
 - Cycle counting: Implement crossing memory page boundaries to add a new cycle in some operations
