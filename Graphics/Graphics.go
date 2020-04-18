@@ -165,8 +165,9 @@ func drawPlayer1() {
 			CPU.XPositionP1 = 30
 		}
 
-
-		fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[GRP1], CPU.XPositionP1, CPU.Memory[HMP1])
+		if debug {
+			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[GRP1], CPU.XPositionP1, CPU.Memory[HMP1])
+		}
 		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
@@ -256,7 +257,6 @@ func drawGraphics() {
 				drawPlayer0()
 
 				CPU.DrawP0 = false
-				CPU.DrawP0VertPosition = 0
 			}
 
 			// DRAW PLAYER 1
@@ -264,7 +264,6 @@ func drawGraphics() {
 				drawPlayer1()
 
 				CPU.DrawP1 = false
-				CPU.DrawP1VertPosition = 0
 			}
 
 
@@ -340,6 +339,7 @@ func drawVisibleModeLine() {
 			// If it is rendering the playfield
 			if search == 1 {
 				// Check D1 status to use color of players in the score
+
 				if (CPU.Memory[CTRLPF] & 0x02) >> 1 == 1  {
 					// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
 					R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
@@ -395,7 +395,7 @@ func drawVisibleModeLine() {
 // Infinte Loop
 func Run() {
 
-	//imd := imdraw.New(nil)
+	// imd = imdraw.New(nil)
 
 	// Set up render system
 	renderGraphics()

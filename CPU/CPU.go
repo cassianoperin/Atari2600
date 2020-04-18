@@ -68,10 +68,9 @@ var (
 	DrawLine		bool = false
 	// Instruct Graphics to draw Player 0 sprite
 	DrawP0		bool = false
-	DrawP0VertPosition	byte = 0
 	// Instruct Graphics to draw Player 1 sprite
 	DrawP1		bool = false
-	DrawP1VertPosition	byte = 0
+
 
 	// Pause
 	Pause		bool = false
