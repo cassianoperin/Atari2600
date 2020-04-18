@@ -77,7 +77,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	debug 		bool = true
+	debug 		bool = false
 )
 
 func Fine(HMP0 byte) int8 {
@@ -830,60 +830,65 @@ func Interpreter() {
 			// Wait for a new line and authorize graphics to draw the line
 			// Wait for Horizontal Blank to draw the new line
 			if Memory[PC+1] == WSYNC {
+				if debug {
+					fmt.Printf("\nWSYNC SET\n")
+				}
 				DrawLine = true
-				fmt.Printf("\nWSYNC SET\n")
 				Beam_index = 0
 
 
 				if Memory[GRP0] != 0 {
+					if debug {
+						fmt.Printf("\nGRP0 SET\n")
+					}
 					DrawP0 = true
-					fmt.Printf("\nGRP0 SET\n")
 				}
 
 				if Memory[GRP1] != 0 {
+					if debug {
+						fmt.Printf("\nGRP1 SET\n")
+					}
 					DrawP1 = true
-					fmt.Printf("\nGRP1 SET\n")
 				}
 
 			}
 
 			if Memory[PC+1] == RESP0 {
-
 				if Memory[RESP0] != 0 {
-					// Pause = true
+					if debug {
+						fmt.Printf("\nRESP0 SET\n")
+					}
 					XPositionP0 = Beam_index
-					fmt.Printf("\nRESP0 SET\n")
 				}
 			}
 
 			if Memory[PC+1] == RESP1 {
-
 				if Memory[RESP1] != 0 {
-					// Pause = true
+					if debug {
+						fmt.Printf("\nRESP1 SET\n")
+					}
 					XPositionP1 = Beam_index
-					fmt.Printf("\nRESP1 SET\n")
 				}
 			}
 
 
 			if Memory[PC+1] == HMP0 {
-
 				XFinePositionP0 = Fine(Memory[HMP0])
-				// fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				// os.Exit(2)
+
+				if debug {
+					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				}
 
 			}
 
 			if Memory[PC+1] == HMP1 {
-
 				XFinePositionP1 = Fine(Memory[HMP1])
-				// fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				// os.Exit(2)
-
+				if debug {
+					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
+				}
 			}
 
 			Beam_index += 3
-
 			PC += 2
 
 
@@ -1055,26 +1060,31 @@ func Interpreter() {
 	     // --------------------------------------------
 	     // zeropage      SBC oper      E5    2     3
 		case 0xE5: // SBC
-			// Memory[Memory[PC+1]] = X
-
 
 			if debug {
-				fmt.Printf("\n\tNEED TO IMPLEMENT OVERFLOW!!! - Opcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - (1-P[0]))
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - (1-P[0]))
 			}
+
+			// Original value of A
+			tmp := A
 			// A-M-(1-Carry)
+			// Need to change the value of A at this moment to avoid the flags test change the current Status
 			A = A - Memory[Memory[PC+1]] - (1-P[0])
 
+			flags_C_SBC(tmp, A)
+			Flags_V_SBC(tmp, A)
 			flags_Z(A)
 			flags_N(A)
-			// flags_C will be cleared if overflow in bit 7
 
-			// FALTA TRATAR OVERFLOW e CARRY DIREIO
-			// os.Exit(2)
+			// Clear Carry if overflow in bit 7
+			if P[6] == 1 {
+				P[0] = 0
+			}
 
 			PC += 2
-			Beam_index += 3
+			Beam_index += 2
 
-//** IMPLEMENT OVERFLOW **//
+
 		// SBC  Subtract Memory from Accumulator with Borrow (immidiate)
 		//
 		//      A - M - C -> A                   N Z C I D V
