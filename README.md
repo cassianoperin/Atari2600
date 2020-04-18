@@ -13,10 +13,10 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 - 6502/6507 CPU Opcodes: 36/150
 
 ## Missing:
-- 6vertical.bin program, wrong line draw at the end of screen (first line draw)
 - Graphics: Player Horizontal Movement - Measurement with CPU cycles
 - Graphics: Ball
 - Graphics: Missiles
+- Cycle counting: Implement crossing memory page boundaries to add a new cycle in some operations
 - Input
 - Sound
 

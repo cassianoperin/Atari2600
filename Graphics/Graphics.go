@@ -121,13 +121,16 @@ func readPF2() {
 func drawPlayer0() {
 	if CPU.DrawP0 {
 
+
+
 		// If a program doesnt use RESP0, initialize
 		if CPU.XPositionP0 == 0 {
 			CPU.XPositionP0 = 23
 		}
 
-
-		fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tHMP0: %d", line, CPU.Memory[GRP0], CPU.XPositionP0, CPU.Memory[HMP0])
+		if debug {
+			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
+		}
 		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{

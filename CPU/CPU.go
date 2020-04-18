@@ -182,7 +182,7 @@ func DecodeTwoComplement(num byte) int8 {
 
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF], XPositionP0, Memory[HMP0] )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
 }
 
 
@@ -650,7 +650,7 @@ func Interpreter() {
 
 			Beam_index += 2
 
-
+// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
 		// BCS  Branch on Carry Set
 		//
 		//      branch on C = 1                  N Z C I D V
@@ -668,6 +668,8 @@ func Interpreter() {
 
 				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
+				Beam_index += 3
+
 
 			// If carry is set
 			} else {
@@ -675,9 +677,9 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
 				}
 				PC += 2
+				Beam_index += 2
 			}
 
-			Beam_index += 2
 
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
@@ -1082,7 +1084,7 @@ func Interpreter() {
 			}
 
 			PC += 2
-			Beam_index += 2
+			Beam_index += 3
 
 
 		// SBC  Subtract Memory from Accumulator with Borrow (immidiate)
