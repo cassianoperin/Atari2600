@@ -55,7 +55,11 @@ var (
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
 
-	XPosition byte
+	// Players Vertical Positioning
+	XPositionP0		byte
+	XFinePositionP0	int8
+	XPositionP1		byte
+	XFinePositionP1	int8
 
 	// *************** Personal Control Flags *************** //
 	// Beam index to control where to draw objects using cpu cycles
@@ -75,6 +79,52 @@ var (
 	//Debug
 	debug 		bool = true
 )
+
+func Fine(HMP0 byte) int8 {
+
+	var value int8
+
+	switch HMP0 {
+		case 0x70:
+			value = -7
+		case 0x60:
+			value = -6
+		case 0x50:
+			value = -5
+		case 0x40:
+			value = -4
+		case 0x30:
+			value = -3
+		case 0x20:
+			value = -2
+		case 0x10:
+			value = -1
+		case 0x00:
+			value =  0
+		case 0xF0:
+			value =  1
+		case 0xE0:
+			value =  2
+		case 0xD0:
+			value =  3
+		case 0xC0:
+			value =  4
+		case 0xB0:
+			value =  5
+		case 0xA0:
+			value =  6
+		case 0x90:
+			value =  7
+		case 0x80:
+			value =  8
+		default:
+			fmt.Printf("\n\tInvalid HMP0 %02X!\n\n", HMP0)
+			os.Exit(2)
+		}
+
+	return value
+
+}
 
 
 // Initialization
@@ -132,7 +182,7 @@ func DecodeTwoComplement(num byte) int8 {
 
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b\tXPosition: %d\tHMP0: %d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF], XPosition, Memory[HMP0] )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF], XPositionP0, Memory[HMP0] )
 }
 
 
@@ -185,6 +235,25 @@ func flags_C(value1, value2 byte) {
 
 	if debug {
 		fmt.Printf(" %d", P[0])
+	}
+}
+
+// Carry Flag
+func flags_C_SBC(value1, value2 byte) {
+	if debug {
+		fmt.Printf("\n\tFlag C: %d ->", P[0])
+	}
+
+	// If the new value is bigger than the original clear the flag
+	if value1 < value2 {
+		P[0] = 0
+	} else {
+		P[0] = 1
+	}
+
+
+	if debug {
+		fmt.Printf(" %d (SBC)" , P[0])
 	}
 }
 
@@ -752,26 +821,28 @@ func Interpreter() {
 		case 0x85: // STA (zeropage)
 
 			Memory[Memory[PC+1]] = A
-			// if debug {
-			// 	fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
-			// }
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
+			}
 
 
 			// Wait for a new line and authorize graphics to draw the line
 			// Wait for Horizontal Blank to draw the new line
 			if Memory[PC+1] == WSYNC {
 				DrawLine = true
-				// fmt.Printf("\n\nWSYNC\n\n")
+				fmt.Printf("\nWSYNC SET\n")
 				Beam_index = 0
 
 
 				if Memory[GRP0] != 0 {
 					DrawP0 = true
-					// Pause = true
+					fmt.Printf("\nGRP0 SET\n")
 				}
 
 				if Memory[GRP1] != 0 {
 					DrawP1 = true
+					fmt.Printf("\nGRP1 SET\n")
 				}
 
 			}
@@ -780,9 +851,35 @@ func Interpreter() {
 
 				if Memory[RESP0] != 0 {
 					// Pause = true
-					XPosition = Beam_index
-					fmt.Printf("\nRESPO0 SET\tXPosition: %d\n\n", XPosition)
+					XPositionP0 = Beam_index
+					fmt.Printf("\nRESP0 SET\n")
 				}
+			}
+
+			if Memory[PC+1] == RESP1 {
+
+				if Memory[RESP1] != 0 {
+					// Pause = true
+					XPositionP1 = Beam_index
+					fmt.Printf("\nRESP1 SET\n")
+				}
+			}
+
+
+			if Memory[PC+1] == HMP0 {
+
+				XFinePositionP0 = Fine(Memory[HMP0])
+				// fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				// os.Exit(2)
+
+			}
+
+			if Memory[PC+1] == HMP1 {
+
+				XFinePositionP1 = Fine(Memory[HMP1])
+				// fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				// os.Exit(2)
+
 			}
 
 			Beam_index += 3
@@ -970,8 +1067,9 @@ func Interpreter() {
 			flags_Z(A)
 			flags_N(A)
 			// flags_C will be cleared if overflow in bit 7
-			// FALTA TRATAR OVERFLOW
-			Pause = true
+
+			// FALTA TRATAR OVERFLOW e CARRY DIREIO
+			// os.Exit(2)
 
 			PC += 2
 			Beam_index += 3
@@ -991,23 +1089,23 @@ func Interpreter() {
 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], P[0] , A - Memory[PC+1] - (1-P[0]))
 			}
 
-			fmt.Printf("\n\n%d\n\n",A)
+			// fmt.Printf("\n\n%d\n\n",A)
+			// Original value of A
+			tmp := A
+			// A-M-(1-Carry)
+			// Need to change the value of A at this moment to avoid the flags test change the current Status
+			A = A - Memory[PC+1] - (1-P[0])
 
-			flags_C(A,Memory[PC+1])
+			// So here, we need to test the previous value of A, prior to the opcode execution
+			flags_C_SBC(tmp, A)
 
-			// A = A - Memory[PC+1] - (1-P[0])
-
-			Flags_V_SBC(A,Memory[PC+1])
+			Flags_V_SBC(tmp, A)
 
 			// A-M-(1-Carry)
-			A = A - Memory[PC+1] - (1-P[0])
+			// A = A - Memory[PC+1] - (1-P[0])
 
 			flags_Z(A)
 			flags_N(A)
-
-			fmt.Printf("\n\n%d\n\n",A)
-			Pause = true
-
 
 			// Clear Carry if overflow in bit 7
 			if P[6] == 1 {
@@ -1016,7 +1114,6 @@ func Interpreter() {
 
 			PC += 2
 			Beam_index += 2
-			// Pause = true
 
 
 		//-------------------------------------------------- CMP --------------------------------------------------//

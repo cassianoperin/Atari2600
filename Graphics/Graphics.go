@@ -120,8 +120,14 @@ func readPF2() {
 
 func drawPlayer0() {
 	if CPU.DrawP0 {
-		fmt.Printf("\nLine: %d\tGRP0: %08b\tXPosition: %d\tHMP0: %d", line, CPU.Memory[GRP0], CPU.XPosition, CPU.Memory[HMP0])
 
+		// If a program doesnt use RESP0, initialize
+		if CPU.XPositionP0 == 0 {
+			CPU.XPositionP0 = 23
+		}
+
+
+		fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tHMP0: %d", line, CPU.Memory[GRP0], CPU.XPositionP0, CPU.Memory[HMP0])
 		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
@@ -132,11 +138,8 @@ func drawPlayer0() {
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				// imd.Push(pixel.V(  (float64(CPU.XPosition*3+byte(i)) )*width			, float64(232-line)*height ))
-				// imd.Push(pixel.V(  (float64(CPU.XPosition*3+byte(i)) )*width + width	, float64(232-line)*height + height))
-
-				imd.Push(pixel.V(  (float64(   (CPU.XPosition*3) +byte(i)  +CPU.Memory[HMP0]) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(   (CPU.XPosition*3) +byte(i)  +CPU.Memory[HMP0]) )*width + width	, float64(232-line)*height + height))
+				imd.Push(pixel.V(  (float64(   (CPU.XPositionP0*3)-68 +byte(i))  +float64(CPU.XFinePositionP0) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(   (CPU.XPositionP0*3)-68 +byte(i))  +float64(CPU.XFinePositionP0) )*width + width	, float64(232-line)*height + height))
 				imd.Rectangle(0)
 
 				imd.Draw(win)
@@ -153,30 +156,65 @@ func drawPlayer0() {
 
 func drawPlayer1() {
 	if CPU.DrawP1 {
-		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
+
+		// If a program doesnt use RESP0, initialize
+		if CPU.XPositionP1 == 0 {
+			CPU.XPositionP1 = 30
+		}
+
+
+		fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[GRP1], CPU.XPositionP1, CPU.Memory[HMP1])
+		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
-			//fmt.Printf("%d",bit)
 
 			if bit == 1 {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height +height))
+				imd.Push(pixel.V(  (float64(   (CPU.XPositionP1*3)-68 +byte(i))  +float64(CPU.XFinePositionP1) )*width			, float64(232-line)*height ))
+				imd.Push(pixel.V(  (float64(   (CPU.XPositionP1*3)-68 +byte(i))  +float64(CPU.XFinePositionP1) )*width + width	, float64(232-line)*height + height))
 				imd.Rectangle(0)
 
 				imd.Draw(win)
 				// Count draw operations number per second
 				draws ++
+
+				// CPU.Pause = true
 			}
 		}
 		CPU.DrawP1 = false
 	}
 }
 
+
+// Old Draw Player
+// func drawPlayer1() {
+// 	if CPU.DrawP1 {
+// 		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
+//
+// 		for i:=0 ; i <=7 ; i++{
+// 			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
+//
+// 			if bit == 1 {
+// 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+// 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+//
+// 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
+// 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height +height))
+// 				imd.Rectangle(0)
+//
+// 				imd.Draw(win)
+// 				// Count draw operations number per second
+// 				draws ++
+// 			}
+// 		}
+// 		CPU.DrawP1 = false
+// 	}
+// }
 
 func drawGraphics() {
 
@@ -424,7 +462,7 @@ func Run() {
 		}
 
 		drawGraphics()
-
+		// fmt.Printf("%d",CPU.DecodeTwoComplement(246))
 
 	}
 
