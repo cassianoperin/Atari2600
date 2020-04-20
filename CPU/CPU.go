@@ -149,6 +149,31 @@ func Fine(HMPX byte) int8 {
 }
 
 
+func MemPageBoundary(Address1, Address2 uint16) bool {
+
+	var cross bool = false
+	if debug {
+		// fmt.Printf("\n\n%02X %02X\n\n",Address1 >>8, Address2 >>8)
+	}
+
+	// Get the High byte only to compare
+	if Address1 >>8 != Address2 >>8 {
+		cross = true
+		if debug {
+			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tMemory Page Boundary Cross detected! Add 1 cycle.\n",Address1 >>8, Address2 >>8)
+		}
+	}
+	// else {
+	// 	if debug {
+	// 		fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tNo Memory Page Boundary Cross detected.\n",Address1 >>8, Address2 >>8)
+	// 	}
+	// }
+
+	return cross
+
+}
+
+
 // Initialization
 func Initialize() {
 
@@ -609,9 +634,6 @@ func Interpreter() {
 
 		//-------------------------------------------------- Branches --------------------------------------------------//
 
-// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
-// ** add 1 to cycles if branch occurs on same page
-//    add 2 to cycles if branch occurs to different page
 		// BNE  Branch on Result not Zero
 		//
 		//      branch on Z = 0                  N Z C I D V
@@ -630,25 +652,33 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
 				}
 				PC += 2
-				Beam_index += 2
 
 			} else {
+
+				// Current PC (To detect page bounday cross)
+				tmp := PC
+				// fmt.Printf("\ntmp: %02X\n",tmp)
+
 				offset := DecodeTwoComplement(Memory[PC+1])
-				//fmt.Printf("\tOffset(%02X): %d \n", Memory[PC+1], offset)
+				// fmt.Printf("\tOffset(%02X): %d \n", Memory[PC+1], offset)
 
 				// Increment PF + the offset
 				PC += 2 + uint16(offset)
 				if debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n", Opcode, Memory[PC+1], Memory[SP], PC, Memory[PC])
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d | PC = Jump to Memory[%04X] (%02X)\n", Opcode, Memory[PC+1], Memory[SP], PC, Memory[PC])
 					Beam_index += 1
 				}
-				Beam_index += 3
+				// Add 1 to cycles if branch occurs on same page
+				Beam_index += 1
+
+				// Add one extra cycle if branch occurs in a differente memory page
+				if MemPageBoundary(uint16(tmp), PC) {
+					Beam_index += 1
+				}
 			}
+			Beam_index += 2
 
 
-// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
-// ** add 1 to cycles if branch occurs on same page
-//    add 2 to cycles if branch occurs to different page
 		// BCC  Branch on Carry Clear
 		//
 		//      branch on C = 0                  N Z C I D V
@@ -664,9 +694,20 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
 				}
 
+				// Current PC (To detect page bounday cross)
+				tmp := PC
+				// fmt.Printf("\ntmp: %02X\n",tmp)
+
 				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-				Beam_index += 3
+
+				// Add 1 to cycles if branch occurs on same page
+				Beam_index += 1
+
+				// Add one extra cycle if branch occurs in a differente memory page
+				if MemPageBoundary(uint16(tmp), PC) {
+					Beam_index += 1
+				}
 
 			// If carry is set
 			} else {
@@ -674,14 +715,10 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry NOT EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
 				}
 				PC += 2
-				Beam_index += 2
 			}
+			Beam_index += 2
 
 
-
-// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
-// ** add 1 to cycles if branch occurs on same page
-//    add 2 to cycles if branch occurs to different page
 		// BCS  Branch on Carry Set
 		//
 		//      branch on C = 1                  N Z C I D V
@@ -696,11 +733,20 @@ func Interpreter() {
 				if debug {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
 				}
+				// Current PC (To detect page bounday cross)
+				tmp := PC
+				// fmt.Printf("\ntmp: %02X\n",tmp)
 
 				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-				Beam_index += 3
 
+				// Add 1 to cycles if branch occurs on same page
+				Beam_index += 1
+
+				// // Add one extra cycle if branch occurs in a differente memory page
+				if MemPageBoundary(uint16(tmp), PC) {
+					Beam_index += 1
+				}
 
 			// If carry is set
 			} else {
@@ -708,8 +754,8 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
 				}
 				PC += 2
-				Beam_index += 2
 			}
+			Beam_index += 2
 
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
@@ -800,8 +846,7 @@ func Interpreter() {
 			PC += 2
 			Beam_index += 3
 
-// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
-// *  add 1 to cycles if page boundery is crossed
+
 		// LDA  Load Accumulator with Memory (absolute,Y)
 		//
 		//      M -> A                           N Z C I D V
@@ -818,10 +863,18 @@ func Interpreter() {
 			if debug {
 				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
 			}
+
 			PC += 3
+
+			// Add 1 to cycles if page boundery is crossed
+			if MemPageBoundary(uint16(tmp) + uint16(Y), PC) {
+				Beam_index += 1
+			}
+
 			flags_Z(A)
 			flags_N(A)
 			Beam_index += 4
+
 
 		//-------------------------------------------------- STA --------------------------------------------------//
 
