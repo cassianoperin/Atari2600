@@ -20,35 +20,9 @@ var (
 	imd				= imdraw.New(nil)
 	cfg				= pixelgl.WindowConfig{}
 
-
 	// Line draw control
 	line				int = 1
 	line_max			int = 262
-
-	//0000-002C - TIA (write)
-	VSYNC 			byte = 0x00		//0000 00x0   Vertical Sync Set-Clear
-	VBLANK			byte = 0x01		//xx00 00x0   Vertical Blank Set-Clear
-	WSYNC			byte = 0x02		//---- ----   Wait for Horizontal Blank
-	RSYNC			byte = 0x03		//---- ----   Reset Horizontal Sync Counter
-	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
-	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
-	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
-	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
-	// CTRLPLF (8 bits register)
-	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
-	// D1 = Score == Color of the score will be the same as player
-	// D2 = Priority == Player behind the playfield
-	// D4-5 = Ball Size (1, 2, 4, 8)
-	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
-	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
-	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
-	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
-	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
-	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
-	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
-	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
-	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
-	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
 
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
 	playfield			[40]byte			//Improve to binary
@@ -72,6 +46,7 @@ const (
 	screenHeight		= float64(sizeY*3)
 	width			= screenWidth  / sizeX
 	height			= screenHeight / sizeY
+
 )
 
 
@@ -92,7 +67,7 @@ func renderGraphics() {
 func readPF0() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF0])
 	for i := 4 ; i < 8 ; i++ {
-		playfield[i-4] = ( CPU.Memory[PF0] >> byte(i) ) & 0x01
+		playfield[i-4] = ( CPU.Memory[CPU.PF0] >> byte(i) ) & 0x01
 	}
 	// fmt.Printf("%d", playfield)
 
@@ -102,7 +77,7 @@ func readPF0() {
 func readPF1() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF1])
 	for i := 0 ; i < 8 ; i++ {
-		playfield[11-i] = ( CPU.Memory[PF1] >> byte(i) ) & 0x01
+		playfield[11-i] = ( CPU.Memory[CPU.PF1] >> byte(i) ) & 0x01
 	}
 	// fmt.Printf("%d", playfield)
 }
@@ -111,7 +86,7 @@ func readPF1() {
 func readPF2() {
 	// fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n%08b\n", CPU.Memory[PF2])
 	for i := 0 ; i < 8 ; i++ {
-		playfield[12+i] = ( CPU.Memory[PF2] >> byte(i) ) & 0x01
+		playfield[12+i] = ( CPU.Memory[CPU.PF2] >> byte(i) ) & 0x01
 	}
 	// fmt.Printf("%d", playfield)
 }
@@ -129,16 +104,16 @@ func drawPlayer0() {
 		}
 
 		if debug {
-			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
+			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[CPU.GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
 		}
 		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[GRP0] >> (7-byte(i)) & 0x01
+			bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
 
 			if bit == 1 {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 				imd.Push(pixel.V(  (float64(   (CPU.XPositionP0*3)-68 +byte(i))  +float64(CPU.XFinePositionP0) )*width			, float64(232-line)*height ))
@@ -166,16 +141,16 @@ func drawPlayer1() {
 		}
 
 		if debug {
-			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[GRP1], CPU.XPositionP1, CPU.Memory[HMP1])
+			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[CPU.GRP1], CPU.XPositionP1, CPU.Memory[CPU.HMP1])
 		}
 		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
+			bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
 
 			if bit == 1 {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 				imd.Push(pixel.V(  (float64(   (CPU.XPositionP1*3)-68 +byte(i))  +float64(CPU.XFinePositionP1) )*width			, float64(232-line)*height ))
@@ -227,16 +202,16 @@ func drawGraphics() {
 	// Draw conten on every WSYNC from CPU
 	if CPU.DrawLine {
 		// 3 lines VSYNC
-		if CPU.Memory[VBLANK] == 2 && CPU.Memory[VSYNC] == 2  {
+		if CPU.Memory[CPU.VBLANK] == 2 && CPU.Memory[CPU.VSYNC] == 2  {
 			if debug {
-				fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[VSYNC])
+				fmt.Printf("\nLine: %d\tVSYNC: %02X", line, CPU.Memory[CPU.VSYNC])
 			}
 
 
 		// 37 lines VBLANK
-		} else if CPU.Memory[VBLANK] == 2 {
+		} else if CPU.Memory[CPU.VBLANK] == 2 {
 			if debug {
-				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[VBLANK])
+				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[CPU.VBLANK])
 			}
 
 
@@ -299,7 +274,7 @@ func drawGraphics() {
 func drawVisibleModeLine() {
 
 	// D0 = 1 = Reflect first 20 sprites of the PF to the last 20
-	if (CPU.Memory[CTRLPF] & 0x01) == 1 {
+	if (CPU.Memory[CPU.CTRLPF] & 0x01) == 1 {
 		j := 0
 		for i := len(playfield) - 1; i > 19  ; i-- {
 			playfield[i] = playfield[j]
@@ -327,11 +302,11 @@ func drawVisibleModeLine() {
 			// Set color (0: Background | 1: Playfield)
 			if search == 0 {
 				// READ COLUBK (Memory[0x09]) - Set the Background Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 			} else {
 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
+				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUPF])
 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 			}
 
@@ -340,14 +315,14 @@ func drawVisibleModeLine() {
 			if search == 1 {
 				// Check D1 status to use color of players in the score
 
-				if (CPU.Memory[CTRLPF] & 0x02) >> 1 == 1  {
+				if (CPU.Memory[CPU.CTRLPF] & 0x02) >> 1 == 1  {
 					// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
-					R, G, B := Palettes.NTSC(CPU.Memory[COLUP0])
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
 					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					// Set P1 Color
 					if i >= 20 {
 						// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
-						R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
+						R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
 				}
@@ -369,11 +344,11 @@ func drawVisibleModeLine() {
 	// Process the last value [19]
 	if search == 0 {
 		// READ COLUBK (Memory[0x09]) - Set the Background Color
-		R, G, B := Palettes.NTSC(CPU.Memory[COLUBK])
+		R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
 		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 	} else {
 		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-		R, G, B := Palettes.NTSC(CPU.Memory[COLUPF])
+		R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUPF])
 		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 	}
 
@@ -389,7 +364,66 @@ func drawVisibleModeLine() {
 }
 
 
+func keyboard() {
 
+	// CPU.Pause Key
+	if win.Pressed(pixelgl.KeyP) {
+		if CPU.Pause {
+			CPU.Pause = false
+			fmt.Printf("\t\tPAUSE mode Disabled\n")
+			time.Sleep(500 * time.Millisecond)
+		} else {
+			CPU.Pause = true
+			fmt.Printf("\t\tPAUSE mode Enabled\n")
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
+
+	// Step Forward
+	if win.Pressed(pixelgl.KeyI) {
+		if CPU.Pause {
+			fmt.Printf("\t\tStep Forward\n")
+			CPU.Interpreter()
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+
+	// -------------- PLAYER 0 -------------- //
+	// P0 Right
+	if win.Pressed(pixelgl.KeyRight) {
+		CPU.Memory[CPU.SWCHA] = 0x7F // 0111 1111
+	}
+	// P0 Left
+	if win.Pressed(pixelgl.KeyLeft) {
+		CPU.Memory[CPU.SWCHA] = 0xBF // 1011 1111
+	}
+	// P0 Down
+	if win.Pressed(pixelgl.KeyDown) {
+		CPU.Memory[CPU.SWCHA] = 0xDF // 1101 1111
+	}
+	// P0 Up
+	if win.Pressed(pixelgl.KeyUp) {
+		CPU.Memory[CPU.SWCHA] = 0xEF // 1110 1111
+	}
+
+	// -------------- PLAYER 1 -------------- //
+	// P1 Right
+	if win.Pressed(pixelgl.KeyD) {
+		CPU.Memory[CPU.SWCHA] = 0xF7 // 1111 0111
+	}
+	// P1 Left
+	if win.Pressed(pixelgl.KeyA) {
+		CPU.Memory[CPU.SWCHA] = 0xFB // 1111 1011
+	}
+	// P1 Down
+	if win.Pressed(pixelgl.KeyS) {
+		CPU.Memory[CPU.SWCHA] = 0xFD // 1111 1101
+	}
+	// P1 Up
+	if win.Pressed(pixelgl.KeyW) {
+		CPU.Memory[CPU.SWCHA] = 0xFE // 1111 1110
+	}
+}
 
 
 // Infinte Loop
@@ -409,36 +443,22 @@ func Run() {
 			break
 		}
 
-		// CPU.Pause Key
-		if win.Pressed(pixelgl.KeyP) {
-			if CPU.Pause {
-				CPU.Pause = false
-				fmt.Printf("\t\tPAUSE mode Disabled\n")
-				time.Sleep(500 * time.Millisecond)
-			} else {
-				CPU.Pause = true
-				fmt.Printf("\t\tPAUSE mode Enabled\n")
-				time.Sleep(500 * time.Millisecond)
-			}
-		}
 
-		// Step Forward
-		if win.Pressed(pixelgl.KeyI) {
-			if CPU.Pause {
-				fmt.Printf("\t\tStep Forward\n")
-				CPU.Interpreter()
-				time.Sleep(50 * time.Millisecond)
-			}
-		}
 
 
 		// Every Cycle Control the clock!!!
 		select {
 		case <-CPU.Clock.C:
 
+			// Handle Input
+			keyboard()
+
 			if !CPU.Pause {
 				CPU.Interpreter()
 				// CPU.Flags_V_SBC(5,15)
+
+				// Reset Controllers Buttons to 1 (not pressed)
+				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
 			}
 			// DRAW
 

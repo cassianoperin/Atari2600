@@ -8,11 +8,7 @@ import (
 
 // Components
 var (
-	//0000-002C - TIA (write)
-	//0030-003D - TIA (read) - (sometimes mirrored at 0030-003D)
-	//0080-00FF - RIOT (RAM) (128 bytes) -- Stack uses the last addresses
-	//0280-0297 - RIOT (I/O, Timer)
-	//F000-FFFF - Cartridge (ROM)
+
 	Memory		[65536]byte	// Memory
 	PC			uint16		// Program Counter
 	A			byte			// Accumulator
@@ -35,16 +31,6 @@ var (
 	// 1    Z     Zero          (0=Nonzero, 1=Zero)
 	// 0    C     Carry         (0=No Carry, 1=Carry)
 
-	// Memory Positions
-	WSYNC		byte = 0x02		//---- ----   Wait for Horizontal Blank
-	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
-	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
-	RESP0 			byte = 0x10		//---- ----   Reset Player 0
-	RESP1 			byte = 0x11		//---- ----   Reset Player 1
-	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
-	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
-	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
-	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
 	// CPU Variables
 	Opcode		uint16		// CPU Operation Code
 	Cycle		uint16		// CPU Cycle
@@ -54,7 +40,6 @@ var (
 	ScreenRefresh		*time.Ticker	// Screen Refresh
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
-
 	// Players Vertical Positioning
 	XPositionP0		byte
 	XFinePositionP0	int8
@@ -62,15 +47,11 @@ var (
 	XFinePositionP1	int8
 
 	// *************** Personal Control Flags *************** //
-	// Beam index to control where to draw objects using cpu cycles
-	Beam_index	byte = 0
-	// Instruct Graphics to draw a new line
-	DrawLine		bool = false
-	// Instruct Graphics to draw Player 0 sprite
-	DrawP0		bool = false
-	// Instruct Graphics to draw Player 1 sprite
-	DrawP1		bool = false
-
+	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
+	// Draw instuctions
+	DrawLine		bool = false	// Instruct Graphics to draw a new line
+	DrawP0		bool = false	// Instruct Graphics to draw Player 0 sprite
+	DrawP1		bool = false	// Instruct Graphics to draw Player 1 sprite
 
 	// Pause
 	Pause		bool = false
@@ -78,6 +59,48 @@ var (
 	//Debug
 	debug 		bool = false
 )
+
+
+const (
+	//-------------------------------------------------- Memory locations -------------------------------------------------//
+
+	//0000-002C - TIA (write)
+	//0030-003D - TIA (read) - (sometimes mirrored at 0030-003D)
+	//0080-00FF - RIOT (RAM) (128 bytes) -- Stack uses the last addresses
+	//0280-0297 - RIOT (I/O, Timer)
+	//F000-FFFF - Cartridge (ROM)
+
+	//------------------- 0000-002C - TIA (write)
+	VSYNC 			byte = 0x00		//0000 00x0   Vertical Sync Set-Clear
+	VBLANK			byte = 0x01		//xx00 00x0   Vertical Blank Set-Clear
+	WSYNC			byte = 0x02		//---- ----   Wait for Horizontal Blank
+	RSYNC			byte = 0x03		//---- ----   Reset Horizontal Sync Counter
+	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
+	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
+	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
+	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
+	// CTRLPLF (8 bits register)
+	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
+	// D1 = Score == Color of the score will be the same as player
+	// D2 = Priority == Player behind the playfield
+	// D4-5 = Ball Size (1, 2, 4, 8)
+	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
+	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
+	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
+	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
+	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
+	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
+	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
+	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
+	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
+	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
+
+	//------------------- 0280-0297 - RIOT (I/O, Timer)
+	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
+
+)
+
+
 
 func Fine(HMP0 byte) int8 {
 
@@ -784,7 +807,7 @@ func Interpreter() {
 			// fmt.Printf("\n\n\n%08b", A)
 			// fmt.Printf("\n\n\n%d", A)
 			if debug {
-				fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
 			}
 			PC += 3
 			flags_Z(A)
@@ -975,7 +998,7 @@ func Interpreter() {
 			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
 			//fmt.Printf("\n%04X\n",tmp)
 			if debug {
-				fmt.Printf("\n\tOpcode %02X%02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[%d](%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp])
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[%d](%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Memory[tmp])
 			}
 			PC = tmp
 			Beam_index += 3
@@ -1263,6 +1286,53 @@ func Interpreter() {
 			Beam_index += 2
 
 
+		//-------------------------------------------------- BIT --------------------------------------------------//
+
+		// BIT  Test Bits in Memory with Accumulator
+		//
+		//      bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+		//      the zeroflag is set to the result of operand AND accumulator.
+		//
+		//      A AND M, M7 -> N, M6 -> V        N Z C I D V
+		//                                      M7 + - - - M6
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      absolute      BIT oper      2C    3     4
+		case 0x2C:
+			// Memory address
+			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tBIT  Test Bits in Memory with Accumulator (absolute).\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], A, tmp, Memory[tmp], A & Memory[tmp] )
+			}
+			// fmt.Printf("\n\n%08b\n\n",A & Memory[tmp])
+
+			// Memory Address bit 7 (A) -> N (Negative)
+			// A = 0x80
+			if debug {
+				fmt.Printf("\n\tFlag N: %d -> ",P[7])
+			}
+			P[7] = A >> 7 & 0x1
+			if debug {
+				fmt.Printf("%d\n",P[7])
+			}
+
+			// Memory Address bit 6 (A) -> V (oVerflow)
+			// A = 0x40
+			if debug {
+				fmt.Printf("\n\tFlag V: %d -> ",P[6])
+			}
+			P[6] = A >> 6 & 0x1
+			if debug {
+				fmt.Printf("%d\n",P[6])
+			}
+
+			flags_Z(A & Memory[tmp])
+
+			PC += 3
+			Beam_index += 4
+			// os.Exit(2)
 
 
 
