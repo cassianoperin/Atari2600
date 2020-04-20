@@ -46,7 +46,7 @@ var (
 	XPositionP1		byte
 	XFinePositionP1	int8
 
-	// *************** Personal Control Flags *************** //
+	// ------------------ Personal Control Flags ------------------ //
 	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
 	// Draw instuctions
 	DrawLine		bool = false	// Instruct Graphics to draw a new line
@@ -102,11 +102,11 @@ const (
 
 
 
-func Fine(HMP0 byte) int8 {
+func Fine(HMPX byte) int8 {
 
 	var value int8
 
-	switch HMP0 {
+	switch HMPX {
 		case 0x70:
 			value = -7
 		case 0x60:
@@ -609,7 +609,9 @@ func Interpreter() {
 
 		//-------------------------------------------------- Branches --------------------------------------------------//
 
-
+// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
+// ** add 1 to cycles if branch occurs on same page
+//    add 2 to cycles if branch occurs to different page
 		// BNE  Branch on Result not Zero
 		//
 		//      branch on Z = 0                  N Z C I D V
@@ -628,6 +630,7 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
 				}
 				PC += 2
+				Beam_index += 2
 
 			} else {
 				offset := DecodeTwoComplement(Memory[PC+1])
@@ -639,10 +642,13 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d | PC = Jump to Memory[%02X] (%02X)\n", Opcode, Memory[PC+1], Memory[SP], PC, Memory[PC])
 					Beam_index += 1
 				}
+				Beam_index += 3
 			}
-			Beam_index += 3 // ************** PODE VARIAR!!! IMPLEMENTAR **************
 
 
+// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
+// ** add 1 to cycles if branch occurs on same page
+//    add 2 to cycles if branch occurs to different page
 		// BCC  Branch on Carry Clear
 		//
 		//      branch on C = 0                  N Z C I D V
@@ -660,6 +666,7 @@ func Interpreter() {
 
 				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
 				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
+				Beam_index += 3
 
 			// If carry is set
 			} else {
@@ -667,12 +674,14 @@ func Interpreter() {
 					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry NOT EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
 				}
 				PC += 2
-
+				Beam_index += 2
 			}
 
-			Beam_index += 2
+
 
 // NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
+// ** add 1 to cycles if branch occurs on same page
+//    add 2 to cycles if branch occurs to different page
 		// BCS  Branch on Carry Set
 		//
 		//      branch on C = 1                  N Z C I D V
@@ -701,7 +710,6 @@ func Interpreter() {
 				PC += 2
 				Beam_index += 2
 			}
-
 
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
@@ -792,7 +800,8 @@ func Interpreter() {
 			PC += 2
 			Beam_index += 3
 
-
+// NEED TO IMPLEMENT PAGE BOUNDARY CROSSING!
+// *  add 1 to cycles if page boundery is crossed
 		// LDA  Load Accumulator with Memory (absolute,Y)
 		//
 		//      M -> A                           N Z C I D V
