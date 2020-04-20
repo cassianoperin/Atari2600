@@ -33,12 +33,12 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player Vertical Movement | OK |
 | Graphics: Player Horizontal Movement | OK |
 | Input | OK |
+| Memory page boundary cross detection | OK |
 | 6502/6507 CPU Opcodes | 37 / 150 |
 
 ## Missing:
 - Graphics: Ball
 - Graphics: Missiles
-- Cycle counting: Implement crossing memory page boundaries to add a new cycle in some operations
 - Sound
 
 ## Documentation:
