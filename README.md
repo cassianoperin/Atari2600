@@ -32,7 +32,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player 0 and Player 1 | OK |
 | Graphics: Player Vertical Movement | OK |
 | Graphics: Player Horizontal Movement | OK |
-| Input | OK |
+| Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | 6502/6507 CPU Opcodes | 37 / 150 |
 
