@@ -34,12 +34,20 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player Horizontal Movement | OK |
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
-| 6502/6507 CPU Opcodes | 37 / 150 |
+| CPU Stack | OK |
+| 6502/6507 CPU Opcodes | 38 / 150 |
 
 ## Missing:
 - Graphics: Ball
 - Graphics: Missiles
+- Object Colilisions
+- Player Stretch  (NUSIZn - Number/Size n)
+- Player Multiply (NUSIZn - Number/Size n)
+- Player Inverted (REFPn - reflect player)
+- Scoreboard value increment for both players
+- Scoreboard multi digit
 - Sound
+
 
 ## Documentation:
 
@@ -71,6 +79,8 @@ http://www.emulator101.com/6502-addressing-modes.html
 ### FLAGS:
 http://www.obelisk.me.uk/6502/reference.html#CPY
 
+### 6502
+http://www.6502.org/
 
 ### NTSC Palette:
 

@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	debug 		bool = false
+	debug 		bool = true
 )
 
 
@@ -228,8 +228,8 @@ func DecodeTwoComplement(num byte) int8 {
 
 
 func Show() {
-	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
+	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
 }
 
 
@@ -563,7 +563,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      implied       PHA           48    1     3
-		case 0x48: // PHA
+		case 0x48:
 			Memory[SP]	= A
 			if debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tPHA  Push Accumulator on Stack.\tMemory[%02X] = A (%d) | SP--\n", Opcode, SP, Memory[SP])
@@ -571,6 +571,31 @@ func Interpreter() {
 			PC += 1
 			SP--
 			Beam_index += 3
+
+
+		// PLA  Pull Accumulator from Stack
+		//
+		//      pull A                           N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      implied       PLA           68    1     4
+		case 0x68:
+			A = Memory[SP+1]
+
+			// Not documented, clean the value on the stack after pull it to accumulator
+			Memory[SP+1] = 0
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
+			}
+			PC += 1
+			SP++
+			Beam_index += 4
+
+			flags_N(A)
+			flags_Z(A)
 
 
 		// BRK  Force Break
@@ -581,7 +606,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      implied       BRK           00    1     7
-		case 0x00: //BRK
+		case 0x00:
 			if debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tBRK  Force Break.\tBREAK!\n", Opcode)
 			}
