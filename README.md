@@ -7,6 +7,10 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 :-------------------------:|:-------------------------:
 <img width="430" alt="horizontal" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/HorizontalMovement.gif">  |  <img width="430" alt="vertical" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/VerticalMovement.gif">
 
+**Controller Input** | **NTSC Palette**
+:-------------------------:|:-------------------------:
+<img width="430" alt="input" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Input.gif"> | <img width="430" alt="palette" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Palette.png">
+
 **Players and Scoreboard** | **Scoreboard Colors**
 :-------------------------:|:-------------------------:
 <img width="430" alt="players" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayersScoreboard.png"> | <img width="430" alt="scoreboard" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayersScoreboardColor.png">
@@ -15,9 +19,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 :-------------------------:|:-------------------------:
 <img width="430" alt="background" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Playfield.png"> | <img width="430" alt="reflection" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayfieldReflex.png">
 
-**NTSC Palette** | 
-:-------------------------:|
-<img width="430" alt="palette" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Palette.png"> | >
+
 
 ## Emulation status:
 | Name  | Status |
@@ -30,13 +32,13 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player 0 and Player 1 | OK |
 | Graphics: Player Vertical Movement | OK |
 | Graphics: Player Horizontal Movement | OK |
-| 6502/6507 CPU Opcodes | 36 / 150 |
+| Input | OK |
+| 6502/6507 CPU Opcodes | 37 / 150 |
 
 ## Missing:
 - Graphics: Ball
 - Graphics: Missiles
 - Cycle counting: Implement crossing memory page boundaries to add a new cycle in some operations
-- Input
 - Sound
 
 ## Documentation:
