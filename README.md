@@ -38,6 +38,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | 6502/6507 CPU Opcodes | 38 / 150 |
 
 ## Missing:
+- Introduced a problem in CMP (C5) in some games
 - Graphics: Ball
 - Graphics: Missiles
 - Object Colilisions

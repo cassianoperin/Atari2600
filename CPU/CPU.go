@@ -228,8 +228,8 @@ func DecodeTwoComplement(num byte) int8 {
 
 
 func Show() {
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tRESPO0: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[RESP0], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
+	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tMEM9: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0x09], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
 }
 
 
@@ -880,7 +880,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      absolute,Y    LDA oper,Y    B9    3     4*
-		case 0xB9: // LDA (absolute,Y)
+		case 0xB9:
 			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
 			A = Memory[tmp + uint16(Y)]
 			// fmt.Printf("\n\n\n%08b", A)
@@ -899,6 +899,78 @@ func Interpreter() {
 			flags_Z(A)
 			flags_N(A)
 			Beam_index += 4
+
+
+
+		// LDA  Load Accumulator with Memory (indirect),Y //
+		//
+		//      M -> A                           N Z C I D V
+		//                                       + + - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      (indirect),Y  LDA (oper),Y  B1    2     5*
+		case 0xB1:
+
+			tmp := uint16(Memory[Memory[PC+1] + 1])<<8 | uint16(Memory[Memory[PC+1]])
+			tmp2 := tmp + uint16(Y)
+
+			A = Memory[tmp2]
+
+			if debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (Indirect Indexed),Y.\tA = Memory[%02X + Y(%d) = %02X] (%d)\n", Opcode, Memory[PC+1], tmp, Y, tmp2, A)
+			}
+			// fmt.Printf("\ntmp: %02X", tmp)
+			// fmt.Printf("\ntmp2: %02X", tmp2)
+			//
+			// fmt.Printf("\n\n\n\n\n\n\nByte 02 : %02X", Memory[PC+1])
+			// fmt.Printf("\nMem %02X: %02X\n\n",Memory[PC+1],  Memory[Memory[PC+1]])
+			//
+			// fmt.Printf("\nByte 01: %01X", Memory[PC+1] + 1)
+			// fmt.Printf("\nMem %02X: %02X\n\n", Memory[PC+1] + 1,  Memory[Memory[PC+1] + 1])
+
+			// fmt.Printf("\n\nRESULTADO ESPERADO: BASE:\t0xF0D8 + Y\t PONTA DO AVIAO:\t0xF0DF")
+			// fmt.Printf("\n\nRESULTADO ESPERADO: COR BASE:\t0xF0EA + Y\t COR PONTA DO AVIAO:\t0xF0F1")
+
+			// fmt.Printf("\nJET")
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DF])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DE])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DD])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DC])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DB])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DA])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0D9])
+			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0D8])
+			// fmt.Printf("\n")
+			// fmt.Printf("\nJET TURN")
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E8])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E7])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E6])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E5])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E4])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E3])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E2])
+			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E1])
+			// fmt.Printf("\nJET COLOR")
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0F1])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0F0])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EF])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EE])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0ED])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EC])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EB])
+			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EA])
+
+			flags_Z(A)
+			flags_N(A)
+
+			PC += 2
+			Beam_index += 5
+
+			// os.Exit(2)
+			// Pause = true
+
+
 
 
 		//-------------------------------------------------- STA --------------------------------------------------//
@@ -1248,26 +1320,28 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      zeropage      CMP oper      C5    2     3
-		case 0xC5: // CMP
-
-			tmp := A - Memory[Memory[PC+1]]
+		case 0xC5:
+			// tmp := A - Memory[Memory[PC+1]]
+			tmp := A - Memory[PC+1]
 
 			if debug {
 				if tmp == 0 {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], tmp)
+					// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
 				} else {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], tmp)
+					// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
 				}
 			}
-
 			flags_Z(tmp)
 			flags_N(tmp)
-			flags_C(A,Memory[Memory[PC+1]])
+			// flags_C(A,Memory[Memory[PC+1]])
+			// flags_C(A,byte(PC+1))
+			flags_C_SBC(A,Memory[PC+1])
 
 			PC += 2
 			Beam_index += 3
-
-
+			// os.Exit(2)
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
 
@@ -1419,8 +1493,6 @@ func Interpreter() {
 
 			PC += 3
 			Beam_index += 4
-			// os.Exit(2)
-
 
 
 		default:
