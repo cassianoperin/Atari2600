@@ -96,8 +96,6 @@ func readPF2() {
 func drawPlayer0() {
 	if CPU.DrawP0 {
 
-
-
 		// If a program doesnt use RESP0, initialize
 		if CPU.XPositionP0 == 0 {
 			CPU.XPositionP0 = 23
@@ -106,7 +104,6 @@ func drawPlayer0() {
 		if debug {
 			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[CPU.GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
 		}
-		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
@@ -123,8 +120,6 @@ func drawPlayer0() {
 				imd.Draw(win)
 				// Count draw operations number per second
 				draws ++
-
-				// CPU.Pause = true
 			}
 		}
 		CPU.DrawP0 = false
@@ -143,7 +138,6 @@ func drawPlayer1() {
 		if debug {
 			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[CPU.GRP1], CPU.XPositionP1, CPU.Memory[CPU.HMP1])
 		}
-		// CPU.Pause = true
 
 		for i:=0 ; i <=7 ; i++{
 			bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
@@ -161,7 +155,6 @@ func drawPlayer1() {
 				// Count draw operations number per second
 				draws ++
 
-				// CPU.Pause = true
 			}
 		}
 		CPU.DrawP1 = false

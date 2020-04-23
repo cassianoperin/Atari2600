@@ -1282,26 +1282,51 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      zeropage      CMP oper      C5    2     3
 		case 0xC5:
-			// tmp := A - Memory[Memory[PC+1]]
-			tmp := A - Memory[PC+1]
 
-			if debug {
-				if tmp == 0 {
-					// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-				} else {
-					// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
+			// WORKAROUND
+			// If in a RAM range, read the value from RAM Address [Memory [Memory[PC+1]] ]
+			if Memory[PC+1] >= 0x80 && Memory[PC+1] <= 0xFF {
+				tmp := A - Memory[Memory[PC+1]]
+
+				if debug {
+					if tmp == 0 {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+					} else {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+					}
 				}
-			}
-			flags_Z(tmp)
-			flags_N(tmp)
-			// flags_C(A,Memory[Memory[PC+1]])
-			// flags_C(A,byte(PC+1))
-			flags_C_SBC(A,Memory[PC+1])
+				flags_Z(tmp)
+				flags_N(tmp)
+				flags_C(A,Memory[Memory[PC+1]])
 
-			PC += 2
-			Beam_index += 3
+				PC += 2
+				Beam_index += 3
+
+			// Else, read directly the value in Memory [PC+1]
+			} else {
+				// tmp := A - Memory[Memory[PC+1]]
+				tmp := A - Memory[PC+1]
+
+				if debug {
+					if tmp == 0 {
+						// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
+					} else {
+						// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
+					}
+				}
+				flags_Z(tmp)
+				flags_N(tmp)
+				// flags_C(A,Memory[Memory[PC+1]])
+				// flags_C(A,byte(PC+1))
+				flags_C_SBC(A,Memory[PC+1])
+
+				PC += 2
+				Beam_index += 3
+			}
+
+
 			// os.Exit(2)
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
