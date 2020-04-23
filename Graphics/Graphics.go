@@ -460,14 +460,13 @@ func Run() {
 				// Reset Controllers Buttons to 1 (not pressed)
 				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
 
-				if CPU.X != 0 {
-
-					if CPU.X < 18 {
-						CPU.Pause = true
-
-					}
-
-				}
+				// if CPU.X != 0 {
+				//
+				// 	if CPU.X < 18 {
+				// 		CPU.Pause = true
+				//
+				// 	}
+				//}
 
 				// CPU.Flags_V_SBC(5,15)
 

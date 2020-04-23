@@ -157,7 +157,7 @@ func MemPageBoundary(Address1, Address2 uint16) bool {
 	}
 
 	// Get the High byte only to compare
-	if Address1 >>8 != Address2 >>8 {
+	if Address1 >> 8 != Address2 >> 8 {
 		cross = true
 		if debug {
 			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tMemory Page Boundary Cross detected! Add 1 cycle.\n",Address1 >>8, Address2 >>8)
@@ -920,57 +920,18 @@ func Interpreter() {
 			if debug {
 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (Indirect Indexed),Y.\tA = Memory[%02X + Y(%d) = %02X] (%d)\n", Opcode, Memory[PC+1], tmp, Y, tmp2, A)
 			}
-			// fmt.Printf("\ntmp: %02X", tmp)
-			// fmt.Printf("\ntmp2: %02X", tmp2)
-			//
-			// fmt.Printf("\n\n\n\n\n\n\nByte 02 : %02X", Memory[PC+1])
-			// fmt.Printf("\nMem %02X: %02X\n\n",Memory[PC+1],  Memory[Memory[PC+1]])
-			//
-			// fmt.Printf("\nByte 01: %01X", Memory[PC+1] + 1)
-			// fmt.Printf("\nMem %02X: %02X\n\n", Memory[PC+1] + 1,  Memory[Memory[PC+1] + 1])
 
-			// fmt.Printf("\n\nRESULTADO ESPERADO: BASE:\t0xF0D8 + Y\t PONTA DO AVIAO:\t0xF0DF")
-			// fmt.Printf("\n\nRESULTADO ESPERADO: COR BASE:\t0xF0EA + Y\t COR PONTA DO AVIAO:\t0xF0F1")
+			PC += 2
 
-			// fmt.Printf("\nJET")
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DF])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DE])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DD])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DC])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DB])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0DA])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0D9])
-			// fmt.Printf("\n0xF0DF: %08b", Memory[0xF0D8])
-			// fmt.Printf("\n")
-			// fmt.Printf("\nJET TURN")
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E8])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E7])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E6])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E5])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E4])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E3])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E2])
-			// fmt.Printf("\n0xF0E8: %08b", Memory[0xF0E1])
-			// fmt.Printf("\nJET COLOR")
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0F1])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0F0])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EF])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EE])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0ED])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EC])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EB])
-			// fmt.Printf("\n0xF0F1: %02X", Memory[0xF0EA])
+			// Add 1 to cycles if page boundery is crossed
+			if MemPageBoundary(uint16(tmp2), PC) {
+				Beam_index += 1
+			}
 
 			flags_Z(A)
 			flags_N(A)
 
-			PC += 2
 			Beam_index += 5
-
-			// os.Exit(2)
-			// Pause = true
-
-
 
 
 		//-------------------------------------------------- STA --------------------------------------------------//
