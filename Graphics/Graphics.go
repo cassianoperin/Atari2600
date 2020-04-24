@@ -105,23 +105,193 @@ func drawPlayer0() {
 			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[CPU.GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
 		}
 
-		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
 
-			if bit == 1 {
-				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+		if CPU.Memory[CPU.NUSIZ0] == 0x00 {
 
-				imd.Push(pixel.V(  (float64(   (CPU.XPositionP0*3)-68 +byte(i))  +float64(CPU.XFinePositionP0) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(   (CPU.XPositionP0*3)-68 +byte(i))  +float64(CPU.XFinePositionP0) )*width + width	, float64(232-line)*height + height))
-				imd.Rectangle(0)
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
 
-				imd.Draw(win)
-				// Count draw operations number per second
-				draws ++
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) -68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) -68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
 			}
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x01 {
+
+			for i:=0 ; i <=7 ; i++ {
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width					, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width + width			, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) +float64(CPU.XFinePositionP0) + float64(16) )*width		, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) +float64(CPU.XFinePositionP0) + float64(16) )*width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x02 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x03 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) )*width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) )*width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(16) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(16) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x04 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(64) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(64) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x05 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i*2)) + float64(CPU.XFinePositionP0) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i*2)) + float64(CPU.XFinePositionP0) ) * width + (width*2)	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x06 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(64) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP0*3) - 68 + byte(i)) + float64(CPU.XFinePositionP0) + float64(64) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ0] == 0x07 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP0] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*4)) + float64(CPU.XFinePositionP1) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*4)) + float64(CPU.XFinePositionP1) ) * width + (width*4)	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
 		}
+
 		CPU.DrawP0 = false
 	}
 }
@@ -139,24 +309,193 @@ func drawPlayer1() {
 			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[CPU.GRP1], CPU.XPositionP1, CPU.Memory[CPU.HMP1])
 		}
 
-		for i:=0 ; i <=7 ; i++{
-			bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
 
-			if bit == 1 {
-				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+		if CPU.Memory[CPU.NUSIZ1] == 0x00 {
 
-				imd.Push(pixel.V(  (float64(   (CPU.XPositionP1*3)-68 +byte(i))  +float64(CPU.XFinePositionP1) )*width			, float64(232-line)*height ))
-				imd.Push(pixel.V(  (float64(   (CPU.XPositionP1*3)-68 +byte(i))  +float64(CPU.XFinePositionP1) )*width + width	, float64(232-line)*height + height))
-				imd.Rectangle(0)
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
 
-				imd.Draw(win)
-				// Count draw operations number per second
-				draws ++
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
 			}
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x01 {
+
+			for i:=0 ; i <=7 ; i++ {
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(16) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(16) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x02 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x03 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) + float64(16) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) + float64(16) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) +float64(CPU.XFinePositionP1) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x04 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(64) )* width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(64) )* width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x05 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*2)) + float64(CPU.XFinePositionP1) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*2)) + float64(CPU.XFinePositionP1) ) * width + (width*2)	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x06 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width						, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) ) * width + width				, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(32) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(32) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(64) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i)) + float64(CPU.XFinePositionP1) + float64(64) ) * width + width	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+		} else if CPU.Memory[CPU.NUSIZ1] == 0x07 {
+
+			for i:=0 ; i <=7 ; i++{
+				bit := CPU.Memory[CPU.GRP1] >> (7-byte(i)) & 0x01
+
+				if bit == 1 {
+					// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*4)) + float64(CPU.XFinePositionP1) ) * width			, float64(232-line)*height ))
+					imd.Push(pixel.V( (float64( (CPU.XPositionP1*3) - 68 + byte(i*4)) + float64(CPU.XFinePositionP1) ) * width + (width*4)	, float64(232-line)*height + height))
+					imd.Rectangle(0)
+
+					imd.Draw(win)
+					// Count draw operations number per second
+					draws ++
+
+				}
+			}
+
 		}
+
 		CPU.DrawP1 = false
 	}
 }
@@ -460,6 +799,7 @@ func Run() {
 				//
 				// 	}
 				//}
+
 
 				// CPU.Flags_V_SBC(5,15)
 

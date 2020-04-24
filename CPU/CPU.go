@@ -75,6 +75,8 @@ const (
 	VBLANK			byte = 0x01		//xx00 00x0   Vertical Blank Set-Clear
 	WSYNC			byte = 0x02		//---- ----   Wait for Horizontal Blank
 	RSYNC			byte = 0x03		//---- ----   Reset Horizontal Sync Counter
+	NUSIZ0			byte = 0x04		//00xx 0xxx   Number-Size player/missle 0
+	NUSIZ1			byte = 0x05		//00xx 0xxx   Number-Size player/missle 1
 	COLUP0			byte = 0x06		//xxxx xxx0   Color-Luminance Player 0
 	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
 	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
@@ -229,7 +231,7 @@ func DecodeTwoComplement(num byte) int8 {
 
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tMEM9: %d\tGRP0: %08b\tCTRLPF: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0x09], Memory[GRP0], Memory[CTRLPF], XPositionP0, Memory[HMP0], Beam_index )
+	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tMEM9: %d\tGRP0: %08b\tNUSIZS0: %08b\tXPositionP0: %d\tHMP0: %02X\t%d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0x09], Memory[GRP0], Memory[NUSIZ0], XPositionP0, Memory[HMP0], Beam_index )
 }
 
 

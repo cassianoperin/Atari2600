@@ -32,6 +32,8 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player 0 and Player 1 | OK |
 | Graphics: Player Vertical Movement | OK |
 | Graphics: Player Horizontal Movement | OK |
+| Graphics: Player Stretch  (NUSIZ0 and NUSIZ1) | OK |
+| Graphics: Player Multiply (NUSIZ0 and NUSIZ1) | OK |
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
@@ -42,8 +44,6 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 - Graphics: Ball
 - Graphics: Missiles
 - Object Colilisions
-- Player Stretch  (NUSIZn - Number/Size n)
-- Player Multiply (NUSIZn - Number/Size n)
 - Player Inverted (REFPn - reflect player)
 - Scoreboard value increment for both players
 - Scoreboard multi digit
