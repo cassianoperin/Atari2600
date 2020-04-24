@@ -81,12 +81,15 @@ const (
 	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
 	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
 	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
+
 	// CTRLPLF (8 bits register)
 	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
 	// D1 = Score == Color of the score will be the same as player
 	// D2 = Priority == Player behind the playfield
 	// D4-5 = Ball Size (1, 2, 4, 8)
 	CTRLPF			byte = 0x0A		//00xx 0xxx   Control Playfield, Ball, Collisions
+	REFP0			byte = 0x0B		//0000 x000   Reflection Player 0
+	REFP1			byte = 0x0C		//0000 x000   Reflection Player 1
 	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
 	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
 	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
@@ -1132,6 +1135,21 @@ func Interpreter() {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
 			}
 			PC +=1
+
+
+		//-------------------------------------------------- JMP --------------------------------------------------//
+
+		// JSR  Jump to New Location Saving Return Address
+		//
+		//      push (PC+2),                     N Z C I D V
+		//      (PC+1) -> PCL                    - - - - - -
+		//      (PC+2) -> PCH
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      absolute      JSR oper      20    3     6
+
+
 
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
