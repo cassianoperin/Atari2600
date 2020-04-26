@@ -42,6 +42,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 
 ## Missing:
 - X Movement not finishing the screen, probably some cycle count problem (103bomber_Input.bin)
+- X and Y Movement: Need to split object when crossing the boundaries of the screen
 - Graphics: Ball
 - Graphics: Missiles
 - Object Colilisions

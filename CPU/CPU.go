@@ -833,37 +833,36 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      relative      BMI oper      30    2     2**
-		// case 0x30:
-		// 	// If Negative
-		// 	if P[7] == 1 {
-		// 		if Debug {
-		// 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
-		// 		}
-		// 		// Current PC (To detect page bounday cross)
-		// 		tmp := PC
-		// 		// fmt.Printf("\ntmp: %02X\n",tmp)
-		//
-		// 		// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
-		// 		PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-		//
-		// 		// Add 1 to cycles if branch occurs on same page
-		// 		Beam_index += 1
-		//
-		// 		// // Add one extra cycle if branch occurs in a differente memory page
-		// 		if MemPageBoundary(uint16(tmp), PC) {
-		// 			Beam_index += 1
-		// 		}
-		// 		os.Exit(2)
-			//
-			// // If not negative
-			// } else {
-			// 	if Debug {
-			// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\t\tNEGATIVE Flag DISABLED, PC+=2\n", Opcode, Memory[PC+1])
-			// 	}
-			// 	PC += 2
-			// }
-			//
-			// Beam_index += 2
+		case 0x30:
+			// If Negative
+			if P[7] == 1 {
+				if Debug {
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
+				}
+				// Current PC (To detect page bounday cross)
+				tmp := PC
+				// fmt.Printf("\ntmp: %02X\n",tmp)
+
+				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
+				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
+
+				// Add 1 to cycles if branch occurs on same page
+				Beam_index += 1
+
+				// // Add one extra cycle if branch occurs in a differente memory page
+				if MemPageBoundary(uint16(tmp), PC) {
+					Beam_index += 1
+				}
+
+			// If not negative
+			} else {
+				if Debug {
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\t\tNEGATIVE Flag DISABLED, PC+=2\n", Opcode, Memory[PC+1])
+				}
+				PC += 2
+			}
+
+			Beam_index += 2
 
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
@@ -1625,26 +1624,23 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      immidiate     CMP #oper     C9    2     2
-		// case 0xC9:
-		// 		tmp := A - Memory[PC+1]
-		//
-		// 		if Debug {
-		// 			if tmp == 0 {
-		// 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-		// 			} else {
-		// 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-		// 			}
-		// 		}
-		//
-		// 		flags_Z(tmp)
-		// 		flags_N(tmp)
-		// 		flags_C_SBC(A,Memory[PC+1])
-		//
-		// 		PC += 2
-		// 		Beam_index += 2
+		case 0xC9:
+				tmp := A - Memory[PC+1]
 
-				// Pause = true
+				if Debug {
+					if tmp == 0 {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
+					} else {
+						fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
+					}
+				}
 
+				flags_Z(tmp)
+				flags_N(tmp)
+				flags_C_SBC(A,Memory[PC+1])
+
+				PC += 2
+				Beam_index += 2
 
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
