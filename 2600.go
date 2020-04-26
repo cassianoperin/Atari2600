@@ -66,7 +66,6 @@ func readROM(filename string) {
 	// }
 	// os.Exit(2)
 
-
 }
 
 func checkArgs() {
@@ -83,7 +82,6 @@ func testFile(filename string) {
 	}
 }
 
-
 func main() {
 	fmt.Printf("Atari 2600 Emulator\n")
 
@@ -98,7 +96,7 @@ func main() {
 
 	// Read ROM to the memory
 	//readROM(os.Args[1])
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/102bomber.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/cart.bin")
 
 	// Reset system
 	CPU.Reset()

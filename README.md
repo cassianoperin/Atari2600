@@ -34,20 +34,21 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Graphics: Player Horizontal Movement | OK |
 | Graphics: Player Stretch  (NUSIZ0 and NUSIZ1) | OK |
 | Graphics: Player Multiply (NUSIZ0 and NUSIZ1) | OK |
+| Graphics: Player Inverted (REFP0 and REFP1) | OK |
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
 | 6502/6507 CPU Opcodes | 38 / 150 |
 
 ## Missing:
-- Introduced a problem in CMP (C5) in some games
+- X Movement not finishing the screen, probably some cycle count problem (103bomber_Input.bin)
 - Graphics: Ball
 - Graphics: Missiles
 - Object Colilisions
-- Player Inverted (REFPn - reflect player)
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
+- Controller Input: More than one key interpreted at the same time
 
 
 ## Documentation:
@@ -62,6 +63,8 @@ https://pt.slideshare.net/chesterbr/atari-2600programming
 
 https://www.randomterrain.com/atari-2600-memories-tutorial-andrew-davie-01.html#basics
 
+https://dwheeler.com/6502/oneelkruns/asm1step.html
+
 
 ### Opcodes:
 
@@ -69,6 +72,7 @@ https://www.masswerk.at/6502/6502_instruction_set.html#CLD
 
 https://problemkaputt.de/2k6specs.htm
 
+https://dwheeler.com/6502/oneelkruns/asm1step.html
 
 ### Addressing:
 
