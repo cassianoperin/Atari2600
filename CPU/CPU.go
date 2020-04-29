@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = true
+	Debug 		bool = false
 )
 
 
@@ -157,9 +157,9 @@ func Fine(HMPX byte) int8 {
 func MemPageBoundary(Address1, Address2 uint16) bool {
 
 	var cross bool = false
-	if Debug {
-		fmt.Printf("\n\n%02X %02X\n\n",Address1 >>8, Address2 >>8)
-	}
+	// if Debug {
+	// 	fmt.Printf("\n\tValues: %02X %02X\n",Address1 >>8, Address2 >>8)
+	// }
 
 	// Get the High byte only to compare
 	if Address1 >> 8 != Address2 >> 8 {
@@ -1592,7 +1592,9 @@ func Interpreter() {
 				}
 				flags_Z(tmp)
 				flags_N(tmp)
-				flags_C(A,Memory[Memory[PC+1]])
+				// flags_C(A,Memory[Memory[PC+1]])
+				flags_C_Subtraction(A,Memory[Memory[PC+1]])
+
 
 				PC += 2
 				Beam_index += 3

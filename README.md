@@ -42,7 +42,6 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 
 ## Missing:
 - X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin)
-- Fix C5 CMP opcode to use flags_C_Subtraction instead of flags_C
 - Graphics: Ball
 - Graphics: Missiles
 - Object Collisions
