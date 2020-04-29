@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -158,7 +158,7 @@ func MemPageBoundary(Address1, Address2 uint16) bool {
 
 	var cross bool = false
 	if Debug {
-		// fmt.Printf("\n\n%02X %02X\n\n",Address1 >>8, Address2 >>8)
+		fmt.Printf("\n\n%02X %02X\n\n",Address1 >>8, Address2 >>8)
 	}
 
 	// Get the High byte only to compare
@@ -167,12 +167,12 @@ func MemPageBoundary(Address1, Address2 uint16) bool {
 		if Debug {
 			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tMemory Page Boundary Cross detected! Add 1 cycle.\n",Address1 >>8, Address2 >>8)
 		}
+	// Omit later
+	} else {
+		if Debug {
+			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tNo Memory Page Boundary Cross detected.\n",Address1 >>8, Address2 >>8)
+		}
 	}
-	// else {
-	// 	if Debug {
-	// 		fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tNo Memory Page Boundary Cross detected.\n",Address1 >>8, Address2 >>8)
-	// 	}
-	// }
 
 	return cross
 
@@ -271,8 +271,6 @@ func flags_C(value1, value2 byte) {
 		fmt.Printf("\n\tFlag C: %d ->", P[0])
 	}
 
-
-
 	// Check if final value is 0
 	if value1 >= value2 {
 		P[0] = 1
@@ -280,19 +278,19 @@ func flags_C(value1, value2 byte) {
 		P[0] = 0
 	}
 
-
 	if Debug {
 		fmt.Printf(" %d", P[0])
 	}
 }
 
-// Carry Flag
-func flags_C_SBC(value1, value2 byte) {
+// Carry Flag for Subtractions (SBC and CMP)
+func flags_C_Subtraction(value1, value2 byte) {
 	if Debug {
 		fmt.Printf("\n\tFlag C: %d ->", P[0])
 	}
 
 	// If the new value is bigger than the original clear the flag
+	// if value1 <= value2 {
 	if value1 < value2 {
 		P[0] = 0
 	} else {
@@ -332,12 +330,6 @@ func Flags_V_ADC(value1, value2 byte) {
 		}
 	}
 
-	// fmt.Printf("\n%d ",carry_OUT)
-	// for i:=7 ; i >=0 ; i--{
-	// 	fmt.Printf("%d",carry_bit[i])
-	// }
-	// fmt.Printf("\n  %08b (soma)\tDecimal: %d",value1+value2,value1+value2)
-
 	// Formula to calculate: V = C6 xor C7
 	P[6] = carry_bit[7] ^ carry_OUT
 	// fmt.Printf("\nV: %d", P[6])
@@ -350,15 +342,17 @@ func Flags_V_ADC(value1, value2 byte) {
 // oVerflow Flag for SBC
 func Flags_V_SBC(value1, value2 byte) {
 	var (
-		carry_bit		[8]byte
+		carry_bit		= [8]byte{}
 		carry_OUT 	byte = 0
 	)
-	// fmt.Printf("\n  %08b\t%d",value1,value1)
-	// fmt.Printf("\n  %08b\t%d",value2,value2)
 
+	// fmt.Printf("\n  \t %d\t(carry IN)",P[0])
+	// fmt.Printf("\n  %08b\tDecimal: %d",value1,value1)
 	// Since internall subtraction is just addition of the ones-complement
 	// N can simply be replaced by 255-N in the formulas of Flags_V_ADC
-	value2 = 255-value2
+	value2 = 255 - value2
+	// fmt.Printf("\n  %08b\tDecimal: %d",value2,value2)
+
 	// Set the carry flag on bit 0 of carry_bit Array to bring the carry if exists
 	carry_bit[0] = P[0]
 
@@ -380,19 +374,22 @@ func Flags_V_SBC(value1, value2 byte) {
 		}
 	}
 
-	// fmt.Printf("\n%d ",carry_OUT)
+	// fmt.Printf("\n  %08b\tDecimal: %d\t(SUM)",value1+value2+carry_bit[0],value1+value2+carry_bit[0])
+	//
+	// fmt.Printf("\n\n%d ",carry_OUT)
 	// for i:=7 ; i >=0 ; i--{
 	// 	fmt.Printf("%d",carry_bit[i])
 	// }
-	// fmt.Printf("\n  %08b (soma)\tDecimal: %d",value1+value2,value1+value2)
+	// fmt.Printf("\t(carry OUT | carry array)")
 
-	// Formula to calculate: V = C6 xor C7
+	// Formula to calculate: V = C6 xor C7 (if they are different is a overflow)
 	P[6] = carry_bit[7] ^ carry_OUT
 	// fmt.Printf("\nV: %d", P[6])
 
 	if Debug {
 		fmt.Printf(" %d", P[6])
 	}
+
 }
 
 
@@ -527,7 +524,7 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      implied       DEC           CA    1     2
 		case 0xCA: // DEX
-			X--
+			X --
 			if Debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tDEX  Decrement Index X by One.\tX-- (%d)\n", Opcode, X)
 			}
@@ -545,7 +542,7 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      implied       DEC           88    1     2
 		case 0x88:
-			Y--
+			Y --
 			if Debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tDEY  Decrement Index Y by One.\tY-- (%d)\n", Opcode, Y)
 			}
@@ -642,7 +639,7 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      implied       INY           C8    1     2
 		case 0xC8:
-			Y++
+			Y ++
 			if Debug {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
 			}
@@ -798,7 +795,7 @@ func Interpreter() {
 			// If carry is clear
 			if P[0] == 1 {
 				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
+					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(DecodeTwoComplement(Memory[PC+1])) )
 				}
 				// Current PC (To detect page bounday cross)
 				tmp := PC
@@ -822,6 +819,7 @@ func Interpreter() {
 				}
 				PC += 2
 			}
+
 			Beam_index += 2
 
 
@@ -994,7 +992,7 @@ func Interpreter() {
 		//      (indirect),Y  LDA (oper),Y  B1    2     5*
 		case 0xB1:
 
-			tmp := uint16(Memory[Memory[PC+1] + 1])<<8 | uint16(Memory[Memory[PC+1]])
+			tmp  := uint16(Memory[Memory[PC+1] + 1])<<8 | uint16(Memory[Memory[PC+1]])
 			tmp2 := tmp + uint16(Y)
 
 			A = Memory[tmp2]
@@ -1028,6 +1026,9 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      zeropage,X    STA oper,X    95    2     4
 		case 0x95:
+
+			Beam_index += 4
+
 			Memory[Memory[PC+1]] = A
 
 			if Debug {
@@ -1101,7 +1102,6 @@ func Interpreter() {
 
 
 			PC += 2
-			Beam_index += 4
 
 
 		// STA  Store Accumulator in Memory (zeropage)
@@ -1234,10 +1234,10 @@ func Interpreter() {
 			if Memory[PC+1+uint16(Y)] == RESP0 {
 				if Memory[RESP0] != 0 {
 					XPositionP0 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
-						// fmt.Printf("\nJetXPos: %d", Memory[0x80])
-					}
+					// if Debug {
+						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\tScreen Pos: %d\n", XPositionP0, (XPositionP0*3)-68)
+						fmt.Printf("\nJetXPos: %d", Memory[0x80])
+					// }
 				}
 			}
 
@@ -1255,9 +1255,9 @@ func Interpreter() {
 			if Memory[PC+1+uint16(Y)] == HMP0 {
 				XFinePositionP0 = Fine(Memory[HMP0])
 
-				if Debug {
+				// if Debug {
 					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				}
+				// }
 
 			}
 
@@ -1268,15 +1268,9 @@ func Interpreter() {
 				}
 			}
 
-
-
-
-
-
 			PC += 3
 			Beam_index += 5
 
-// Pause = true
 
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
@@ -1410,7 +1404,7 @@ func Interpreter() {
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
 
-		// CPY  Compare Memory and Index Y
+		// CPY  Compare Memory and Index Y (immidiate)
 		//
 		//      Y - M                            N Z C I D V
 		//                                       + + + - - -
@@ -1418,9 +1412,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      immidiate     CPY #oper     C0    2     2
-		//
-		//
-		case 0xC0: //CPY
+		case 0xC0:
 
 			tmp := Y - Memory[PC+1]
 
@@ -1448,7 +1440,7 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      zeropage      CPY oper      C4    2     3
-		case 0xC4: //CPY
+		case 0xC4:
 
 			tmp := Y - Memory[Memory[PC+1]]
 
@@ -1470,7 +1462,8 @@ func Interpreter() {
 
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
-		// SBC  Subtract Memory from Accumulator with Borrow
+
+		// SBC  Subtract Memory from Accumulator with Borrow (zeropage)
 		//
 	     // A - M - C -> A                   N Z C I D V
 	     //                                  + + + - - +
@@ -1478,27 +1471,37 @@ func Interpreter() {
 	     // addressing    assembler    opc  bytes  cyles
 	     // --------------------------------------------
 	     // zeropage      SBC oper      E5    2     3
-		case 0xE5: // SBC
+		case 0xE5:
+
+			// Inverted Carry
+			var borrow byte = P[0] ^ 1
+
+			tmp := A
 
 			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[Memory[PC+1]], P[0] , A - Memory[Memory[PC+1]] - (1-P[0]))
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Borrow(Inverted Carry)(%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], borrow , A - Memory[Memory[PC+1]] - borrow )
 			}
 
-			// Original value of A
-			tmp := A
-			// A-M-(1-Carry)
-			// Need to change the value of A at this moment to avoid the flags test change the current Status
-			A = A - Memory[Memory[PC+1]] - (1-P[0])
+			// Result
+			A = A - Memory[Memory[PC+1]] - borrow
 
-			flags_C_SBC(tmp, A)
-			Flags_V_SBC(tmp, A)
+			// For the flags:
+			// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
+			value2 := Memory[PC+1] - borrow
+
+			// First V because it need the original carry flag value
+			Flags_V_SBC(tmp, value2)
+			// After, update the carry flag value
+			flags_C_Subtraction(tmp, value2)
+
+			// // Clear Carry if overflow in bit 7 // NOT NECESSARY
+			// if P[6] == 1 {
+			// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
+			// 	P[0] = 0
+			// }
+
 			flags_Z(A)
 			flags_N(A)
-
-			// Clear Carry if overflow in bit 7
-			if P[6] == 1 {
-				P[0] = 0
-			}
 
 			PC += 2
 			Beam_index += 3
@@ -1513,33 +1516,36 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      immidiate     SBC #oper     E9    2     2
 		case 0xE9: // SBC
-			// Memory[Memory[PC+1]] = X
+
+			// Inverted Carry
+			var borrow byte = P[0] ^ 1
+
+			tmp := A
+
 			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Carry(%d)-1)= %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], P[0] , A - Memory[PC+1] - (1-P[0]))
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Borrow(Inverted Carry)(%d)) = %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], borrow , A - Memory[PC+1] - borrow )
 			}
 
-			// fmt.Printf("\n\n%d\n\n",A)
-			// Original value of A
-			tmp := A
-			// A-M-(1-Carry)
-			// Need to change the value of A at this moment to avoid the flags test change the current Status
-			A = A - Memory[PC+1] - (1-P[0])
+			// Result
+			A = A - Memory[PC+1] - borrow
 
-			// So here, we need to test the previous value of A, prior to the opcode execution
-			flags_C_SBC(tmp, A)
+			// For the flags:
+			// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
+			value2 := Memory[PC+1] - borrow
 
-			Flags_V_SBC(tmp, A)
+			// First V because it need the original carry flag value
+			Flags_V_SBC(tmp, value2)
+			// After, update the carry flag value
+			flags_C_Subtraction(tmp, value2)
 
-			// A-M-(1-Carry)
-			// A = A - Memory[PC+1] - (1-P[0])
+			// // Clear Carry if overflow in bit 7 // NOT NECESSARY
+			// if P[6] == 1 {
+			// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
+			// 	P[0] = 0
+			// }
 
 			flags_Z(A)
 			flags_N(A)
-
-			// Clear Carry if overflow in bit 7
-			if P[6] == 1 {
-				P[0] = 0
-			}
 
 			PC += 2
 			Beam_index += 2
@@ -1609,7 +1615,7 @@ func Interpreter() {
 				flags_N(tmp)
 				// flags_C(A,Memory[Memory[PC+1]])
 				// flags_C(A,byte(PC+1))
-				flags_C_SBC(A,Memory[PC+1])
+				flags_C_Subtraction(A,Memory[PC+1])
 
 				PC += 2
 				Beam_index += 3
@@ -1637,7 +1643,7 @@ func Interpreter() {
 
 				flags_Z(tmp)
 				flags_N(tmp)
-				flags_C_SBC(A,Memory[PC+1])
+				flags_C_Subtraction(A,Memory[PC+1])
 
 				PC += 2
 				Beam_index += 2

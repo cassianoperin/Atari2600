@@ -41,11 +41,11 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | 6502/6507 CPU Opcodes | 38 / 150 |
 
 ## Missing:
-- X Movement not finishing the screen, probably some cycle count problem (103bomber_Input.bin)
-- X and Y Movement: Need to split object when crossing the boundaries of the screen
+- X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin)
+- Fix C5 CMP opcode to use flags_C_Subtraction instead of flags_C
 - Graphics: Ball
 - Graphics: Missiles
-- Object Colilisions
+- Object Collisions
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
@@ -53,6 +53,48 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 
 
 ## Documentation:
+
+
+### Opcodes:
+
+https://www.masswerk.at/6502/6502_instruction_set.html#CLD
+
+https://problemkaputt.de/2k6specs.htm
+
+https://dwheeler.com/6502/oneelkruns/asm1step.html
+
+
+### Addressing:
+
+http://www.obelisk.me.uk/6502/addressing.html#ABY
+
+http://www.emulator101.com/6502-addressing-modes.html
+
+
+### FLAGS:
+http://www.obelisk.me.uk/6502/reference.html#CPY
+
+
+### 6502
+http://www.6502.org/
+
+
+### NTSC Palette:
+
+http://www.qotile.net/minidig/docs/tia_color.html
+
+
+### Cycles counting:
+https://www.randomterrain.com/atari-2600-memories-guide-to-cycle-counting.html
+
+
+### Overflow flag:
+http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+
+
+### BRK/IRQ/NMI/RESET:
+https://www.pagetable.com/?p=410
+
 
 ### General:
 
@@ -67,48 +109,13 @@ https://www.randomterrain.com/atari-2600-memories-tutorial-andrew-davie-01.html#
 https://dwheeler.com/6502/oneelkruns/asm1step.html
 
 
-### Opcodes:
-
-https://www.masswerk.at/6502/6502_instruction_set.html#CLD
-
-https://problemkaputt.de/2k6specs.htm
-
-https://dwheeler.com/6502/oneelkruns/asm1step.html
-
-### Addressing:
-
-http://www.obelisk.me.uk/6502/addressing.html#ABY
-
-http://www.emulator101.com/6502-addressing-modes.html
-
-
-### FLAGS:
-http://www.obelisk.me.uk/6502/reference.html#CPY
-
-### 6502
-http://www.6502.org/
-
-### NTSC Palette:
-
-http://www.qotile.net/minidig/docs/tia_color.html
-
-### Cycles counting:
-https://www.randomterrain.com/atari-2600-memories-guide-to-cycle-counting.html
-
-
-### Overflow flag:
-http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
-
-
-### BRK/IRQ/NMI/RESET:
-https://www.pagetable.com/?p=410
-
-
 ### PIXEL:
 https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
 
+
 ### Object draw
 https://alienbill.com/2600/playerpalnext.html
+
 
 ### Online debugger
 https://8bitworkshop.com/
