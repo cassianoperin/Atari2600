@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -1515,11 +1515,12 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      immidiate     SBC #oper     E9    2     2
-		case 0xE9: // SBC
+		case 0xE9:
 
 			// Inverted Carry
 			var borrow byte = P[0] ^ 1
 
+			// Original value of A
 			tmp := A
 
 			if Debug {
@@ -1560,8 +1561,35 @@ func Interpreter() {
 		// 	addressing    assembler    opc  bytes  cyles
 		// 	--------------------------------------------
 		// 	zeropage      ADC oper      65    2     3
+		case 0x65:
 
+		// Original value of A
+		tmp := A
 
+		if Debug {
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+		}
+
+		// Result
+		// A = A + Memory[Memory[PC+1]] + P[0]
+		A = A + Memory[PC+1] + P[0]
+
+		// For the flags:
+		// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
+		// value2 := Memory[Memory[PC+1]] + P[0]
+
+		// First V because it need the original carry flag value
+		Flags_V_ADC(tmp, A)
+		// After, update the carry flag value
+		flags_C(tmp, A)
+
+		flags_Z(A)
+		flags_N(A)
+
+		PC += 2
+		Beam_index += 3
+		// os.Exit(2)
+		// Pause = true
 
 
 
@@ -1592,7 +1620,6 @@ func Interpreter() {
 				}
 				flags_Z(tmp)
 				flags_N(tmp)
-				// flags_C(A,Memory[Memory[PC+1]])
 				flags_C_Subtraction(A,Memory[Memory[PC+1]])
 
 
@@ -1615,8 +1642,6 @@ func Interpreter() {
 				}
 				flags_Z(tmp)
 				flags_N(tmp)
-				// flags_C(A,Memory[Memory[PC+1]])
-				// flags_C(A,byte(PC+1))
 				flags_C_Subtraction(A,Memory[PC+1])
 
 				PC += 2

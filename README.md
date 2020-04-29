@@ -1,6 +1,6 @@
 # Atari2600
 
-Initial stage Atari 2600 VCS Emulator writen in GO
+Initial stage Atari 2600 VCS Emulator writen in GO.
 
 
 **Horizontal Movement** | **Vertical Movement**
@@ -20,7 +20,6 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 <img width="430" alt="background" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/Playfield.png"> | <img width="430" alt="reflection" src="https://github.com/cassianoperin/Atari2600/blob/master/Images/PlayfieldReflex.png">
 
 
-
 ## Emulation status:
 | Name  | Status |
 | :------------ | :----- |
@@ -38,7 +37,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
-| 6502/6507 CPU Opcodes | 38 / 150 |
+| 6502/6507 CPU Opcodes | 45 / 150 |
 
 ## Missing:
 - X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin)
@@ -48,7 +47,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
-- Controller Input: More than one key interpreted at the same time
+- Controller Input: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 
 
 ## Documentation:
