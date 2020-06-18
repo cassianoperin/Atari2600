@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = true
+	Debug 		bool = false
 )
 
 
@@ -234,165 +234,6 @@ func Show() {
 }
 
 
-//-------------------------------------------------- Processor Flags --------------------------------------------------//
-
-// Zero Flag
-func flags_Z(value byte) {
-	if Debug {
-		fmt.Printf("\n\tFlag Z: %d ->", P[1])
-	}
-	// Check if final value is 0
-	if value == 0 {
-		P[1] = 1
-	} else {
-		P[1] = 0
-	}
-	if Debug {
-		fmt.Printf(" %d", P[1])
-	}
-}
-
-// Negative Flag
-func flags_N(value byte) {
-	if Debug {
-		fmt.Printf("\n\tFlag N: %d ->", P[7])
-	}
-	// Set Negtive flag to the the MSB of the value
-	P[7] = value >> 7
-
-	if Debug {
-		fmt.Printf(" %d | Value = %08b", P[7], value)
-	}
-}
-
-// Carry Flag
-func flags_C(value1, value2 byte) {
-	if Debug {
-		fmt.Printf("\n\tFlag C: %d ->", P[0])
-	}
-
-	// Check if final value is 0
-	if value1 >= value2 {
-		P[0] = 1
-	} else {
-		P[0] = 0
-	}
-
-	if Debug {
-		fmt.Printf(" %d", P[0])
-	}
-}
-
-// Carry Flag for Subtractions (SBC and CMP)
-func flags_C_Subtraction(value1, value2 byte) {
-	if Debug {
-		fmt.Printf("\n\tFlag C: %d ->", P[0])
-	}
-
-	// If the new value is bigger than the original clear the flag
-	// if value1 <= value2 {
-	if value1 < value2 {
-		P[0] = 0
-	} else {
-		P[0] = 1
-	}
-
-
-	if Debug {
-		fmt.Printf(" %d (SBC)" , P[0])
-	}
-}
-
-// oVerflow Flag for ADC
-func Flags_V_ADC(value1, value2 byte) {
-	var (
-		carry_bit		[8]byte
-		carry_OUT 	byte = 0
-	)
-	// fmt.Printf("\n  %08b\t%d",value1,value1)
-	// fmt.Printf("\n  %08b\t%d",value2,value2)
-
-	if Debug {
-		fmt.Printf("\n\tFlag V: %d ->", P[6])
-	}
-
-	// Make the magic
-	for i:=0 ; i <= 7 ; i++{
-		// sum the bit from value one + bit from value 2 + carry value
-		tmp := (value1 >> byte(i) & 0x01) + (value2 >> byte(i) & 0x01) + carry_bit[i]
-		if tmp >= 2 {
-			// set the carry out
-			if i == 7 {
-				carry_OUT = 1
-			} else {
-				carry_bit[i+1] = 1
-			}
-		}
-	}
-
-	// Formula to calculate: V = C6 xor C7
-	P[6] = carry_bit[7] ^ carry_OUT
-	// fmt.Printf("\nV: %d", P[6])
-
-	if Debug {
-		fmt.Printf(" %d", P[6])
-	}
-}
-
-// oVerflow Flag for SBC
-func Flags_V_SBC(value1, value2 byte) {
-	var (
-		carry_bit		= [8]byte{}
-		carry_OUT 	byte = 0
-	)
-
-	// fmt.Printf("\n  \t %d\t(carry IN)",P[0])
-	// fmt.Printf("\n  %08b\tDecimal: %d",value1,value1)
-	// Since internall subtraction is just addition of the ones-complement
-	// N can simply be replaced by 255-N in the formulas of Flags_V_ADC
-	value2 = 255 - value2
-	// fmt.Printf("\n  %08b\tDecimal: %d",value2,value2)
-
-	// Set the carry flag on bit 0 of carry_bit Array to bring the carry if exists
-	carry_bit[0] = P[0]
-
-	if Debug {
-		fmt.Printf("\n\tFlag V: %d ->", P[6])
-	}
-
-	// Make the magic
-	for i:=0 ; i <= 7 ; i++{
-		// sum the bit from value one + bit from value 2 + carry value
-		tmp := (value1 >> byte(i) & 0x01) + (value2 >> byte(i) & 0x01) + carry_bit[i]
-		if tmp >= 2 {
-			// set the carry out
-			if i == 7 {
-				carry_OUT = 1
-			} else {
-				carry_bit[i+1] = 1
-			}
-		}
-	}
-
-	// fmt.Printf("\n  %08b\tDecimal: %d\t(SUM)",value1+value2+carry_bit[0],value1+value2+carry_bit[0])
-	//
-	// fmt.Printf("\n\n%d ",carry_OUT)
-	// for i:=7 ; i >=0 ; i--{
-	// 	fmt.Printf("%d",carry_bit[i])
-	// }
-	// fmt.Printf("\t(carry OUT | carry array)")
-
-	// Formula to calculate: V = C6 xor C7 (if they are different is a overflow)
-	P[6] = carry_bit[7] ^ carry_OUT
-	// fmt.Printf("\nV: %d", P[6])
-
-	if Debug {
-		fmt.Printf(" %d", P[6])
-	}
-
-}
-
-
 // CPU Interpreter
 func Interpreter() {
 
@@ -407,461 +248,68 @@ func Interpreter() {
 	// Map Opcode
 	switch Opcode {
 
-		//-------------------------------------------------- Unique Memory Addressing --------------------------------------------------//
-
-		//SEI  Set Interrupt Disable Status
-		//
-		// 1 -> I                           N Z C I D V
-		//                                  - - - 1 - -
-		//
-		// addressing    assembler    opc  bytes  cyles
-		// --------------------------------------------
-		// implied       SEI           78    1     2
-		case 0x78: // SEI
-			P[2]	=  1
-			PC += 1
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tSEI  Set Interrupt Disable Status.\tP[2]=1\n", Opcode)
-			}
-			Beam_index += 2
-
-
-		// SEC  Set Carry Flag
-		//
-		// 1 -> C                           N Z C I D V
-		//                                  - - 1 - - -
-		//
-		// addressing    assembler    opc  bytes  cyles
-		// --------------------------------------------
-		// implied       SEC           38    1     2
-		case 0x38:
-			P[0]	= 1
-			PC += 1
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tSEC  Set Carry Flag.\tP[0]=1\n", Opcode)
-			}
-			Beam_index += 2
-
-
-		// CLC  Clear Carry Flag
-		//
-		//      0 -> C                           N Z C I D V
-		//                                       - - 0 - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       CLC           18    1     2
-		case 0x18:
-			P[0]	= 0
-			PC += 1
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tCLC  Clear Carry Flag.\tP[0]=0\n", Opcode)
-			}
-			Beam_index += 2
-
-
-		// CLD  Clear Decimal Mode
-		//
-		//      0 -> D                           N Z C I D V
-		//                                       - - - - 0 -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       CLD           D8    1     2
-		case 0xD8: // CLD
-			P[3]	=  0
-			PC += 1
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tCLD  Clear Decimal Mode.\tP[3]=0\n", Opcode)
-			}
-			Beam_index += 2
-
-
-		// TXA  Transfer Index X to Accumulator
-		//
-		//      X -> A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       TXA           8A    1     2
-		case 0x8A: // TXA
-			A = X
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tTXA  Transfer Index X to Accumulator.\tA = X (%d)\n", Opcode, X)
-			}
-			PC += 1
-			flags_Z(A)
-			flags_N(A)
-			Beam_index += 2
-
-
-		// TAY  Transfer Accumulator to Index Y
-		//
-		//      A -> Y                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       TAY           A8    1     2
-		case 0xA8: // TAY
-			Y = A
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tTAY  Transfer Accumulator to Index Y.\tA = X (%d)\n", Opcode, X)
-			}
-			PC += 1
-			flags_Z(Y)
-			flags_N(Y)
-			Beam_index += 2
-
-
-		// DEX  Decrement Index X by One
-		//
-		//      X - 1 -> X                       N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       DEC           CA    1     2
-		case 0xCA: // DEX
-			X --
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tDEX  Decrement Index X by One.\tX-- (%d)\n", Opcode, X)
-			}
-			PC += 1
-			flags_Z(X)
-			flags_N(X)
-			Beam_index += 2
-
-		// DEY  Decrement Index Y by One
-		//
-		//      Y - 1 -> Y                       N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       DEC           88    1     2
-		case 0x88:
-			Y --
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tDEY  Decrement Index Y by One.\tY-- (%d)\n", Opcode, Y)
-			}
-			PC += 1
-			flags_Z(Y)
-			flags_N(Y)
-			Beam_index += 2
-
-
-		// TXS  Transfer Index X to Stack Register
-		//
-		//      X -> SP                          N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       TXS           9A    1     2
-		case 0x9A: // TXS
-			SP	= X
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 bytes]\tTXS  Transfer Index X to Stack Pointer.\tSP = X (%d)\n", Opcode, SP)
-			}
-			PC += 1
-			Beam_index += 2
-
-
-		// PHA  Push Accumulator on Stack
-		//
-		//      push A                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       PHA           48    1     3
-		case 0x48:
-			Memory[SP]	= A
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tPHA  Push Accumulator on Stack.\tMemory[%02X] = A (%d) | SP--\n", Opcode, SP, Memory[SP])
-			}
-			PC += 1
-			SP--
-			Beam_index += 3
-
-
-		// PLA  Pull Accumulator from Stack
-		//
-		//      pull A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       PLA           68    1     4
-		case 0x68:
-			A = Memory[SP+1]
-
-			// Not documented, clean the value on the stack after pull it to accumulator
-			Memory[SP+1] = 0
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
-			}
-			PC += 1
-			SP++
-			Beam_index += 4
-
-			flags_N(A)
-			flags_Z(A)
-
-
-		// BRK  Force Break
-		//
-		//      interrupt,                       N Z C I D V
-		//      push PC+2, push SR               - - - 1 - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       BRK           00    1     7
-		case 0x00:
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tBRK  Force Break.\tBREAK!\n", Opcode)
-			}
-			// IRQ Enabled
-			P[2] = 1
-			Break()
-			Beam_index += 7
-
-
-		// INY  Increment Index Y by One
-		//
-		//      Y + 1 -> Y                       N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       INY           C8    1     2
-		case 0xC8:
-			Y ++
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
-			}
-			flags_Z(Y)
-			flags_N(Y)
-			PC++
-			Beam_index += 2
-
-
-		// INC  Increment Memory by One
-		//
-		//      M + 1 -> M                       N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      INC oper      E6    2     5
-		case 0xE6:
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tINC  Increment Memory[%02X](%d) by One (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]], Memory[Memory[PC+1]] + 1)
-			}
-
-			Memory[Memory[PC+1]] = Memory[Memory[PC+1]] + 1
-
-			flags_Z(Memory[Memory[PC+1]])
-			flags_N(Memory[Memory[PC+1]])
-			PC+=2
-			Beam_index += 5
-
-
-		// RTS  Return from Subroutine
-		//
-		//      pull PC, PC+1 -> PC              N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      implied       RTS           60    1     6
-		case 0x60:
-			PC = uint16(Memory[SP+2])<<8 | uint16(Memory[SP+1])
-
-			// Clear the addresses retrieved from the stack
-			Memory[SP+1] = 0
-			Memory[SP+2] = 0
-			// Update the Stack Pointer (Increase the two values retrieved)
-			SP += 2
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tRTS  Return from Subroutine.\tPC = %04X.\n", Opcode, PC)
-			}
-
-			PC += 1
-			Beam_index += 6
-
-
-		//-------------------------------------------------- Branches --------------------------------------------------//
-
-		// BNE  Branch on Result not Zero
-		//
-		//      branch on Z = 0                  N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      relative      BNE oper      D0    2     2**
-		// ** The offset is a signed byte, so it can jump a maximum of 127 bytes forward, or 128 bytes backward. **
-		case 0xD0:
-
-			// If P[1] = 1 (Zero Flag)
-			if P[1] == 1 {
-
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
-				}
-				PC += 2
-
-			} else {
-
-				// Current PC (To detect page bounday cross)
-				tmp := PC
-				// fmt.Printf("\ntmp: %02X\n",tmp)
-
-				offset := DecodeTwoComplement(Memory[PC+1])
-				// fmt.Printf("\tOffset(%02X): %d \n", Memory[PC+1], offset)
-
-				// Increment PF + the offset
-				PC += 2 + uint16(offset)
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d | PC = Jump to Memory[%04X] (%02X)\n", Opcode, Memory[PC+1], Memory[SP], PC, Memory[PC])
-					Beam_index += 1
-				}
-				// Add 1 to cycles if branch occurs on same page
-				Beam_index += 1
-
-				// Add one extra cycle if branch occurs in a differente memory page
-				if MemPageBoundary(uint16(tmp), PC) {
-					Beam_index += 1
-				}
-			}
-			Beam_index += 2
-
-
-		// BCC  Branch on Carry Clear
-		//
-		//      branch on C = 0                  N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      relative      BCC oper      90    2     2**
-		case 0x90:
-			// If carry is clear
-			if P[0] == 0 {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
-				}
-
-				// Current PC (To detect page bounday cross)
-				tmp := PC
-				// fmt.Printf("\ntmp: %02X\n",tmp)
-
-				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
-				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-
-				// Add 1 to cycles if branch occurs on same page
-				Beam_index += 1
-
-				// Add one extra cycle if branch occurs in a differente memory page
-				if MemPageBoundary(uint16(tmp), PC) {
-					Beam_index += 1
-				}
-
-			// If carry is set
-			} else {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry NOT EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
-				}
-				PC += 2
-			}
-			Beam_index += 2
-
-
-		// BCS  Branch on Carry Set
-		//
-		//      branch on C = 1                  N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      relative      BCS oper      B0    2     2**
-		case 0xB0:
-			// If carry is clear
-			if P[0] == 1 {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(DecodeTwoComplement(Memory[PC+1])) )
-				}
-				// Current PC (To detect page bounday cross)
-				tmp := PC
-				// fmt.Printf("\ntmp: %02X\n",tmp)
-
-				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
-				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-
-				// Add 1 to cycles if branch occurs on same page
-				Beam_index += 1
-
-				// // Add one extra cycle if branch occurs in a differente memory page
-				if MemPageBoundary(uint16(tmp), PC) {
-					Beam_index += 1
-				}
-
-			// If carry is set
-			} else {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
-				}
-				PC += 2
-			}
-
-			Beam_index += 2
-
-
-		// BMI  Branch on Result Minus (relative)
-		//
-		//      branch on N = 1                  N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      relative      BMI oper      30    2     2**
-		case 0x30:
-			// If Negative
-			if P[7] == 1 {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(Memory[PC+1]))
-				}
-				// Current PC (To detect page bounday cross)
-				tmp := PC
-				// fmt.Printf("\ntmp: %02X\n",tmp)
-
-				// PC+=2 to step to next instruction + the number of bytes to jump on carry clear
-				PC+=2+uint16(DecodeTwoComplement(Memory[PC+1]))
-
-				// Add 1 to cycles if branch occurs on same page
-				Beam_index += 1
-
-				// // Add one extra cycle if branch occurs in a differente memory page
-				if MemPageBoundary(uint16(tmp), PC) {
-					Beam_index += 1
-				}
-
-			// If not negative
-			} else {
-				if Debug {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\t\tNEGATIVE Flag DISABLED, PC+=2\n", Opcode, Memory[PC+1])
-				}
-				PC += 2
-			}
-
-			Beam_index += 2
+		//-------------------------------------------------- Implied --------------------------------------------------//
 
+		case 0x78:	// Instruction SEI
+			opc_SEI()
+
+		case 0x38:	// Instruction SEC
+			opc_SEC()
+
+		case 0x18:	// Instruction CLC
+			opc_CLC()
+
+		case 0xD8:	// Instruction CLD
+			opc_CLD()
+
+		case 0x8A:	// Instruction TXA
+			opc_TXA()
+
+		case 0xA8:	// Instruction TAY
+			opc_TAY()
+
+		case 0xCA:	// Instruction DEX
+			opc_DEX()
+
+		case 0x88:	// Instruction DEY
+			opc_DEY()
+
+		case 0x9A:	// Instruction TXS
+			opc_TXS()
+
+		case 0x48:	// Instruction PHA
+			opc_PHA()
+
+		case 0x68:	// Instruction PLA
+			opc_PLA()
+
+		case 0x00:	// Instruction BRK
+			opc_BRK()
+
+		case 0xC8:	// Instruction INY
+			opc_INY()
+
+		case 0x60:	// Instruction RTS
+			opc_RTS()
+
+		//-------------------------------------------------- Just zeropage --------------------------------------------------//
+
+		case 0xE6:	// Instruction INC
+			opc_INC_zeropage()
+
+		//-------------------------------------------- Branches - just relative ---------------------------------------------//
+
+		case 0xD0:	// Instruction BNE
+			opc_BNE( addr_mode_Relative(PC+1) )
+
+		case 0x90:	// Instruction BCC
+			opc_BCC( addr_mode_Relative(PC+1) )
+
+		case 0xB0:	// Instruction BCS
+			opc_BCS( addr_mode_Relative(PC+1) )
+
+		case 0x30:	// Instruction BMI
+			opc_BMI( addr_mode_Relative(PC+1) )
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
@@ -1563,33 +1011,33 @@ func Interpreter() {
 		// 	zeropage      ADC oper      65    2     3
 		case 0x65:
 
-		// Original value of A
-		tmp := A
+			// Original value of A
+			tmp := A
 
-		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-		}
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+			}
 
-		// Result
-		// A = A + Memory[Memory[PC+1]] + P[0]
-		A = A + Memory[PC+1] + P[0]
+			// Result
+			A = A + Memory[Memory[PC+1]] + P[0]
+			// A = A + Memory[PC+1] + P[0]
 
-		// For the flags:
-		// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
-		// value2 := Memory[Memory[PC+1]] + P[0]
+			// For the flags:
+			// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
+			// value2 := Memory[Memory[PC+1]] + P[0]
 
-		// First V because it need the original carry flag value
-		Flags_V_ADC(tmp, A)
-		// After, update the carry flag value
-		flags_C(tmp, A)
+			// First V because it need the original carry flag value
+			Flags_V_ADC(tmp, A)
+			// After, update the carry flag value
+			flags_C(tmp, A)
 
-		flags_Z(A)
-		flags_N(A)
+			flags_Z(A)
+			flags_N(A)
 
-		PC += 2
-		Beam_index += 3
-		// os.Exit(2)
-		// Pause = true
+			PC += 2
+			Beam_index += 3
+			// os.Exit(2)
+			// Pause = true
 
 
 
