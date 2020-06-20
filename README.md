@@ -50,6 +50,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Controller Input: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Review progs 1 and 2
 - Review 0x95 , X?
+- Review printf and message breaklines (put all at the end)
 
 
 ## Documentation:

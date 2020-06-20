@@ -165,12 +165,12 @@ func MemPageBoundary(Address1, Address2 uint16) bool {
 	if Address1 >> 8 != Address2 >> 8 {
 		cross = true
 		if Debug {
-			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tMemory Page Boundary Cross detected! Add 1 cycle.\n",Address1 >>8, Address2 >>8)
+			fmt.Printf("\n\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
 		}
 	// Omit later
 	} else {
 		if Debug {
-			fmt.Printf("\tPC High byte: %02X\tBranch High byte: %02X\tNo Memory Page Boundary Cross detected.\n",Address1 >>8, Address2 >>8)
+			fmt.Printf("\n\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
 		}
 	}
 
@@ -336,73 +336,17 @@ func Interpreter() {
 
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
-		case 0xA9: // Instruction LDA (immediate)
+		case 0xA9:	// Instruction LDA (immediate)
 			opc_LDA( addr_mode_Immediate(PC+1) )
 
-		case 0xA5: // Instruction LDA (zeropage)
+		case 0xA5:	// Instruction LDA (zeropage)
 			opc_LDA( addr_mode_Zeropage(PC+1) )
 
-		// LDA  Load Accumulator with Memory (absolute,Y)
-		//
-		//      M -> A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute,Y    LDA oper,Y    B9    3     4*
-		case 0xB9:
-			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
-			A = Memory[tmp + uint16(Y)]
-			// fmt.Printf("\n\n\n%08b", A)
-			// fmt.Printf("\n\n\n%d", A)
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tLDA  Load Accumulator with Memory (absolute,Y).\tA = Memory[%04X + Y(%d)]  (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, Y, A)
-			}
+		case 0xB9:	// Instruction LDA (Absolute,Y)
+			opc_LDA( addr_mode_AbsoluteY(PC+1) )
 
-			PC += 3
-
-			// Add 1 to cycles if page boundery is crossed
-			if MemPageBoundary(uint16(tmp) + uint16(Y), PC) {
-				Beam_index += 1
-			}
-
-			flags_Z(A)
-			flags_N(A)
-			Beam_index += 4
-
-
-
-		// LDA  Load Accumulator with Memory (indirect),Y //
-		//
-		//      M -> A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      (indirect),Y  LDA (oper),Y  B1    2     5*
-		case 0xB1:
-
-			tmp  := uint16(Memory[Memory[PC+1] + 1])<<8 | uint16(Memory[Memory[PC+1]])
-			tmp2 := tmp + uint16(Y)
-
-			A = Memory[tmp2]
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (Indirect Indexed),Y.\tA = Memory[%02X + Y(%d) = %02X] (%d)\n", Opcode, Memory[PC+1], tmp, Y, tmp2, A)
-			}
-
-			PC += 2
-
-			// Add 1 to cycles if page boundery is crossed
-			if MemPageBoundary(uint16(tmp2), PC) {
-				Beam_index += 1
-			}
-
-			flags_Z(A)
-			flags_N(A)
-
-			Beam_index += 5
-
+		case 0xB1:	// Instruction LDA (Indirect,Y)
+			opc_LDA( addr_mode_IndirectY(PC+1) )
 
 		//-------------------------------------------------- STA --------------------------------------------------//
 
