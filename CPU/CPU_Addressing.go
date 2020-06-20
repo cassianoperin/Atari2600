@@ -15,6 +15,7 @@ func addr_mode_Relative(offset uint16) uint16 {
 	return value
 }
 
+
 // Zeropage
 func addr_mode_Zeropage(offset uint16) (byte, uint16, string) {
 
@@ -28,6 +29,7 @@ func addr_mode_Zeropage(offset uint16) (byte, uint16, string) {
 
 	return value, memAddr, mode
 }
+
 
 // Immediate
 func addr_mode_Immediate(offset uint16) (byte, uint16, string) {

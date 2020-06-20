@@ -13,7 +13,7 @@ import	"fmt"
 func opc_DEX() {
 	X --
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tDEX  Decrement Index X by One.\tX-- (%d)\n", Opcode, X)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tDEX  Decrement Index X by One.\tX-- (%d)\n", Opcode, X)
 	}
 	PC += 1
 	flags_Z(X)

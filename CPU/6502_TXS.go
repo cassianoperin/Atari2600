@@ -13,7 +13,7 @@ import	"fmt"
 func opc_TXS() {
 	SP	= X
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 bytes]\tTXS  Transfer Index X to Stack Pointer.\tSP = X (%d)\n", Opcode, SP)
+		fmt.Printf("\n\tOpcode %02X [1 bytes] [Mode: Implied]\tTXS  Transfer Index X to Stack Pointer.\tSP = X (%d)\n", Opcode, SP)
 	}
 	PC += 1
 	Beam_index += 2

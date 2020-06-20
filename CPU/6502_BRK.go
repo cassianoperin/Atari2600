@@ -12,7 +12,7 @@ import	"fmt"
 //      implied       BRK           00    1     7
 func opc_BRK() {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tBRK  Force Break.\tBREAK!\n", Opcode)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tBRK  Force Break.\tBREAK!\n", Opcode)
 	}
 	// IRQ Enabled
 	P[2] = 1

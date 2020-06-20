@@ -299,16 +299,16 @@ func Interpreter() {
 
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
-		case 0xD0:	// Instruction BNE
+		case 0xD0:	// Instruction BNE (relative)
 			opc_BNE( addr_mode_Relative(PC+1) )
 
-		case 0x90:	// Instruction BCC
+		case 0x90:	// Instruction BCC (relative)
 			opc_BCC( addr_mode_Relative(PC+1) )
 
-		case 0xB0:	// Instruction BCS
+		case 0xB0:	// Instruction BCS (relative)
 			opc_BCS( addr_mode_Relative(PC+1) )
 
-		case 0x30:	// Instruction BMI
+		case 0x30:	// Instruction BMI (relative)
 			opc_BMI( addr_mode_Relative(PC+1) )
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
@@ -318,6 +318,8 @@ func Interpreter() {
 
 		//-------------------------------------------------- STX --------------------------------------------------//
 
+		case 0x86: // Instruction STX (zeropage)
+			opc_STX( addr_mode_Zeropage(PC+1) )
 
 		// STX  Store Index X in Memory (zeropage)
 		//
@@ -327,38 +329,20 @@ func Interpreter() {
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
 		//      zeropage      STX oper      86    2     3
-		case 0x86: // STX
-
-			Memory[Memory[PC+1]] = X
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTX  Store Index X in Memory (zeropage).\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], X)
-			}
-
-			PC += 2
-			Beam_index += 3
+		// case 0x86: // STX
+		//
+		// 	Memory[Memory[PC+1]] = X
+		// 	if Debug {
+		// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTX  Store Index X in Memory (zeropage).\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], X)
+		// 	}
+		//
+		// 	PC += 2
+		// 	Beam_index += 3
 
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
-
-		// LDA  Load Accumulator with Memory (immidiate)
-		//
-		//      M -> A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     LDA #oper     A9    2     2
-		case 0xA9: // LDA (immidiate)
-
-			A = Memory[PC+1]
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (immidiate).\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], PC+1, A)
-			}
-
-			flags_Z(A)
-			flags_N(A)
-			PC += 2
-			Beam_index += 2
+		case 0xA9: // InstructionLDA (immediate)
+			opc_LDA( addr_mode_Immediate(PC+1) )
 
 
 		// LDA  Load Accumulator with Memory (zeropage)
@@ -370,16 +354,18 @@ func Interpreter() {
 		//      --------------------------------------------
 		//      zeropage      LDA oper      A5    2     3
 		case 0xA5: // LDA (zeropage)
+			opc_LDA( addr_mode_Zeropage(PC+1) )
 
-			A = Memory[Memory[PC+1]]
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (zeropage).\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], A)
-			}
-
-			flags_Z(A)
-			flags_N(A)
-			PC += 2
-			Beam_index += 3
+			// A = Memory[Memory[PC+1]]
+			// if Debug {
+			// 	fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (zeropage).\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], A)
+			// }
+			//
+			// flags_Z(A)
+			// flags_N(A)
+			// PC += 2
+			// Beam_index += 3
+			// os.Exit(2)
 
 
 		// LDA  Load Accumulator with Memory (absolute,Y)
@@ -466,6 +452,7 @@ func Interpreter() {
 			}
 
 			// MAPEAR SE NAO TEM QUE SOMAR O X
+			// USADO NO 1 CLEANMEM
 			os.Exit(2)
 
 			// Wait for a new line and authorize graphics to draw the line

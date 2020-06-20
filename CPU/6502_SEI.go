@@ -14,7 +14,7 @@ func opc_SEI() {
 	P[2]	=  1
 	PC += 1
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tSEI  Set Interrupt Disable Status.\tP[2]=1\n", Opcode)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=1\n", Opcode)
 	}
 	Beam_index += 2
 }

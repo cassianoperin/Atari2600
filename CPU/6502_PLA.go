@@ -17,7 +17,7 @@ func opc_PLA() {
 	Memory[SP+1] = 0
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
 	}
 	PC += 1
 	SP++

@@ -14,7 +14,7 @@ func opc_CLD() {
 	P[3]	=  0
 	PC += 1
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tCLD  Clear Decimal Mode.\tP[3]=0\n", Opcode)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tCLD  Clear Decimal Mode.\tP[3]=0\n", Opcode)
 	}
 	Beam_index += 2
 }

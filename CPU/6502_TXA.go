@@ -13,7 +13,7 @@ import	"fmt"
 func opc_TXA() {
 	A = X
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte]\tTXA  Transfer Index X to Accumulator.\tA = X (%d)\n", Opcode, X)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tTXA  Transfer Index X to Accumulator.\tA = X (%d)\n", Opcode, X)
 	}
 	PC += 1
 	flags_Z(A)
