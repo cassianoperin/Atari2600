@@ -44,3 +44,16 @@ func addr_mode_Immediate(offset uint16) (uint16, string) {
 
 	return memAddr, mode
 }
+
+// Absolute
+func addr_mode_Absolute(offset uint16) (uint16, string) {
+
+	memAddr := uint16(Memory[offset+1])<<8 | uint16(Memory[offset])
+	value := Memory[memAddr]
+	mode		:= "Absolute"
+
+	if Debug {
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
+	}
+	return memAddr, mode
+}

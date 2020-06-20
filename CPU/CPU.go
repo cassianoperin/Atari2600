@@ -321,6 +321,19 @@ func Interpreter() {
 		case 0x86: // Instruction STX (zeropage)
 			opc_STX( addr_mode_Zeropage(PC+1) )
 
+		//-------------------------------------------------- JMP --------------------------------------------------//
+
+		case 0x4C:	// Instruction JMP (absolute)
+			opc_JMP( addr_mode_Absolute(PC+1) )
+
+		case 0x20:	// Instruction JSR (absolute)
+			opc_JSR( addr_mode_Absolute(PC+1) )
+
+		//-------------------------------------------------- BIT --------------------------------------------------//
+
+		case 0x2C:	// Instruction BIT (absolute)
+			opc_BIT( addr_mode_Absolute(PC+1) )
+
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
 		case 0xA9: // Instruction LDA (immediate)
@@ -717,25 +730,7 @@ func Interpreter() {
 			Beam_index += 3
 
 
-		//-------------------------------------------------- JMP --------------------------------------------------//
-
-
-		// JMP  Jump to New Location (absolute)
-		//
-		//      (PC+1) -> PCL                    N Z C I D V
-		//      (PC+2) -> PCH                    - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute      JMP oper      4C    3     3
-		case 0x4C:
-			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
-			//fmt.Printf("\n%04X\n",tmp)
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tJMP  Jump to New Location (absolute).\tPC = Memory[%02X]\n", Opcode, Memory[PC+2], Memory[PC+1], tmp)
-			}
-			PC = tmp
-			Beam_index += 3
+		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
 		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
 		// FF (Filled ROM)
@@ -744,40 +739,6 @@ func Interpreter() {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
 			}
 			PC +=1
-
-
-		//-------------------------------------------------- JMP --------------------------------------------------//
-
-		// JSR  Jump to New Location Saving Return Address
-		//
-		//      push (PC+2) to Stack,            N Z C I D V
-		//      (PC+1) -> PCL                    - - - - - -
-		//      (PC+2) -> PCH
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute      JSR oper      20    3     6
-		case 0x20:
-		    	// Push PC+2 (will be increased in 1 in RTS to match the next address (3 bytes operation))
-		    	// Store the first byte into the Stack
-		    	Memory[SP] = byte( (PC+2) >> 8 )
-		    	SP--
-		    	// Store the second byte into the Stack
-		    	Memory[SP] = byte( (PC+2) & 0xFF )
-		    	SP--
-		    	// fmt.Printf("\nPC+3: %02X",PC+3)
-		    	// fmt.Printf("\nF0: %02X",(PC+3) >> 8)
-		    	// fmt.Printf("\n42: %02X",(PC+3) & 0xFF)
-
-		    	tmp := uint16(Memory[PC+2]) <<8 | uint16(Memory[PC+1])
-		    	// fmt.Printf("\n%04X\n",tmp)
-		    	if Debug {
-		    		fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tJSR  Jump to New Location Saving Return Address.\tPC = Memory[%02X]\t|\t Stack[%02X] = %02X\t Stack[%02X] = %02X\n", Opcode, Memory[PC+2], Memory[PC+1], tmp, SP+2, Memory[SP+2], SP+1, Memory[SP+1])
-		    	}
-
-		    	PC = tmp
-		    	Beam_index += 6
-
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
@@ -1158,52 +1119,7 @@ func Interpreter() {
 			Beam_index += 2
 
 
-		//-------------------------------------------------- BIT --------------------------------------------------//
 
-		// BIT  Test Bits in Memory with Accumulator
-		//
-		//      bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
-		//      the zeroflag is set to the result of operand AND accumulator.
-		//
-		//      A AND M, M7 -> N, M6 -> V        N Z C I D V
-		//                                      M7 + - - - M6
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute      BIT oper      2C    3     4
-		case 0x2C:
-			// Memory address
-			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tBIT  Test Bits in Memory with Accumulator (absolute).\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], A, tmp, Memory[tmp], A & Memory[tmp] )
-			}
-			// fmt.Printf("\n\n%08b\n\n",A & Memory[tmp])
-
-			// Memory Address bit 7 (A) -> N (Negative)
-			// A = 0x80
-			if Debug {
-				fmt.Printf("\n\tFlag N: %d -> ",P[7])
-			}
-			P[7] = A >> 7 & 0x1
-			if Debug {
-				fmt.Printf("%d\n",P[7])
-			}
-
-			// Memory Address bit 6 (A) -> V (oVerflow)
-			// A = 0x40
-			if Debug {
-				fmt.Printf("\n\tFlag V: %d -> ",P[6])
-			}
-			P[6] = A >> 6 & 0x1
-			if Debug {
-				fmt.Printf("%d\n",P[6])
-			}
-
-			flags_Z(A & Memory[tmp])
-
-			PC += 3
-			Beam_index += 4
 
 
 		default:
