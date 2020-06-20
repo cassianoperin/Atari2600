@@ -17,30 +17,30 @@ func addr_mode_Relative(offset uint16) uint16 {
 
 
 // Zeropage
-func addr_mode_Zeropage(offset uint16) (byte, uint16, string) {
+func addr_mode_Zeropage(offset uint16) (uint16, string) {
 
 	value	:= Memory[ Memory[offset] ]
 	memAddr 	:= uint16(Memory[offset])
 	mode		:= "Zeropage"
 
 	if Debug {
-		fmt.Printf("\n\tZeropage addressing mode.\tMemory[%02X]\tValue obtained: %d", memAddr, value)
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
 	}
 
-	return value, memAddr, mode
+	return memAddr, mode
 }
 
 
 // Immediate
-func addr_mode_Immediate(offset uint16) (byte, uint16, string) {
+func addr_mode_Immediate(offset uint16) (uint16, string) {
 
 	value	:= Memory[offset]
 	memAddr	:= offset
 	mode		:= "Immediate"
 
 	if Debug {
-		fmt.Printf("\n\tImmediate addressing mode.\tMemory[%02X]\tValue obtained: %d", memAddr, value)
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
 	}
 
-	return value, memAddr, mode
+	return memAddr, mode
 }

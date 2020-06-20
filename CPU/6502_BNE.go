@@ -15,14 +15,14 @@ func opc_BNE(offset uint16) {
 	if P[1] == 1 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
 		}
 		PC += 2
 
 	} else {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d, JUMP TO %04X\n", Opcode, Memory[PC+1], P[1], PC+2+uint16(offset) )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d, JUMP TO %04X\n", Opcode, Memory[PC+1], P[1], PC+2+offset )
 		}
 
 		// Current PC (To detect page bounday cross)
@@ -30,7 +30,7 @@ func opc_BNE(offset uint16) {
 		// fmt.Printf("\ntmp: %02X\n",tmp)
 
 		// PC + the number of bytes to jump on carry clear
-		PC += uint16(offset)
+		PC += offset
 
 		// Increment PC
 		PC += 2

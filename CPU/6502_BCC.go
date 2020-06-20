@@ -15,7 +15,7 @@ func opc_BCC(offset uint16) {
 	if P[0] == 0 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear (relative).\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(offset) )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCC  Branch on Carry Clear (relative).\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+offset )
 		}
 
 		// Current PC (To detect page bounday cross)
@@ -23,7 +23,7 @@ func opc_BCC(offset uint16) {
 		// fmt.Printf("\ntmp: %02X\n",tmp)
 
 		// PC + the number of bytes to jump on carry clear
-		PC += uint16(offset)
+		PC += offset
 
 		// Increment PC
 		PC += 2

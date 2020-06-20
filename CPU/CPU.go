@@ -321,52 +321,13 @@ func Interpreter() {
 		case 0x86: // Instruction STX (zeropage)
 			opc_STX( addr_mode_Zeropage(PC+1) )
 
-		// STX  Store Index X in Memory (zeropage)
-		//
-		//      X -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      STX oper      86    2     3
-		// case 0x86: // STX
-		//
-		// 	Memory[Memory[PC+1]] = X
-		// 	if Debug {
-		// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTX  Store Index X in Memory (zeropage).\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], X)
-		// 	}
-		//
-		// 	PC += 2
-		// 	Beam_index += 3
-
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
-		case 0xA9: // InstructionLDA (immediate)
+		case 0xA9: // Instruction LDA (immediate)
 			opc_LDA( addr_mode_Immediate(PC+1) )
 
-
-		// LDA  Load Accumulator with Memory (zeropage)
-		//
-		//      M -> A                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      LDA oper      A5    2     3
-		case 0xA5: // LDA (zeropage)
+		case 0xA5: // Instruction LDA (zeropage)
 			opc_LDA( addr_mode_Zeropage(PC+1) )
-
-			// A = Memory[Memory[PC+1]]
-			// if Debug {
-			// 	fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDA  Load Accumulator with Memory (zeropage).\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], A)
-			// }
-			//
-			// flags_Z(A)
-			// flags_N(A)
-			// PC += 2
-			// Beam_index += 3
-			// os.Exit(2)
-
 
 		// LDA  Load Accumulator with Memory (absolute,Y)
 		//
