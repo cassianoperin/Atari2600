@@ -10,10 +10,10 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BCS oper      B0    2     2**
-func opc_BCS(offset int8) {
+func opc_BCS(offset uint16) {
 	// If carry is clear
 	if P[0] == 1 {
-		
+
 		if Debug {
 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(offset) )
 		}

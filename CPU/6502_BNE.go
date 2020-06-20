@@ -10,7 +10,7 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BNE oper      D0    2     2**
-func opc_BNE(offset int8) {
+func opc_BNE(offset uint16) {
 	// If P[1] = 1 (Zero Flag)
 	if P[1] == 1 {
 

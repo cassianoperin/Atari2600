@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -294,8 +294,8 @@ func Interpreter() {
 
 		//-------------------------------------------------- Just zeropage --------------------------------------------------//
 
-		case 0xE6:	// Instruction INC
-			opc_INC_zeropage()
+		case 0xE6:	// Instruction INC (zeropage)
+			opc_INC( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
@@ -313,26 +313,8 @@ func Interpreter() {
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
-
-		// LDX  Load Index X with Memory
-		//
-		//      M -> X                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     LDX #oper     A2    2     2
-		case 0xA2: // LDX immidiate
-			X = Memory[PC+1]
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDX  Load Index X with Memory (immidiate).\tX = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], PC+1, X)
-			}
-			PC += 2
-
-			flags_Z(X)
-			flags_N(X)
-			Beam_index += 2
-
+		case 0xA2:	// Instruction LDX (immediate)
+			opc_LDX( addr_mode_Immediate(PC+1) )
 
 		//-------------------------------------------------- STX --------------------------------------------------//
 

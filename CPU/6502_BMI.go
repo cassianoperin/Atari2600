@@ -10,10 +10,10 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BMI oper      30    2     2**
-func opc_BMI(offset int8) {
+func opc_BMI(offset uint16) {
 	// If Negative
 	if P[7] == 1 {
-		
+
 		if Debug {
 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(offset) )
 		}

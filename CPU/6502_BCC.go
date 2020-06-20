@@ -10,7 +10,7 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BCC oper      90    2     2**
-func opc_BCC(offset int8) {
+func opc_BCC(offset uint16) {
 	// If carry is clear
 	if P[0] == 0 {
 
