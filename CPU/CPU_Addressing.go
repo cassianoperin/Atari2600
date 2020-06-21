@@ -31,6 +31,22 @@ func addr_mode_Zeropage(offset uint16) (uint16, string) {
 }
 
 
+// // Zeropage DOOOOOOIS
+// // NECESSÁRIO PARA 7-horizontal no LDY
+// func addr_mode_Zeropage2(offset uint16) (uint16, string) {
+//
+// 	value	:= Memory[ offset ]
+// 	memAddr 	:= offset
+// 	mode		:= "Zeropage 2"
+//
+// 	if Debug {
+// 		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
+// 	}
+//
+// 	return memAddr, mode
+// }
+
+
 // Immediate
 func addr_mode_Immediate(offset uint16) (uint16, string) {
 
@@ -44,6 +60,7 @@ func addr_mode_Immediate(offset uint16) (uint16, string) {
 
 	return memAddr, mode
 }
+
 
 // Absolute
 func addr_mode_Absolute(offset uint16) (uint16, string) {
@@ -70,6 +87,7 @@ func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 	}
 	return memAddr, mode
 }
+
 
 // Indirect,Y
 func addr_mode_IndirectY	(offset uint16) (uint16, string) {

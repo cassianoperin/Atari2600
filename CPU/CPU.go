@@ -342,406 +342,36 @@ func Interpreter() {
 		case 0xA5:	// Instruction LDA (zeropage)
 			opc_LDA( addr_mode_Zeropage(PC+1) )
 
-		case 0xB9:	// Instruction LDA (Absolute,Y)
+		case 0xB9:	// Instruction LDA (absolute,Y)
 			opc_LDA( addr_mode_AbsoluteY(PC+1) )
 
-		case 0xB1:	// Instruction LDA (Indirect,Y)
+		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
 
-		//-------------------------------------------------- STA --------------------------------------------------//
-
-
-		// STA  Store Accumulator in Memory (zeropage,X)
-		//
-		//      A -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage,X    STA oper,X    95    2     4
-		case 0x95:
-
-			Beam_index += 4
-
-			Memory[Memory[PC+1]] = A
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage, X).\tMemory[%02X] = A (%d)\n", Opcode,Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
-			}
-
-			// MAPEAR SE NAO TEM QUE SOMAR O X
-			// USADO NO 1 CLEANMEM
-			os.Exit(2)
-
-			// Wait for a new line and authorize graphics to draw the line
-			// Wait for Horizontal Blank to draw the new line
-			if Memory[PC+1] == WSYNC {
-				if Debug {
-					fmt.Printf("\nWSYNC SET\n")
-				}
-				DrawLine = true
-				Beam_index = 0
-
-				if Memory[GRP0] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP0 SET\n")
-					}
-					DrawP0 = true
-				}
-
-				if Memory[GRP1] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP1 SET\n")
-					}
-					DrawP1 = true
-				}
-
-			}
-
-			if Memory[PC+1] == RESP0 {
-				if Memory[RESP0] != 0 {
-					XPositionP0 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
-					}
-				}
-			}
-
-			if Memory[PC+1] == RESP1 {
-				if Memory[RESP1] != 0 {
-					XPositionP1 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
-					}
-
-				}
-			}
-
-
-			if Memory[PC+1] == HMP0 {
-				XFinePositionP0 = Fine(Memory[HMP0])
-
-				if Debug {
-					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				}
-
-			}
-
-			if Memory[PC+1] == HMP1 {
-				XFinePositionP1 = Fine(Memory[HMP1])
-				if Debug {
-					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
-				}
-			}
-
-
-
-			PC += 2
-
-
-		// STA  Store Accumulator in Memory (zeropage)
-		//
-		//      A -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      STA oper      85    2     3
-		case 0x85:
-			Memory[Memory[PC+1]] = A
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
-			}
-
-
-			// Wait for a new line and authorize graphics to draw the line
-			// Wait for Horizontal Blank to draw the new line
-			if Memory[PC+1] == WSYNC {
-				if Debug {
-					fmt.Printf("\nWSYNC SET\n")
-				}
-				DrawLine = true
-				Beam_index = 0
-
-				if Memory[GRP0] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP0 SET\n")
-					}
-					DrawP0 = true
-				}
-
-				if Memory[GRP1] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP1 SET\n")
-					}
-					DrawP1 = true
-				}
-
-			}
-
-			if Memory[PC+1] == RESP0 {
-				if Memory[RESP0] != 0 {
-					XPositionP0 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
-					}
-				}
-			}
-
-			if Memory[PC+1] == RESP1 {
-				if Memory[RESP1] != 0 {
-					XPositionP1 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
-					}
-
-				}
-			}
-
-
-			if Memory[PC+1] == HMP0 {
-				XFinePositionP0 = Fine(Memory[HMP0])
-
-				if Debug {
-					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				}
-
-			}
-
-			if Memory[PC+1] == HMP1 {
-				XFinePositionP1 = Fine(Memory[HMP1])
-				if Debug {
-					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
-				}
-			}
-
-
-
-
-
-			Beam_index += 3
-			PC += 2
-
-
-		// STA  Store Accumulator in Memory (absolute,Y)
-		//
-		//      A -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute,Y    STA oper,Y    99    3     5
-		case 0x99:
-			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
-
-			// Memory[tmp + uint16(Y)] = A
-			Memory[tmp + uint16(Y)] = A
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tSTA  Store Accumulator in Memory (absolute,Y).\tA = Memory[%04X + Y(%d)] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1],		tmp, Y, A )
-			}
-
-			// Check Draw related memory addresses to send instructions to TV
-			if Memory[PC+1] == WSYNC {
-				if Debug {
-					fmt.Printf("\nWSYNC SET\n")
-				}
-				DrawLine = true
-				Beam_index = 0
-
-				if Memory[GRP0] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP0 SET\n")
-					}
-					DrawP0 = true
-				}
-
-				if Memory[GRP1] != 0 {
-					if Debug {
-						fmt.Printf("\nGRP1 SET\n")
-					}
-					DrawP1 = true
-				}
-
-			}
-
-			if Memory[PC+1+uint16(Y)] == RESP0 {
-				if Memory[RESP0] != 0 {
-					XPositionP0 = Beam_index
-					// if Debug {
-						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\tScreen Pos: %d\n", XPositionP0, (XPositionP0*3)-68)
-						fmt.Printf("\nJetXPos: %d", Memory[0x80])
-					// }
-				}
-			}
-
-			if Memory[PC+1] == RESP1 {
-				if Memory[RESP1] != 0 {
-					XPositionP1 = Beam_index
-					if Debug {
-						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
-					}
-
-				}
-			}
-
-
-			if Memory[PC+1+uint16(Y)] == HMP0 {
-				XFinePositionP0 = Fine(Memory[HMP0])
-
-				// if Debug {
-					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-				// }
-
-			}
-
-			if Memory[PC+1+uint16(Y)] == HMP1 {
-				XFinePositionP1 = Fine(Memory[HMP1])
-				if Debug {
-					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
-				}
-			}
-
-			PC += 3
-			Beam_index += 5
 
 
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
+		case 0xA0:	// Instruction LDY (immediate)
+			opc_LDY( addr_mode_Immediate(PC+1) )
 
-		// LDY  Load Index Y with Memory (immidiate)
-		//
-		//      M -> Y                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     LDY #oper     A0    2     2
-		case 0xA0: // LDY immidiate
-			Y = Memory[PC+1]
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDY  Load Index y with Memory (immidiate).\tY = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], PC+1, Y)
-			}
-			PC += 2
-
-			flags_Z(Y)
-			flags_N(Y)
-			Beam_index += 2
-
-
-		// LDY  Load Index Y with Memory (zeropage) //  Same as absolute but in the first page
-		//
-		//      M -> Y                           N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      LDY oper      A4    2     3
-		case 0xA4:
-			Y = Memory[PC+1]
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tLDY  Load Index y with Memory (zeropage).\tY = Memory[%02X](%02X)\t(%d)\n", Opcode, Memory[PC+1], PC+1, Memory[PC+1], Y)
-			}
-			PC += 2
-
-
-			flags_Z(Y)
-			flags_N(Y)
-			Beam_index += 3
-
-
-
+		// Used by the wrong horizontal demo
+		// case 0xA4:	// Instruction LDY (zeropage)
+		// 	opc_LDY( addr_mode_Zeropage(PC+1) )
+		// 	// os.Exit(2)
 
 		//-------------------------------------------------- STY --------------------------------------------------//
 
-
-		// STY  Store Index Y in Memory (zeropage)
-		//
-		//      Y -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      STY oper      84    2     3
-		case 0x84: // STY
-			Memory[Memory[PC+1]] = Y
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTY  Store Index Y in Memory (zeropage).\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Y)
-			}
-
-			PC += 2
-			Beam_index += 3
-
-
-		//-------------------------------------------------- ISB? FF --------------------------------------------------//
-
-		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
-		// FF (Filled ROM)
-		case 0xFF:
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
-			}
-			PC +=1
+		case 0x84:	// Instruction STY (zeropage)
+			opc_STY( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
+		case 0xC0:	// Instruction STY (immediate)
+			opc_CPY( addr_mode_Immediate(PC+1) )
 
-		// CPY  Compare Memory and Index Y (immidiate)
-		//
-		//      Y - M                            N Z C I D V
-		//                                       + + + - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     CPY #oper     C0    2     2
-		case 0xC0:
-
-			tmp := Y - Memory[PC+1]
-
-			if Debug {
-				if tmp == 0 {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (immidiate).\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
-				} else {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (immidiate).\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
-				}
-			}
-
-			flags_Z(tmp)
-			flags_N(tmp)
-			flags_C(Y,Memory[PC+1])
-
-			PC += 2
-			Beam_index += 2
-
-
-		// CPY  Compare Memory and Index Y (zeropage)
-		//
-		//      Y - M                            N Z C I D V
-		//                                       + + + - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      CPY oper      C4    2     3
-		case 0xC4:
-
-			tmp := Y - Memory[Memory[PC+1]]
-
-			if Debug {
-				if tmp == 0 {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (zeropage).\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
-				} else {
-					fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCPY  Compare Memory and Index Y (zeropage).\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], Y, PC+1, Memory[PC+1], tmp)
-				}
-			}
-
-			flags_Z(tmp)
-			flags_N(tmp)
-			flags_C(Y,Memory[PC+1])
-
-			PC += 2
-			Beam_index += 3
-
+		case 0xC4:	// Instruction STY (zeropage)
+			opc_CPY( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
@@ -1063,7 +693,274 @@ func Interpreter() {
 			Beam_index += 2
 
 
+		//-------------------------------------------------- STA --------------------------------------------------//
 
+
+		// STA  Store Accumulator in Memory (zeropage,X)
+		//
+		//      A -> M                           N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      zeropage,X    STA oper,X    95    2     4
+		case 0x95:
+
+			Beam_index += 4
+
+			Memory[Memory[PC+1]] = A
+
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage, X).\tMemory[%02X] = A (%d)\n", Opcode,Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
+			}
+
+			// MAPEAR SE NAO TEM QUE SOMAR O X
+			// USADO NO 1 CLEANMEM
+			os.Exit(2)
+
+			// Wait for a new line and authorize graphics to draw the line
+			// Wait for Horizontal Blank to draw the new line
+			if Memory[PC+1] == WSYNC {
+				if Debug {
+					fmt.Printf("\nWSYNC SET\n")
+				}
+				DrawLine = true
+				Beam_index = 0
+
+				if Memory[GRP0] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP0 SET\n")
+					}
+					DrawP0 = true
+				}
+
+				if Memory[GRP1] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP1 SET\n")
+					}
+					DrawP1 = true
+				}
+
+			}
+
+			if Memory[PC+1] == RESP0 {
+				if Memory[RESP0] != 0 {
+					XPositionP0 = Beam_index
+					if Debug {
+						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
+					}
+				}
+			}
+
+			if Memory[PC+1] == RESP1 {
+				if Memory[RESP1] != 0 {
+					XPositionP1 = Beam_index
+					if Debug {
+						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
+					}
+
+				}
+			}
+
+
+			if Memory[PC+1] == HMP0 {
+				XFinePositionP0 = Fine(Memory[HMP0])
+
+				if Debug {
+					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				}
+
+			}
+
+			if Memory[PC+1] == HMP1 {
+				XFinePositionP1 = Fine(Memory[HMP1])
+				if Debug {
+					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
+				}
+			}
+
+
+
+			PC += 2
+
+
+		// STA  Store Accumulator in Memory (zeropage)
+		//
+		//      A -> M                           N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      zeropage      STA oper      85    2     3
+		case 0x85:
+			Memory[Memory[PC+1]] = A
+
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSTA  Store Accumulator in Memory (zeropage).\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] )
+			}
+
+
+			// Wait for a new line and authorize graphics to draw the line
+			// Wait for Horizontal Blank to draw the new line
+			if Memory[PC+1] == WSYNC {
+				if Debug {
+					fmt.Printf("\nWSYNC SET\n")
+				}
+				DrawLine = true
+				Beam_index = 0
+
+				if Memory[GRP0] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP0 SET\n")
+					}
+					DrawP0 = true
+				}
+
+				if Memory[GRP1] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP1 SET\n")
+					}
+					DrawP1 = true
+				}
+
+			}
+
+			if Memory[PC+1] == RESP0 {
+				if Memory[RESP0] != 0 {
+					XPositionP0 = Beam_index
+					if Debug {
+						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
+					}
+				}
+			}
+
+			if Memory[PC+1] == RESP1 {
+				if Memory[RESP1] != 0 {
+					XPositionP1 = Beam_index
+					if Debug {
+						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
+					}
+
+				}
+			}
+
+
+			if Memory[PC+1] == HMP0 {
+				XFinePositionP0 = Fine(Memory[HMP0])
+
+				if Debug {
+					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				}
+
+			}
+
+			if Memory[PC+1] == HMP1 {
+				XFinePositionP1 = Fine(Memory[HMP1])
+				if Debug {
+					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
+				}
+			}
+
+
+
+
+
+			Beam_index += 3
+			PC += 2
+
+
+		// STA  Store Accumulator in Memory (absolute,Y)
+		//
+		//      A -> M                           N Z C I D V
+		//                                       - - - - - -
+		//
+		//      addressing    assembler    opc  bytes  cyles
+		//      --------------------------------------------
+		//      absolute,Y    STA oper,Y    99    3     5
+		case 0x99:
+			tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
+
+			// Memory[tmp + uint16(Y)] = A
+			Memory[tmp + uint16(Y)] = A
+
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tSTA  Store Accumulator in Memory (absolute,Y).\tA = Memory[%04X + Y(%d)] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1],		tmp, Y, A )
+			}
+
+			// Check Draw related memory addresses to send instructions to TV
+			if Memory[PC+1] == WSYNC {
+				if Debug {
+					fmt.Printf("\nWSYNC SET\n")
+				}
+				DrawLine = true
+				Beam_index = 0
+
+				if Memory[GRP0] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP0 SET\n")
+					}
+					DrawP0 = true
+				}
+
+				if Memory[GRP1] != 0 {
+					if Debug {
+						fmt.Printf("\nGRP1 SET\n")
+					}
+					DrawP1 = true
+				}
+
+			}
+
+			if Memory[PC+1+uint16(Y)] == RESP0 {
+				if Memory[RESP0] != 0 {
+					XPositionP0 = Beam_index
+					// if Debug {
+						fmt.Printf("\nRESP0 SET\tXPositionP0: %d\tScreen Pos: %d\n", XPositionP0, (XPositionP0*3)-68)
+						fmt.Printf("\nJetXPos: %d", Memory[0x80])
+					// }
+				}
+			}
+
+			if Memory[PC+1] == RESP1 {
+				if Memory[RESP1] != 0 {
+					XPositionP1 = Beam_index
+					if Debug {
+						fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
+					}
+
+				}
+			}
+
+
+			if Memory[PC+1+uint16(Y)] == HMP0 {
+				XFinePositionP0 = Fine(Memory[HMP0])
+
+				// if Debug {
+					fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+				// }
+
+			}
+
+			if Memory[PC+1+uint16(Y)] == HMP1 {
+				XFinePositionP1 = Fine(Memory[HMP1])
+				if Debug {
+					fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
+				}
+			}
+
+			PC += 3
+			Beam_index += 5
+
+
+		//-------------------------------------------------- ISB? FF --------------------------------------------------//
+
+		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
+		// FF (Filled ROM)
+		case 0xFF:
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
+			}
+			PC +=1
 
 
 		default:
