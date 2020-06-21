@@ -348,8 +348,6 @@ func Interpreter() {
 		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
 
-
-
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
 		case 0xA0:	// Instruction LDY (immediate)
@@ -375,134 +373,74 @@ func Interpreter() {
 
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
+		case 0xE5:	// Instruction STY (zeropage)
+			opc_SBC( addr_mode_Zeropage(PC+1) )
 
-		// SBC  Subtract Memory from Accumulator with Borrow (zeropage)
+		case 0xE9:	// Instruction STY (immediate)
+			opc_SBC( addr_mode_Immediate(PC+1) )
+
+		//-------------------------------------------------- DEC --------------------------------------------------//
+
+		case 0xC6:	// Instruction DEC (zeropage)
+			opc_DEC( addr_mode_Zeropage(PC+1) )
+
+		//-------------------------------------------------- AND --------------------------------------------------//
+
+		case 0x29:	// Instruction AND (immediate)
+			opc_AND( addr_mode_Immediate(PC+1) )
+
+		//-------------------------------------------------- EOR --------------------------------------------------//
+
+		case 0x49:	// Instruction EOR (immediate)
+			opc_EOR( addr_mode_Immediate(PC+1) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//-------------------------------------------------- ASL --------------------------------------------------//
+
+
+		// ASL  Shift Left One Bit (Memory or Accumulator) (accumulator)
 		//
-	     // A - M - C -> A                   N Z C I D V
-	     //                                  + + + - - +
-		//
-	     // addressing    assembler    opc  bytes  cyles
-	     // --------------------------------------------
-	     // zeropage      SBC oper      E5    2     3
-		case 0xE5:
-
-			// Inverted Carry
-			var borrow byte = P[0] ^ 1
-
-			tmp := A
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (zeropage).\tA = A(%d) - Memory[Memory[%02X]](%d) - (Borrow(Inverted Carry)(%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], borrow , A - Memory[Memory[PC+1]] - borrow )
-			}
-
-			// Result
-			A = A - Memory[Memory[PC+1]] - borrow
-
-			// For the flags:
-			// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
-			value2 := Memory[PC+1] - borrow
-
-			// First V because it need the original carry flag value
-			Flags_V_SBC(tmp, value2)
-			// After, update the carry flag value
-			flags_C_Subtraction(tmp, value2)
-
-			// // Clear Carry if overflow in bit 7 // NOT NECESSARY
-			// if P[6] == 1 {
-			// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
-			// 	P[0] = 0
-			// }
-
-			flags_Z(A)
-			flags_N(A)
-
-			PC += 2
-			Beam_index += 3
-
-
-		// SBC  Subtract Memory from Accumulator with Borrow (immidiate)
-		//
-		//      A - M - C -> A                   N Z C I D V
-		//                                       + + + - - +
+		//      C <- [76543210] <- 0             N Z C I D V
+		//                                       + + + - - -
 		//
 		//      addressing    assembler    opc  bytes  cyles
 		//      --------------------------------------------
-		//      immidiate     SBC #oper     E9    2     2
-		case 0xE9:
-
-			// Inverted Carry
-			var borrow byte = P[0] ^ 1
-
-			// Original value of A
-			tmp := A
+		//      accumulator   ASL A         0A    1     2
+		case 0x0A:
 
 			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tSBC  Subtract Memory from Accumulator with Borrow (immidiate).\tA = A(%d) - Memory[%02X](%d) - (Borrow(Inverted Carry)(%d)) = %d\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], borrow , A - Memory[PC+1] - borrow )
+				fmt.Printf("\n\tOpcode %02X [1 byte]\tASL  Shift Left One Bit (Memory or Accumulator) (accumulator).\tA = A(%d) Shift Left 1 bit\t(%d)\n", Opcode, A, A << 1 )
 			}
 
-			// Result
-			A = A - Memory[PC+1] - borrow
+			flags_C(A, A << 1)
 
-			// For the flags:
-			// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
-			value2 := Memory[PC+1] - borrow
+			A = A << 1
 
-			// First V because it need the original carry flag value
-			Flags_V_SBC(tmp, value2)
-			// After, update the carry flag value
-			flags_C_Subtraction(tmp, value2)
-
-			// // Clear Carry if overflow in bit 7 // NOT NECESSARY
-			// if P[6] == 1 {
-			// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
-			// 	P[0] = 0
-			// }
-
-			flags_Z(A)
 			flags_N(A)
+			flags_Z(A)
 
-			PC += 2
+			PC += 1
 			Beam_index += 2
 
 
-		//-------------------------------------------------- ADC --------------------------------------------------//
-		// ADC  Add Memory to Accumulator with Carry (zeropage)
-		//
-		// 	A + M + C -> A, C                N Z C I D V
-		// 	                          	   + + + - - +
-		//
-		// 	addressing    assembler    opc  bytes  cyles
-		// 	--------------------------------------------
-		// 	zeropage      ADC oper      65    2     3
-		case 0x65:
 
-			// Original value of A
-			tmp := A
 
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-			}
 
-			// Result
-			A = A + Memory[Memory[PC+1]] + P[0]
-			// A = A + Memory[PC+1] + P[0]
 
-			// For the flags:
-			// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
-			// value2 := Memory[Memory[PC+1]] + P[0]
 
-			// First V because it need the original carry flag value
-			Flags_V_ADC(tmp, A)
-			// After, update the carry flag value
-			flags_C(tmp, A)
 
-			flags_Z(A)
-			flags_N(A)
 
-			PC += 2
-			Beam_index += 3
-			// os.Exit(2)
-			// Pause = true
 
 
 
@@ -535,9 +473,10 @@ func Interpreter() {
 				flags_N(tmp)
 				flags_C_Subtraction(A,Memory[Memory[PC+1]])
 
-
+				//fmt.Printf("\n11111111\n")
 				PC += 2
 				Beam_index += 3
+				// Pause = true
 
 			// Else, read directly the value in Memory [PC+1]
 			} else {
@@ -556,6 +495,7 @@ func Interpreter() {
 				flags_Z(tmp)
 				flags_N(tmp)
 				flags_C_Subtraction(A,Memory[PC+1])
+				//fmt.Printf("\n2222222\n")
 
 				PC += 2
 				Beam_index += 3
@@ -587,110 +527,6 @@ func Interpreter() {
 
 				PC += 2
 				Beam_index += 2
-
-		//-------------------------------------------------- DEC --------------------------------------------------//
-
-
-		// DEC  Decrement Memory by One
-		//
-		//      M - 1 -> M                       N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      zeropage      DEC oper      C6    2     5
-		case 0xC6: // DEC
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tDEC  Decrement Memory by One.\tMemory[%02X] -= 1 (%d)\n", Opcode, Memory[PC+1], Memory[PC+1], Memory[Memory[PC+1]] - 1 )
-			}
-			Memory[Memory[PC+1]] -= 1
-
-			flags_Z(Memory[Memory[PC+1]])
-			flags_N(Memory[Memory[PC+1]])
-
-			PC += 2
-			Beam_index += 5
-
-
-		//-------------------------------------------------- AND --------------------------------------------------//
-
-		// AND  AND Memory with Accumulator (immidiate)
-		//
-		//      A AND M -> A                     N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     AND #oper     29    2     2
-		case 0x29: // AND (immidiate)
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tAND  AND Memory with Accumulator (immidiate).\tA = A(%d) & Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], A & Memory[PC+1] )
-			}
-
-			A = A & Memory[PC+1]
-
-			flags_Z(A)
-			flags_N(A)
-
-			PC += 2
-			Beam_index += 2
-
-
-		//-------------------------------------------------- AND --------------------------------------------------//
-
-
-		// EOR  Exclusive-OR Memory with Accumulator (immidiate)
-		//
-		//      A EOR M -> A                     N Z C I D V
-		//                                       + + - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     EOR #oper     49    2     2
-		case 0x49:
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tEOR  Exclusive-OR Memory with Accumulator (immidiate).\tA = A(%d) XOR Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], A, PC+1, Memory[PC+1], A ^ Memory[PC+1] )
-			}
-
-			A = A ^ Memory[PC+1]
-
-			flags_Z(A)
-			flags_N(A)
-
-			PC += 2
-			Beam_index += 2
-
-
-
-		//-------------------------------------------------- EOR --------------------------------------------------//
-
-
-		// ASL  Shift Left One Bit (Memory or Accumulator) (accumulator)
-		//
-		//      C <- [76543210] <- 0             N Z C I D V
-		//                                       + + + - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      accumulator   ASL A         0A    1     2
-		case 0x0A:
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tASL  Shift Left One Bit (Memory or Accumulator) (accumulator).\tA = A(%d) Shift Left 1 bit\t(%d)\n", Opcode, A, A << 1 )
-			}
-
-			flags_C(A, A << 1)
-
-			A = A << 1
-
-			flags_N(A)
-			flags_Z(A)
-
-			PC += 1
-			Beam_index += 2
 
 
 		//-------------------------------------------------- STA --------------------------------------------------//
@@ -961,6 +797,47 @@ func Interpreter() {
 				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
 			}
 			PC +=1
+
+
+
+		//-------------------------------------------------- ADC --------------------------------------------------//
+		// ADC  Add Memory to Accumulator with Carry (zeropage)
+		//
+		// 	A + M + C -> A, C                N Z C I D V
+		// 	                          	   + + + - - +
+		//
+		// 	addressing    assembler    opc  bytes  cyles
+		// 	--------------------------------------------
+		// 	zeropage      ADC oper      65    2     3
+		// case 0x65:
+		//
+		// 	// Original value of A
+		// 	tmp := A
+		//
+		// 	if Debug {
+		// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+		// 	}
+		//
+		// 	// Result
+		// 	A = A + Memory[Memory[PC+1]] + P[0]
+		// 	// A = A + Memory[PC+1] + P[0]
+		//
+		// 	// For the flags:
+		// 	// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
+		// 	// value2 := Memory[Memory[PC+1]] + P[0]
+		//
+		// 	// First V because it need the original carry flag value
+		// 	Flags_V_ADC(tmp, A)
+		// 	// After, update the carry flag value
+		// 	flags_C(tmp, A)
+		//
+		// 	flags_Z(A)
+		// 	flags_N(A)
+		//
+		// 	PC += 2
+		// 	Beam_index += 3
+		// 	// os.Exit(2)
+		// 	// Pause = true
 
 
 		default:
