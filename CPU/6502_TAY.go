@@ -12,11 +12,14 @@ import	"fmt"
 //      implied       TAY           A8    1     2
 func opc_TAY() {
 	Y = A
+
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tTAY  Transfer Accumulator to Index Y.\tA = X (%d)\n", Opcode, X)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tTAY  Transfer Accumulator to Index Y.\tY = A (%d)\n", Opcode, A)
 	}
-	PC += 1
+
 	flags_Z(Y)
 	flags_N(Y)
+
+	PC += 1
 	Beam_index += 2
 }

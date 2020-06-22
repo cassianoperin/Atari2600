@@ -10,7 +10,7 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BNE oper      D0    2     2**
-func opc_BNE(offset uint16) {
+func opc_BNE(value int8) {	// Receive a SIGNED value
 	// If P[1] = 1 (Zero Flag)
 	if P[1] == 1 {
 
@@ -18,11 +18,11 @@ func opc_BNE(offset uint16) {
 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", Opcode, Memory[PC+1], P[1])
 		}
 		PC += 2
-
+	// If P[1] = 0 (Not Zero) Jump to address
 	} else {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d, JUMP TO %04X\n", Opcode, Memory[PC+1], P[1], PC+2+offset )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d, JUMP TO %04X\n", Opcode, Memory[PC+1], P[1], PC+2+uint16(value) )
 		}
 
 		// Current PC (To detect page bounday cross)
@@ -30,7 +30,7 @@ func opc_BNE(offset uint16) {
 		// fmt.Printf("\ntmp: %02X\n",tmp)
 
 		// PC + the number of bytes to jump on carry clear
-		PC += offset
+		PC += uint16(value)
 
 		// Increment PC
 		PC += 2
@@ -39,10 +39,10 @@ func opc_BNE(offset uint16) {
 		Beam_index += 1
 
 		// Add one extra cycle if branch occurs in a differente memory page
-		if MemPageBoundary(uint16(tmp), PC) {
+		if MemPageBoundary(tmp, PC) {
 			Beam_index += 1
 		}
-		// os.Exit(2)
 	}
+
 	Beam_index += 2
 }

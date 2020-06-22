@@ -17,8 +17,8 @@ func opc_INC(memAddr uint16, mode string) {
 
 	Memory[ memAddr ] += 1
 
-	flags_Z(Memory[ Memory[PC+1] ])
-	flags_N(Memory[ Memory[PC+1] ])
+	flags_Z(Memory[ memAddr ])
+	flags_N(Memory[ memAddr ])
 	PC += 2
 	Beam_index += 5
 }

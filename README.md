@@ -48,10 +48,11 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Scoreboard multi digit
 - Sound
 - Controller Input: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
-- Review progs 1 and 2
-- Review 0x95 , X?
 - Review printf and message breaklines (put all at the end)
-- Fix workaround in CMP (C5)
+- Implement ISB
+- Just setting COLUBK not showing the background color
+- Fix x movement in STA 0x99
+- Glitches in 103 bomber player
 
 
 ## Documentation:
@@ -77,7 +78,7 @@ http://www.emulator101.com/6502-addressing-modes.html
 http://www.obelisk.me.uk/6502/reference.html#CPY
 
 
-### 6502
+### 6502:
 http://www.6502.org/
 
 
@@ -115,9 +116,9 @@ https://dwheeler.com/6502/oneelkruns/asm1step.html
 https://gitter.im/pixellib/Lobby?at=5dbc310c10bd4128a19e5608
 
 
-### Object draw
+### Object draw:
 https://alienbill.com/2600/playerpalnext.html
 
 
-### Online debugger
+### Online debugger:
 https://8bitworkshop.com/

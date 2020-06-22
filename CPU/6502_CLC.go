@@ -11,10 +11,13 @@ import	"fmt"
 //      --------------------------------------------
 //      implied       CLC           18    1     2
 func opc_CLC() {
+
 	P[0]	= 0
-	PC += 1
+
 	if Debug {
 		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tCLC  Clear Carry Flag.\tP[0]=0\n", Opcode)
 	}
+	
+	PC += 1
 	Beam_index += 2
 }

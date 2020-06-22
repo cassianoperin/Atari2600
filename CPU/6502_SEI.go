@@ -12,9 +12,11 @@ import	"fmt"
 //      implied       SEI           78    1     2
 func opc_SEI() {
 	P[2]	=  1
-	PC += 1
+
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=1\n", Opcode)
+		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=%d\n", Opcode, P[2])
 	}
+
+	PC += 1
 	Beam_index += 2
 }

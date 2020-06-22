@@ -10,19 +10,19 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      relative      BCS oper      B0    2     2**
-func opc_BCS(offset uint16) {
+func opc_BCS(value int8) {	// Receive a SIGNED value
 	// If carry is clear
 	if P[0] == 1 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+offset )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 		// Current PC (To detect page bounday cross)
 		tmp := PC
 		// fmt.Printf("\ntmp: %02X\n",tmp)
 
 		// PC + the number of bytes to jump on carry clear
-		PC += offset
+		PC += uint16(value)
 
 		// Increment PC
 		PC += 2

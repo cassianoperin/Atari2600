@@ -3,13 +3,15 @@ package CPU
 import	"fmt"
 
 // Relative
-func addr_mode_Relative(offset uint16) uint16 {
+func addr_mode_Relative(offset uint16) int8 {
 
 	// Branches needs the Two Complement of the offset value
-	value := uint16( DecodeTwoComplement(Memory[offset]) )
+	value := DecodeTwoComplement(Memory[offset])
+	memAddr 	:= offset
+	mode		:= "Relative"
 
 	if Debug {
-		fmt.Printf("\n\tRelative addressing mode.\tMemory[%02X]\tValue obtained: %d", offset, value)
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d (SIGNED value)", mode, memAddr, value)
 	}
 
 	return value
@@ -20,16 +22,30 @@ func addr_mode_Relative(offset uint16) uint16 {
 func addr_mode_Zeropage(offset uint16) (uint16, string) {
 
 	value	:= Memory[ Memory[offset] ]
-	memAddr 	:= uint16(Memory[offset])
+	memAddr 	:= Memory[offset]
 	mode		:= "Zeropage"
 
 	if Debug {
 		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
 	}
 
-	return memAddr, mode
+	return uint16(memAddr), mode
 }
 
+
+// Zeropage,X
+func addr_mode_ZeropageX(offset uint16) (uint16, string) {
+
+	value	:= Memory[ Memory[offset] + X ]
+	memAddr 	:= Memory[offset] + X
+	mode		:= "Zeropage,X"
+
+	if Debug {
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
+	}
+
+	return uint16(memAddr), mode
+}
 
 // Immediate
 func addr_mode_Immediate(offset uint16) (uint16, string) {
@@ -59,6 +75,7 @@ func addr_mode_Absolute(offset uint16) (uint16, string) {
 	return memAddr, mode
 }
 
+
 // Absolute,Y
 func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 
@@ -67,7 +84,7 @@ func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 	mode		:= "Absolute,Y"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\n\t%s addressing mode.\t\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
 	}
 	return memAddr, mode
 }
@@ -76,12 +93,12 @@ func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 // Indirect,Y
 func addr_mode_IndirectY	(offset uint16) (uint16, string) {
 
-	memAddr  := ( uint16(Memory[Memory[offset] + 1])<<8 | uint16(Memory[Memory[offset]]) ) + uint16(Y)
+	memAddr  := ( uint16(Memory[Memory[offset+1]])<<8 | uint16(Memory[Memory[offset]]) ) + uint16(Y)
 	value := Memory[memAddr]
 	mode		:= "Indirect,Y"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\n\t%s addressing mode.\tMemory[%04X]\t\tValue obtained: %02X", mode, memAddr, value)
 	}
 	return memAddr, mode
 }
