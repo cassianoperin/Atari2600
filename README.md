@@ -51,9 +51,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Review printf and message breaklines (put all at the end)
 - Implement ISB
 - Just setting COLUBK not showing the background color
-- Fix x movement in STA 0x99
-- Glitches in 103 bomber player
-
+- Implement ADC
 
 ## Documentation:
 

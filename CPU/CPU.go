@@ -105,10 +105,14 @@ const (
 
 )
 
-func testAction() {
+func testAction(memAddr uint16) {
 	// Wait for a new line and authorize graphics to draw the line
 	// Wait for Horizontal Blank to draw the new line
-	if Memory[PC+1] == WSYNC {
+
+	// TODO: when tested, maybe tranform this to byte???
+	// address := byte(memAddr)
+
+	if memAddr == uint16(WSYNC) {
 		if Debug {
 			fmt.Printf("\nWSYNC SET\n")
 		}
@@ -127,11 +131,13 @@ func testAction() {
 				fmt.Printf("\nGRP1 SET\n")
 			}
 			DrawP1 = true
+			// Pause = true
+			// DrawP1 = true
 		}
 
 	}
 
-	if Memory[PC+1] == RESP0 {
+	if memAddr == uint16(RESP0) {
 		if Memory[RESP0] != 0 {
 			XPositionP0 = Beam_index
 			if Debug {
@@ -140,7 +146,7 @@ func testAction() {
 		}
 	}
 
-	if Memory[PC+1] == RESP1 {
+	if memAddr == uint16(RESP1) {
 		if Memory[RESP1] != 0 {
 			XPositionP1 = Beam_index
 			if Debug {
@@ -151,7 +157,7 @@ func testAction() {
 	}
 
 
-	if Memory[PC+1] == HMP0 {
+	if memAddr == uint16(HMP0) {
 		XFinePositionP0 = Fine(Memory[HMP0])
 
 		if Debug {
@@ -160,7 +166,7 @@ func testAction() {
 
 	}
 
-	if Memory[PC+1] == HMP1 {
+	if memAddr == uint16(HMP1) {
 		XFinePositionP1 = Fine(Memory[HMP1])
 		if Debug {
 			fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
@@ -410,10 +416,6 @@ func Interpreter() {
 
 		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
-			// os.Exit(2
-			// if Y == 0x07 {
-			// 	Pause = true
-			// }
 
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
@@ -471,174 +473,23 @@ func Interpreter() {
 		case 0xC5:	// Instruction CMP (zeropage)
 			opc_CMP( addr_mode_Zeropage(PC+1) )
 
-			// WORKAROUND
-			// If in a RAM range, read the value from RAM Address [Memory [Memory[PC+1]] ]
-			// if Memory[PC+1] >= 0x80 && Memory[PC+1] <= 0xFF {
-				// tmp := A - Memory[Memory[PC+1]]
-				//
-				// if Debug {
-				// 	if tmp == 0 {
-				// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-				// 	} else {
-				// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-				// 	}
-				// }
-				// flags_Z(tmp)
-				// flags_N(tmp)
-				// flags_C_Subtraction(A,Memory[Memory[PC+1]])
-				//
-				// //fmt.Printf("\n11111111\n")
-				// PC += 2
-				// Beam_index += 3
-			// 	// Pause = true
-
-			// Else, read directly the value in Memory [PC+1]
-			// } else {
-			// 	// tmp := A - Memory[Memory[PC+1]]
-			// 	tmp := A - Memory[PC+1]
-			//
-			// 	if Debug {
-			// 		if tmp == 0 {
-			// 			// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-			// 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-			// 		} else {
-			// 			// fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], Memory[Memory[PC+1]], tmp)
-			// 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (zeropage).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-			// 		}
-			// 	}
-			// 	flags_Z(tmp)
-			// 	flags_N(tmp)
-			// 	flags_C_Subtraction(A,Memory[PC+1])
-			// 	//fmt.Printf("\n2222222\n")
-			//
-			// 	PC += 2
-			// 	Beam_index += 3
-			// }
-
 		case 0xC9:	// Instruction CMP (immediate)
 			opc_CMP( addr_mode_Immediate(PC+1) )
-		// CMP  Compare Memory with Accumulator (immidiate)
-		//
-		//      A - M                            N Z C I D V
-		//                                       + + + - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      immidiate     CMP #oper     C9    2     2
-		// case 0xC9:
-		// 	tmp := A - Memory[PC+1]
-		//
-		// 	if Debug {
-		// 		if tmp == 0 {
-		// 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-		// 		} else {
-		// 			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tCMP  Compare Memory with Accumulator (immidiate).\tA(%d) - %d = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], A, Memory[PC+1], tmp)
-		// 		}
-		// 	}
-		//
-		// 	flags_Z(tmp)
-		// 	flags_N(tmp)
-		// 	flags_C_Subtraction(A,Memory[PC+1])
-		//
-		// 	PC += 2
-		// 	Beam_index += 2
-
-
 
 		//-------------------------------------------------- STA --------------------------------------------------//
 
+		// Used in 1-cleanmem
 		case 0x95:	// Instruction STA (zeropage,X)
 			opc_STA( addr_mode_ZeropageX(PC+1) )
+			// os.Exit(2)
 
+		// Used in 2-colorbg, to 103-bomber
 		case 0x85:	// Instruction STA (zeropage)
 			opc_STA( addr_mode_Zeropage(PC+1) )
 
+		// Used in 103-bomber
 		case 0x99:	// Instruction STA (zeropage)
 			opc_STA( addr_mode_AbsoluteY(PC+1) )
-
-		// STA  Store Accumulator in Memory (absolute,Y)
-		//
-		//      A -> M                           N Z C I D V
-		//                                       - - - - - -
-		//
-		//      addressing    assembler    opc  bytes  cyles
-		//      --------------------------------------------
-		//      absolute,Y    STA oper,Y    99    3     5
-		// case 0x99:
-		// 	tmp := uint16(Memory[PC+2])<<8 | uint16(Memory[PC+1])
-		//
-		// 	// Memory[tmp + uint16(Y)] = A
-		// 	Memory[tmp + uint16(Y)] = A
-		//
-		// 	if Debug {
-		// 		fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes]\tSTA  Store Accumulator in Memory (absolute,Y).\tA = Memory[%04X + Y(%d)] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1],		tmp, Y, A )
-		// 	}
-		//
-		// 	// Check Draw related memory addresses to send instructions to TV
-		// 	if Memory[PC+1] == WSYNC {
-		// 		if Debug {
-		// 			fmt.Printf("\nWSYNC SET\n")
-		// 		}
-		// 		DrawLine = true
-		// 		Beam_index = 0
-		//
-		// 		if Memory[GRP0] != 0 {
-		// 			if Debug {
-		// 				fmt.Printf("\nGRP0 SET\n")
-		// 			}
-		// 			DrawP0 = true
-		// 		}
-		//
-		// 		if Memory[GRP1] != 0 {
-		// 			if Debug {
-		// 				fmt.Printf("\nGRP1 SET\n")
-		// 			}
-		// 			DrawP1 = true
-		// 		}
-		//
-		// 	}
-		//
-		// 	if Memory[PC+1+uint16(Y)] == RESP0 {
-		// 		if Memory[RESP0] != 0 {
-		// 			XPositionP0 = Beam_index
-		// 			// if Debug {
-		// 				fmt.Printf("\nRESP0 SET\tXPositionP0: %d\tScreen Pos: %d\n", XPositionP0, (XPositionP0*3)-68)
-		// 				fmt.Printf("\nJetXPos: %d", Memory[0x80])
-		// 			// }
-		// 		}
-		// 	}
-		//
-		// 	if Memory[PC+1] == RESP1 {
-		// 		if Memory[RESP1] != 0 {
-		// 			XPositionP1 = Beam_index
-		// 			if Debug {
-		// 				fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
-		// 			}
-		//
-		// 		}
-		// 	}
-		//
-		//
-		// 	if Memory[PC+1+uint16(Y)] == HMP0 {
-		// 		XFinePositionP0 = Fine(Memory[HMP0])
-		//
-		// 		// if Debug {
-		// 			fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-		// 		// }
-		//
-		// 	}
-		//
-		// 	if Memory[PC+1+uint16(Y)] == HMP1 {
-		// 		XFinePositionP1 = Fine(Memory[HMP1])
-		// 		if Debug {
-		// 			fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
-		// 		}
-		// 	}
-		//
-		// 	PC += 3
-		// 	Beam_index += 5
-			// os.Exit(2)
-
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
@@ -661,33 +512,33 @@ func Interpreter() {
 		// 	addressing    assembler    opc  bytes  cyles
 		// 	--------------------------------------------
 		// 	zeropage      ADC oper      65    2     3
-		// case 0x65:
-		//
-		// 	// Original value of A
-		// 	tmp := A
-		//
-		// 	if Debug {
-		// 		fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-		// 	}
-		//
-		// 	// Result
-		// 	A = A + Memory[Memory[PC+1]] + P[0]
-		// 	// A = A + Memory[PC+1] + P[0]
-		//
-		// 	// For the flags:
-		// 	// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
-		// 	// value2 := Memory[Memory[PC+1]] + P[0]
-		//
-		// 	// First V because it need the original carry flag value
-		// 	Flags_V_ADC(tmp, A)
-		// 	// After, update the carry flag value
-		// 	flags_C(tmp, A)
-		//
-		// 	flags_Z(A)
-		// 	flags_N(A)
-		//
-		// 	PC += 2
-		// 	Beam_index += 3
+		case 0x65:
+
+			// Original value of A
+			tmp := A
+
+			if Debug {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+			}
+
+			// Result
+			A = A + Memory[Memory[PC+1]] + P[0]
+			// A = A + Memory[PC+1] + P[0]
+
+			// For the flags:
+			// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
+			// value2 := Memory[Memory[PC+1]] + P[0]
+
+			// First V because it need the original carry flag value
+			Flags_V_ADC(tmp, A)
+			// After, update the carry flag value
+			flags_C(tmp, A)
+
+			flags_Z(A)
+			flags_N(A)
+
+			PC += 2
+			Beam_index += 3
 		// 	// os.Exit(2)
 		// 	// Pause = true
 
