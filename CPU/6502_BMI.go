@@ -15,7 +15,7 @@ func opc_BMI(value int8) {
 	if P[7] == 1 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBMI  Branch on Result Minus (relative).\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBMI  Branch on Result Minus.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 		// Current PC (To detect page bounday cross)
 		tmp := PC
@@ -38,7 +38,7 @@ func opc_BMI(value int8) {
 	// If not negative
 	} else {
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus (relative).\t\tNEGATIVE Flag DISABLED, PC+=2\n", Opcode, Memory[PC+1])
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBMI  Branch on Result Minus.\t\tNEGATIVE Flag DISABLED, PC+=2\n", Opcode, Memory[PC+1])
 		}
 		PC += 2
 	}

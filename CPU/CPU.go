@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = true
+	Debug 		bool = false
 )
 
 
@@ -131,8 +131,6 @@ func testAction(memAddr uint16) {
 				fmt.Printf("\nGRP1 SET\n")
 			}
 			DrawP1 = true
-			// Pause = true
-			// DrawP1 = true
 		}
 
 	}
@@ -380,6 +378,9 @@ func Interpreter() {
 		case 0x30:	// Instruction BMI (relative)
 			opc_BMI( addr_mode_Relative(PC+1) )
 
+		case 0x10:	// Instruction BPL (relative)
+			opc_BPL( addr_mode_Relative(PC+1) )
+
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
 		case 0xA2:	// Instruction LDX (immediate)
@@ -463,6 +464,9 @@ func Interpreter() {
 		case 0x49:	// Instruction EOR (immediate)
 			opc_EOR( addr_mode_Immediate(PC+1) )
 
+		case 0x45:	// Instruction EOR (zeropage)
+			opc_EOR( addr_mode_Zeropage(PC+1) )
+
 		//-------------------------------------------------- ASL --------------------------------------------------//
 
 		case 0x0A:	// Instruction ASL (accumulator)
@@ -481,7 +485,6 @@ func Interpreter() {
 		// Used in 1-cleanmem
 		case 0x95:	// Instruction STA (zeropage,X)
 			opc_STA( addr_mode_ZeropageX(PC+1) )
-			// os.Exit(2)
 
 		// Used in 2-colorbg, to 103-bomber
 		case 0x85:	// Instruction STA (zeropage)
@@ -490,6 +493,11 @@ func Interpreter() {
 		// Used in 103-bomber
 		case 0x99:	// Instruction STA (zeropage)
 			opc_STA( addr_mode_AbsoluteY(PC+1) )
+
+		//-------------------------------------------------- ADC --------------------------------------------------//
+
+		case 0x65:	// Instruction ADC (zeropage)
+			opc_ADC( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
@@ -501,51 +509,11 @@ func Interpreter() {
 			}
 			PC +=1
 
-
-
-		//-------------------------------------------------- ADC --------------------------------------------------//
-		// ADC  Add Memory to Accumulator with Carry (zeropage)
-		//
-		// 	A + M + C -> A, C                N Z C I D V
-		// 	                          	   + + + - - +
-		//
-		// 	addressing    assembler    opc  bytes  cyles
-		// 	--------------------------------------------
-		// 	zeropage      ADC oper      65    2     3
-		case 0x65:
-
-			// Original value of A
-			tmp := A
-
-			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", Opcode, Memory[PC+1],		A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-			}
-
-			// Result
-			A = A + Memory[Memory[PC+1]] + P[0]
-			// A = A + Memory[PC+1] + P[0]
-
-			// For the flags:
-			// The addiction is VALUE1 (A) - VALUE2 (Memory[Memory[PC+1]] + P[0])
-			// value2 := Memory[Memory[PC+1]] + P[0]
-
-			// First V because it need the original carry flag value
-			Flags_V_ADC(tmp, A)
-			// After, update the carry flag value
-			flags_C(tmp, A)
-
-			flags_Z(A)
-			flags_N(A)
-
-			PC += 2
-			Beam_index += 3
-		// 	// os.Exit(2)
-		// 	// Pause = true
-
+		//-------------------------------------------- No Opcode Found --------------------------------------------//
 
 		default:
 			fmt.Printf("\n\tOPCODE %02X NOT IMPLEMENTED!\n\n", Opcode)
-			os.Exit(2)
+			os.Exit(0)
 
 	}
 

@@ -15,7 +15,7 @@ import	"fmt"
 //      absolute      BIT oper      2C    3     4
 func opc_BIT(memAddr uint16, mode string) {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator (absolute).\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
 	}
 	// fmt.Printf("\n\n%08b\n\n",A & Memory[memAddr])
 

@@ -2,20 +2,20 @@ package CPU
 
 import	"fmt"
 
-// BCS  Branch on Carry Set
+// BPL  Branch on Result Plus
 //
-//      branch on C = 1                  N Z C I D V
+//      branch on N = 0                  N Z C I D V
 //                                       - - - - - -
 //
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
-//      relative      BCS oper      B0    2     2**
-func opc_BCS(value int8) {	// Receive a SIGNED value
-	// If carry is clear
-	if P[0] == 1 {
+//      relative      BPL oper      10    2     2**
+func opc_BPL(value int8) {
+	// If Positive
+	if P[7] == 0 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBranch on Result POSITIVE.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 		// Current PC (To detect page bounday cross)
 		tmp := PC
@@ -35,10 +35,10 @@ func opc_BCS(value int8) {	// Receive a SIGNED value
 			Beam_index += 1
 		}
 
-	// If carry is set
+	// If not negative
 	} else {
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set.\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
+			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBranch on Result POSITIVE.\t\tNEGATIVE Flag enabled, PC+=2\n", Opcode, Memory[PC+1])
 		}
 		PC += 2
 	}

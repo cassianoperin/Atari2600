@@ -2,7 +2,7 @@ package CPU
 
 import	"fmt"
 
-// AND  AND Memory with Accumulator (immidiate)
+// AND  AND Memory with Accumulator
 //
 //      A AND M -> A                     N Z C I D V
 //                                       + + - - - -

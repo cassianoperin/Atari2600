@@ -2,7 +2,7 @@ package CPU
 
 import	"fmt"
 
-// ASL  Shift Left One Bit (Memory or Accumulator) (accumulator)
+// ASL  Shift Left One Bit (Memory or Accumulator)
 //
 //      C <- [76543210] <- 0             N Z C I D V
 //                                       + + + - - -
