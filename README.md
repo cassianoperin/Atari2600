@@ -51,7 +51,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Review printf and message breaklines (put all at the end)
 - Implement ISB
 - Just setting COLUBK not showing the background color
-- Implement ADC
+- Test ASL, ROR and ROL flags (https://www.atariarchives.org/alp/appendix_1.php)
 
 ## Documentation:
 
