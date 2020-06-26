@@ -2,8 +2,6 @@ package Graphics
 
 import (
 	"fmt"
-	// "os"
-	// "strconv"
 	"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
@@ -122,7 +120,7 @@ func drawPlayer0() {
 		}
 
 		if debug {
-			fmt.Printf("\nLine: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d", line, CPU.Memory[CPU.GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
+			fmt.Printf("Line: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d\n", line, CPU.Memory[CPU.GRP0], CPU.XPositionP0, CPU.XFinePositionP0)
 		}
 
 		// For each bit in GRPn, draw if == 1
@@ -226,7 +224,7 @@ func drawPlayer1() {
 		}
 
 		if debug {
-			fmt.Printf("\nLine: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d", line, CPU.Memory[CPU.GRP1], CPU.XPositionP1, CPU.Memory[CPU.HMP1])
+			fmt.Printf("Line: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d\n", line, CPU.Memory[CPU.GRP1], CPU.XPositionP1, CPU.Memory[CPU.HMP1])
 		}
 
 		// For each bit in GRPn, draw if == 1
@@ -315,32 +313,6 @@ func drawPlayer1() {
 }
 
 
-// Old Draw Player
-// func drawPlayer1() {
-// 	if CPU.DrawP1 {
-// 		// fmt.Printf("\nLine: %d\tGRP1: %08b\n", line, CPU.Memory[GRP1])
-//
-// 		for i:=0 ; i <=7 ; i++{
-// 			bit := CPU.Memory[GRP1] >> (7-byte(i)) & 0x01
-//
-// 			if bit == 1 {
-// 				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-// 				R, G, B := Palettes.NTSC(CPU.Memory[COLUP1])
-// 				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-//
-// 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width			, float64(232-line)*height ))
-// 				imd.Push(pixel.V(  (float64(CPU.Memory[RESP1]*3+byte(i)) )*width + width	, float64(232-line)*height +height))
-// 				imd.Rectangle(0)
-//
-// 				imd.Draw(win)
-// 				// Count draw operations number per second
-// 				draws ++
-// 			}
-// 		}
-// 		CPU.DrawP1 = false
-// 	}
-// }
-
 func drawGraphics() {
 
 	imd	= imdraw.New(nil)
@@ -350,8 +322,7 @@ func drawGraphics() {
 		// 3 lines VSYNC
 		if CPU.Memory[CPU.VBLANK] == 2 && CPU.Memory[CPU.VSYNC] == 2  {
 			if debug {
-				// fmt.Printf("\n\n\n\nLine: %d\tVSYNC: %02X", line, CPU.Memory[CPU.VBLANK])
-				fmt.Printf("\n\n\n\nLine: %d\tVSYNC: %02X", line, CPU.Memory[CPU.VSYNC])
+				fmt.Printf("Line: %d\tVSYNC: %02X\n", line, CPU.Memory[CPU.VSYNC])
 			}
 			VSYNC_passed = true
 
@@ -359,7 +330,7 @@ func drawGraphics() {
 		// 37 lines VBLANK
 		} else if CPU.Memory[CPU.VBLANK] == 2 {
 			if debug {
-				fmt.Printf("\nLine: %d\tVBLANK: %02X", line, CPU.Memory[CPU.VBLANK])
+				fmt.Printf("Line: %d\tVBLANK: %02X\n", line, CPU.Memory[CPU.VBLANK])
 			}
 
 
@@ -369,9 +340,7 @@ func drawGraphics() {
 				if VSYNC_passed {
 
 					if debug {
-						fmt.Printf("\nLine: %d\tVisible Area: %d", line, line-40)
-						// fmt.Printf("\n\n\n\nLine: %d\tVSYNC: %02X", line, CPU.Memory[CPU.VBLANK])
-						// fmt.Printf("\n\n\n\nLine: %d\tVSYNC: %02X", line, CPU.Memory[CPU.VSYNC])
+						fmt.Printf("Line: %d\tVisible Area: %d\n", line, line-40)
 					}
 
 					readPF0()
@@ -401,7 +370,7 @@ func drawGraphics() {
 		// Overscan -- NOT WORKING, SHOWING AS VBLANK: XX, improve later
 		} else {
 			if debug {
-				fmt.Printf("\nLine: %d\tOVERSCAN", line)
+				fmt.Printf("Line: %d\tOVERSCAN\n", line)
 			}
 		}
 
@@ -675,7 +644,6 @@ func Run() {
 			if line == line_max + 1 {
 				if debug {
 					fmt.Printf("\nFinished the screen height, start a new frame.\n")
-					// os.Exit(2)
 				}
 				// Reset line counter
 				line = 1

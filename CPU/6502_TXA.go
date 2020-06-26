@@ -14,7 +14,7 @@ func opc_TXA() {
 	A = X
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tTXA  Transfer Index X to Accumulator.\tA = X (%d)\n", Opcode, X)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tTXA  Transfer Index X to Accumulator.\tA = X (%d)\n", Opcode, X)
 	}
 
 	flags_Z(A)

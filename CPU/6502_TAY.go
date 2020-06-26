@@ -14,7 +14,7 @@ func opc_TAY() {
 	Y = A
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tTAY  Transfer Accumulator to Index Y.\tY = A (%d)\n", Opcode, A)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tTAY  Transfer Accumulator to Index Y.\tY = A (%d)\n", Opcode, A)
 	}
 
 	flags_Z(Y)

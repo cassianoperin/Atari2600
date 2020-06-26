@@ -15,12 +15,12 @@ func opc_INY() {
 	Y ++
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tINY  Increment Index Y by One (%02X)\n", Opcode, Y)
 	}
 
 	flags_Z(Y)
 	flags_N(Y)
-	
+
 	PC++
 	Beam_index += 2
 }

@@ -14,7 +14,7 @@ func opc_SEC() {
 	P[0]	= 1
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEC  Set Carry Flag.\tP[0]=1\n", Opcode)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tSEC  Set Carry Flag.\tP[0]=1\n", Opcode)
 	}
 
 	PC += 1

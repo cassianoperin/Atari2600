@@ -17,9 +17,9 @@ func opc_CMP(memAddr uint16, mode string) {
 
 	if Debug {
 		if tmp == 0 {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
 		} else {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
 		}
 	}
 	flags_Z(tmp)

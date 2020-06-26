@@ -11,7 +11,7 @@ func addr_mode_Relative(offset uint16) int8 {
 	mode		:= "Relative"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d (SIGNED value)", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d (SIGNED value)\n", mode, memAddr, value)
 	}
 
 	return value
@@ -26,7 +26,7 @@ func addr_mode_Zeropage(offset uint16) (uint16, string) {
 	mode		:= "Zeropage"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d\n", mode, memAddr, value)
 	}
 
 	return uint16(memAddr), mode
@@ -41,7 +41,7 @@ func addr_mode_ZeropageX(offset uint16) (uint16, string) {
 	mode		:= "Zeropage,X"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d\n", mode, memAddr, value)
 	}
 
 	return uint16(memAddr), mode
@@ -55,7 +55,7 @@ func addr_mode_Immediate(offset uint16) (uint16, string) {
 	mode		:= "Immediate"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%02X]\tValue obtained: %d\n", mode, memAddr, value)
 	}
 
 	return memAddr, mode
@@ -70,7 +70,7 @@ func addr_mode_Absolute(offset uint16) (uint16, string) {
 	mode		:= "Absolute"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%02X]\t\tValue obtained: %d\n", mode, memAddr, value)
 	}
 	return memAddr, mode
 }
@@ -84,7 +84,7 @@ func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 	mode		:= "Absolute,Y"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\t\tMemory[%02X]\t\tValue obtained: %d", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\t\tMemory[%02X]\t\tValue obtained: %d\n", mode, memAddr, value)
 	}
 	return memAddr, mode
 }
@@ -98,7 +98,7 @@ func addr_mode_IndirectY	(offset uint16) (uint16, string) {
 	mode		:= "Indirect,Y"
 
 	if Debug {
-		fmt.Printf("\n\t%s addressing mode.\tMemory[%04X]\t\tValue obtained: %02X", mode, memAddr, value)
+		fmt.Printf("\t%s addressing mode.\tMemory[%04X]\t\tValue obtained: %02X\n", mode, memAddr, value)
 	}
 	return memAddr, mode
 }

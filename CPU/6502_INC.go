@@ -12,7 +12,7 @@ import	"fmt"
 //      zeropage      INC oper      E6    2     5
 func opc_INC(memAddr uint16, mode string) {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tINC  Increment Memory[%02X](%d) by One (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr], Memory[memAddr] + 1)
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tINC  Increment Memory[%02X](%d) by One (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr], Memory[memAddr] + 1)
 	}
 
 	Memory[ memAddr ] += 1

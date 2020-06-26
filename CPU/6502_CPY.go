@@ -17,9 +17,9 @@ func opc_CPY(memAddr uint16, mode string) {
 
 	if Debug {
 		if tmp == 0 {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
 		} else {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
 		}
 	}
 

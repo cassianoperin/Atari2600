@@ -37,26 +37,26 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
-| 6502/6507 CPU Opcodes | 45 / 150 |
+| 6502/6507 CPU Opcodes | 38 / 56 |
 
 ## Missing:
 - X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin)
 - Graphics: Ball
 - Graphics: Missiles
-- Object Collisions
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
-- Controller Input: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
-- Review printf and message breaklines (put all at the end)
+- Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB
-- Just setting COLUBK not showing the background color
-- Test ASL, ROR and ROL flags (https://www.atariarchives.org/alp/appendix_1.php)
+- Implement TIA Collision Detection
+
 
 ## Documentation:
 
 
 ### Opcodes:
+
+https://www.atariarchives.org/alp/appendix_1.php
 
 https://www.masswerk.at/6502/6502_instruction_set.html#CLD
 

@@ -14,7 +14,7 @@ func opc_SEI() {
 	P[2]	=  1
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=%d\n", Opcode, P[2])
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=%d\n", Opcode, P[2])
 	}
 
 	PC += 1

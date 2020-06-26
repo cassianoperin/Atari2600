@@ -15,9 +15,9 @@ func opc_CLC() {
 	P[0]	= 0
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tCLC  Clear Carry Flag.\tP[0]=0\n", Opcode)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tCLC  Clear Carry Flag.\tP[0]=0\n", Opcode)
 	}
-	
+
 	PC += 1
 	Beam_index += 2
 }

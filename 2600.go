@@ -71,14 +71,14 @@ func readROM(filename string) {
 func checkArgs() {
 	if len(os.Args) != 2 {
 		fmt.Printf("Usage: %s ROM_FILE\n\n", os.Args[0] )
-		os.Exit(2)
+		os.Exit(0)
 	}
 }
 
 func testFile(filename string) {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Printf("File '%s' not found.\n\n", os.Args[1])
-		os.Exit(2)
+		os.Exit(0)
 	}
 }
 

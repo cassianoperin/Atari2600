@@ -14,7 +14,7 @@ func opc_CLD() {
 	P[3]	=  0
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tCLD  Clear Decimal Mode.\tP[3]=%d\n", Opcode, P[3])
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tCLD  Clear Decimal Mode.\tP[3]=%d\n", Opcode, P[3])
 	}
 
 	PC += 1

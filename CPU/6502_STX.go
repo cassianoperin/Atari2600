@@ -14,7 +14,7 @@ func opc_STX(memAddr uint16, mode string) {
 	Memory[memAddr] = X
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTX  Store Index X in Memory.\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], mode, memAddr, X)
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTX  Store Index X in Memory.\tMemory[%02X] = X (%d)\n", Opcode, Memory[PC+1], mode, memAddr, X)
 	}
 
 	PC += 2

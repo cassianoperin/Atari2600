@@ -12,7 +12,7 @@ import	"fmt"
 //      immidiate     AND #oper     29    2     2
 func opc_AND(memAddr uint16, mode string) {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tAND  AND Memory with Accumulator.\tA = A(%d) & Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tAND  AND Memory with Accumulator.\tA = A(%d) & Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
 	}
 
 	A = A & Memory[memAddr]

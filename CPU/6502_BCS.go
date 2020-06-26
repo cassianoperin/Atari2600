@@ -15,7 +15,7 @@ func opc_BCS(value int8) {	// Receive a SIGNED value
 	if P[0] == 1 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 		// Current PC (To detect page bounday cross)
 		tmp := PC
@@ -38,7 +38,7 @@ func opc_BCS(value int8) {	// Receive a SIGNED value
 	// If carry is set
 	} else {
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set.\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
+			fmt.Printf("\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set.\tCarry NOT EQUAL 1, PC+2 \n", Opcode, Memory[PC+1])
 		}
 		PC += 2
 	}

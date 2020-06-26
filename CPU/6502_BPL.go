@@ -15,7 +15,7 @@ func opc_BPL(value int8) {
 	if P[7] == 0 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBranch on Result POSITIVE.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBranch on Result POSITIVE.\tCarry EQUAL 1, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 		// Current PC (To detect page bounday cross)
 		tmp := PC
@@ -38,7 +38,7 @@ func opc_BPL(value int8) {
 	// If not negative
 	} else {
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBranch on Result POSITIVE.\t\tNEGATIVE Flag enabled, PC+=2\n", Opcode, Memory[PC+1])
+			fmt.Printf("\tOpcode %02X%02X [2 bytes]\tBranch on Result POSITIVE.\t\tNEGATIVE Flag enabled, PC+=2\n", Opcode, Memory[PC+1])
 		}
 		PC += 2
 	}

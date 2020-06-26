@@ -12,7 +12,7 @@ import	"fmt"
 //      accumulator   ASL A         0A    1     2
 func opc_ASL() {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Accumulator]\tASL  Shift Left One Bit (Memory or Accumulator).\tA = A(%d) Shift Left 1 bit\t(%d)\n", Opcode, A, A << 1 )
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Accumulator]\tASL  Shift Left One Bit.\tA = A(%d) Shift Left 1 bit\t(%d)\n", Opcode, A, A << 1 )
 	}
 
 	flags_C(A, A << 1)

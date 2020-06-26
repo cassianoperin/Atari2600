@@ -14,7 +14,7 @@ import	"fmt"
 func opc_LDY(memAddr uint16, mode string) {
 	Y = Memory[memAddr]
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDY  Load Index y with Memory.\tY = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, PC+1, Y)
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDY  Load Index y with Memory.\tY = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, PC+1, Y)
 	}
 
 	flags_Z(Y)

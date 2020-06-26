@@ -13,9 +13,9 @@ import	"fmt"
 func opc_STY(memAddr uint16, mode string) {
 
 	Memory[memAddr] = Y
-	
+
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTY  Store Index Y in Memory.\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Y)
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTY  Store Index Y in Memory.\tMemory[%02X] = Y (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Y)
 	}
 
 	PC += 2

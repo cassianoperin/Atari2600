@@ -15,7 +15,7 @@ func opc_BCC(value int8) {	// Receive a SIGNED value
 	if P[0] == 0 {
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCC  Branch on Carry Clear.\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCC  Branch on Carry Clear.\tCarry EQUAL 0, JUMP TO %04X\n", Opcode, Memory[PC+1], PC+2+uint16(value) )
 		}
 
 		// Current PC (To detect page bounday cross)
@@ -39,7 +39,7 @@ func opc_BCC(value int8) {	// Receive a SIGNED value
 	// If carry is set
 	} else {
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear.\tCarry NOT EQUAL 0, PC+2 \n", Opcode, Memory[PC+1])
+			fmt.Printf("\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear.\tCarry NOT EQUAL 0, PC+2\n", Opcode, Memory[PC+1])
 		}
 		PC += 2
 	}

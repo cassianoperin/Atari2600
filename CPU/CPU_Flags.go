@@ -7,7 +7,7 @@ import	"fmt"
 // Zero Flag
 func flags_Z(value byte) {
 	if Debug {
-		fmt.Printf("\n\tFlag Z: %d ->", P[1])
+		fmt.Printf("\tFlag Z: %d ->", P[1])
 	}
 	// Check if final value is 0
 	if value == 0 {
@@ -16,27 +16,27 @@ func flags_Z(value byte) {
 		P[1] = 0
 	}
 	if Debug {
-		fmt.Printf(" %d", P[1])
+		fmt.Printf(" %d\n", P[1])
 	}
 }
 
 // Negative Flag
 func flags_N(value byte) {
 	if Debug {
-		fmt.Printf("\n\tFlag N: %d ->", P[7])
+		fmt.Printf("\tFlag N: %d ->", P[7])
 	}
 	// Set Negtive flag to the the MSB of the value
 	P[7] = value >> 7
 
 	if Debug {
-		fmt.Printf(" %d | Value = %08b", P[7], value)
+		fmt.Printf(" %d | Value = %08b\n", P[7], value)
 	}
 }
 
 // Carry Flag
 func flags_C(value1, value2 byte) {
 	if Debug {
-		fmt.Printf("\n\tFlag C: %d ->", P[0])
+		fmt.Printf("\tFlag C: %d ->", P[0])
 	}
 
 	// Check if final value is 0
@@ -47,14 +47,14 @@ func flags_C(value1, value2 byte) {
 	}
 
 	if Debug {
-		fmt.Printf(" %d", P[0])
+		fmt.Printf(" %d\n", P[0])
 	}
 }
 
 // Carry Flag for Subtractions (SBC and CMP)
 func flags_C_Subtraction(value1, value2 byte) {
 	if Debug {
-		fmt.Printf("\n\tFlag C: %d ->", P[0])
+		fmt.Printf("\tFlag C: %d ->", P[0])
 	}
 
 	// If the new value is bigger than the original clear the flag
@@ -67,7 +67,7 @@ func flags_C_Subtraction(value1, value2 byte) {
 
 
 	if Debug {
-		fmt.Printf(" %d (SBC)" , P[0])
+		fmt.Printf(" %d (SBC)\n" , P[0])
 	}
 }
 
@@ -81,7 +81,7 @@ func Flags_V_ADC(value1, value2 byte) {
 	// fmt.Printf("\n  %08b\t%d",value2,value2)
 
 	if Debug {
-		fmt.Printf("\n\tFlag V: %d ->", P[6])
+		fmt.Printf("\tFlag V: %d ->", P[6])
 	}
 
 	// Make the magic
@@ -103,7 +103,7 @@ func Flags_V_ADC(value1, value2 byte) {
 	// fmt.Printf("\nV: %d", P[6])
 
 	if Debug {
-		fmt.Printf(" %d", P[6])
+		fmt.Printf(" %d\n", P[6])
 	}
 }
 
@@ -125,7 +125,7 @@ func Flags_V_SBC(value1, value2 byte) {
 	carry_bit[0] = P[0]
 
 	if Debug {
-		fmt.Printf("\n\tFlag V: %d ->", P[6])
+		fmt.Printf("\tFlag V: %d ->", P[6])
 	}
 
 	// Make the magic
@@ -155,7 +155,7 @@ func Flags_V_SBC(value1, value2 byte) {
 	// fmt.Printf("\nV: %d", P[6])
 
 	if Debug {
-		fmt.Printf(" %d", P[6])
+		fmt.Printf(" %d\n", P[6])
 	}
 
 }

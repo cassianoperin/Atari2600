@@ -14,7 +14,7 @@ func opc_LDX(memAddr uint16, mode string) {
 	X = Memory[memAddr]
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDX  Load Index X with Memory.\tX = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, PC+1, X)
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDX  Load Index X with Memory.\tX = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, PC+1, X)
 	}
 
 	flags_Z(X)

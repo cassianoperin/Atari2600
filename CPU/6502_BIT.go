@@ -12,16 +12,22 @@ import	"fmt"
 //
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
+//      zeropage      BIT oper      24    2     3
 //      absolute      BIT oper      2C    3     4
 func opc_BIT(memAddr uint16, mode string) {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		// If mode=zeropage
+		if Opcode == 0x24 {
+			fmt.Printf("\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		// if mode=absolute
+		} else {
+			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		}
 	}
-	// fmt.Printf("\n\n%08b\n\n",A & Memory[memAddr])
 
 	// Memory Address bit 7 (A) -> N (Negative)
 	if Debug {
-		fmt.Printf("\n\tFlag N: %d -> ",P[7])
+		fmt.Printf("\tFlag N: %d -> ",P[7])
 	}
 	P[7] = A >> 7 & 0x1
 	if Debug {
@@ -30,7 +36,7 @@ func opc_BIT(memAddr uint16, mode string) {
 
 	// Memory Address bit 6 (A) -> V (oVerflow)
 	if Debug {
-		fmt.Printf("\n\tFlag V: %d -> ",P[6])
+		fmt.Printf("\tFlag V: %d -> ",P[6])
 	}
 	P[6] = A >> 6 & 0x1
 	if Debug {
@@ -39,6 +45,13 @@ func opc_BIT(memAddr uint16, mode string) {
 
 	flags_Z(A & Memory[memAddr])
 
-	PC += 3
-	Beam_index += 4
+	// If mode=zeropage
+	if Opcode == 0x24 {
+		PC += 2
+		Beam_index += 3
+	// if mode=absolute
+	} else {
+		PC += 3
+		Beam_index += 4
+	}
 }

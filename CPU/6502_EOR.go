@@ -12,7 +12,7 @@ import	"fmt"
 //      immidiate     EOR #oper     49    2     2
 func opc_EOR(memAddr uint16, mode string) {
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tEOR  Exclusive-OR Memory with Accumulator.\tA = A(%d) XOR Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A ^ Memory[memAddr] )
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tEOR  Exclusive-OR Memory with Accumulator.\tA = A(%d) XOR Memory[%02X](%d)\t(%d)\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A ^ Memory[memAddr] )
 	}
 
 	A = A ^ Memory[memAddr]

@@ -20,7 +20,7 @@ func opc_RTS() {
 	SP += 2
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tRTS  Return from Subroutine.\tPC = %04X.\n", Opcode, PC)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tRTS  Return from Subroutine.\tPC = %04X.\n", Opcode, PC)
 	}
 
 	PC += 1

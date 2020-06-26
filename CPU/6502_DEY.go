@@ -14,12 +14,12 @@ func opc_DEY() {
 	Y --
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tDEY  Decrement Index Y by One.\tY-- (%d)\n", Opcode, Y)
+		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tDEY  Decrement Index Y by One.\tY-- (%d)\n", Opcode, Y)
 	}
 
 	flags_Z(Y)
 	flags_N(Y)
-	
+
 	PC += 1
 	Beam_index += 2
 }

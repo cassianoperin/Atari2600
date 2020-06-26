@@ -13,7 +13,7 @@ import	"fmt"
 func opc_DEC(memAddr uint16, mode string) {
 
 	if Debug {
-		fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tDEC  Decrement Memory by One.\tMemory[%02X] -= 1 (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] - 1 )
+		fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tDEC  Decrement Memory by One.\tMemory[%02X] -= 1 (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] - 1 )
 	}
 	Memory[memAddr] -= 1
 

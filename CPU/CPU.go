@@ -57,7 +57,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -213,7 +213,7 @@ func Fine(HMPX byte) int8 {
 			value =  8
 		default:
 			fmt.Printf("\n\tInvalid HMP0 %02X!\n\n", HMP0)
-			os.Exit(2)
+			os.Exit(0)
 		}
 
 	return value
@@ -224,20 +224,18 @@ func Fine(HMPX byte) int8 {
 func MemPageBoundary(Address1, Address2 uint16) bool {
 
 	var cross bool = false
-	// if Debug {
-	// 	fmt.Printf("\n\tValues: %02X %02X\n",Address1 >>8, Address2 >>8)
-	// }
 
 	// Get the High byte only to compare
+	// Page Boundary Cross detected
 	if Address1 >> 8 != Address2 >> 8 {
 		cross = true
 		if Debug {
-			fmt.Printf("\n\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+			fmt.Printf("\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
 		}
-	// Omit later
+	// NO Page Boundary Cross detected
 	} else {
 		if Debug {
-			fmt.Printf("\n\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+			fmt.Printf("\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
 		}
 	}
 
@@ -275,13 +273,7 @@ func Reset() {
 }
 
 
-// func Break() {
-// 	// Read the Opcode from PC+1 and PC bytes (Little Endian)
-// 	PC = uint16(Memory[0xFFFF])<<8 | uint16(Memory[0xFFFE])
-// 	//fmt.Printf("\nRESET: %04X\n",PC)
-// }
-
-
+// Decode Two's Complement
 func DecodeTwoComplement(num byte) int8 {
 
 	var sum int8 = 0
@@ -297,7 +289,7 @@ func DecodeTwoComplement(num byte) int8 {
 
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\tBeam_index: %d", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], Beam_index )
+	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\tBeam_index: %d\n", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], Beam_index )
 }
 
 
@@ -404,6 +396,9 @@ func Interpreter() {
 		case 0x2C:	// Instruction BIT (absolute)
 			opc_BIT( addr_mode_Absolute(PC+1) )
 
+		case 0x24:	// Instruction BIT (zeropage)
+			opc_BIT( addr_mode_Zeropage(PC+1) )
+
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
 		case 0xA9:	// Instruction LDA (immediate)
@@ -467,10 +462,13 @@ func Interpreter() {
 		case 0x45:	// Instruction EOR (zeropage)
 			opc_EOR( addr_mode_Zeropage(PC+1) )
 
-		//-------------------------------------------------- ASL --------------------------------------------------//
+		//-------------------------------------------------- SHIFT --------------------------------------------------//
 
 		case 0x0A:	// Instruction ASL (accumulator)
 			opc_ASL()
+
+		case 0x4A:	// Instruction LSR (accumulator)
+			opc_LSR()
 
 		//-------------------------------------------------- CMP --------------------------------------------------//
 
@@ -499,20 +497,25 @@ func Interpreter() {
 		case 0x65:	// Instruction ADC (zeropage)
 			opc_ADC( addr_mode_Zeropage(PC+1) )
 
+		//-------------------------------------------------- ROL --------------------------------------------------//
+
+		case 0x26:	// Instruction ROL (zeropage)
+			opc_ROL( addr_mode_Zeropage(PC+1) )
+
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
 		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
 		// FF (Filled ROM)
 		case 0xFF:
 			if Debug {
-				fmt.Printf("\n\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
+				fmt.Printf("\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", Opcode)
 			}
 			PC +=1
 
 		//-------------------------------------------- No Opcode Found --------------------------------------------//
 
 		default:
-			fmt.Printf("\n\tOPCODE %02X NOT IMPLEMENTED!\n\n", Opcode)
+			fmt.Printf("\tOPCODE %02X NOT IMPLEMENTED!\n\n", Opcode)
 			os.Exit(0)
 
 	}

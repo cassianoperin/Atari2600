@@ -19,11 +19,11 @@ func opc_LDA(memAddr uint16, mode string) {
 	if Debug {
 		// If mode = immediate OR zeropage OR (indirect),Y
 		if Opcode == 0xA9 || Opcode == 0xA5 || Opcode == 0xB1 {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, memAddr, A)
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, memAddr, A)
 
 		// If mode = absolute,Y
 		} else if Opcode == 0xB9 {
-			fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
+			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
 		}
 	}
 

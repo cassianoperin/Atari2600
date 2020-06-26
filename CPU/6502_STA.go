@@ -20,11 +20,11 @@ func opc_STA(memAddr uint16, mode string) {
 	if Debug {
 		// If mode = zeropage,X OR zeropage
 		if Opcode == 0x95 || Opcode == 0x85{
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] )
+			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] )
 
 		// If mode = absolute,Y
 		} else if Opcode == 0x99 {
-			fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, Memory[memAddr] )
+			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, Memory[memAddr] )
 		}
 	}
 
