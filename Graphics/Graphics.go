@@ -1,6 +1,7 @@
 package Graphics
 
 import (
+	"os"
 	"fmt"
 	"time"
 	"github.com/faiface/pixel"
@@ -34,7 +35,7 @@ var (
 	VSYNC_passed		bool = false
 
 	// Debug mode
-	debug			bool = false
+	debug			bool = true
 
 
 
@@ -313,35 +314,76 @@ func drawPlayer1() {
 }
 
 
-func drawGraphics() {
+func CRT(action byte) {
 
 	imd	= imdraw.New(nil)
 
-	// Draw conten on every WSYNC from CPU
-	if CPU.DrawLine {
-		// 3 lines VSYNC
-		if CPU.Memory[CPU.VBLANK] == 2 && CPU.Memory[CPU.VSYNC] == 2  {
+	switch action {
+		// --------------------------------------- WSYNC --------------------------------------- //
+		// Halt CPU until next scanline starts
+		// Skip to the next scanline
+		case CPU.WSYNC: //0x02
 			if debug {
-				fmt.Printf("Line: %d\tVSYNC: %02X\n", line, CPU.Memory[CPU.VSYNC])
-			}
-			VSYNC_passed = true
-
-
-		// 37 lines VBLANK
-		} else if CPU.Memory[CPU.VBLANK] == 2 {
-			if debug {
-				fmt.Printf("Line: %d\tVBLANK: %02X\n", line, CPU.Memory[CPU.VBLANK])
+				fmt.Printf("\tCRT - WSYNC SET\n")
 			}
 
+			// Test if in Vertical Blank (do not draw anything)
+			if CPU.Memory[CPU.VBLANK] == 2 {
+				// os.Exit(2)
 
-		// 192 Visible Area
-		} else if line <= 232 {
-			// if CPU.Memory[CPU.VSYNC] == 2 {
-				if VSYNC_passed {
 
-					if debug {
-						fmt.Printf("Line: %d\tVisible Area: %d\n", line, line-40)
+				// During Vertical Blank, if vsync is set
+				if  CPU.Memory[CPU.VSYNC] == 2  {
+
+					VSYNC_passed = true	// Used to control WSYNCS before VSYNC
+
+					// When VSYNC is set, CPU inform CRT to start a new frame
+					// 3 lines VSYNC
+
+					// ENABLE VSYNC
+					if CPU.Memory[CPU.VSYNC] == 0x02 {
+
+						if CPU.Memory[CPU.VBLANK] == 2 {
+							if debug {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
+							}
+						} else {
+							if debug {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
+							}
+						}
+
+					// DISABLE VSYNC
+					} else if CPU.Memory[CPU.VSYNC] == 0x00 {
+						if debug {
+							fmt.Printf("\tCRT - VSYNC DISABLED\n")
+						}
+
+					} else {
+						fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
+						os.Exit(2)
 					}
+
+				// 37 lines VBLANK
+				} else if CPU.Memory[CPU.VBLANK] == 2 {
+					if debug {
+						fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,CPU.Memory[CPU.VBLANK], CPU.Memory[CPU.VSYNC])
+					}
+				}
+
+			// VBLANK turned OFF, start drawing the 192 lines of visible Area
+			} else {
+
+				// Check if kernel is processing something before the VSYNC
+				if !VSYNC_passed{
+					if debug {
+						fmt.Printf("\tLine: %d\tWSYNC Pre VSYNC (calculations)\n\n", line)
+					}
+				} else {
+
+					// if debug {
+						fmt.Printf("\tLine: %d\tVisible Area: %d\n\n", line, line-40)
+					// }
 
 					readPF0()
 					readPF1()
@@ -349,49 +391,98 @@ func drawGraphics() {
 
 					drawVisibleModeLine()
 
-					// DRAW PLAYER 0
-					if CPU.DrawP0 {
-						drawPlayer0()
+					// // DRAW PLAYER 0
+					// if CPU.DrawP0 {
+					// 	drawPlayer0()
+					//
+					// 	CPU.DrawP0 = false
+					// }
+					//
+					// // DRAW PLAYER 1
+					// if CPU.DrawP1 {
+					// 	drawPlayer1()
+					//
+					// 	CPU.DrawP1 = false
+					// }
 
-						CPU.DrawP0 = false
-					}
-
-					// DRAW PLAYER 1
-					if CPU.DrawP1 {
-						drawPlayer1()
-
-						CPU.DrawP1 = false
-					}
-
-				} else {
-					line --
 				}
 
-		// Overscan -- NOT WORKING, SHOWING AS VBLANK: XX, improve later
-		} else {
-			if debug {
-				fmt.Printf("Line: %d\tOVERSCAN\n", line)
 			}
-		}
 
-		line ++
-		CPU.DrawLine = false
-
-	}
-
+			// Reset the beam index
+			// TODOOOO FIRST NEEDS TO DRAW the 2 bytes
+			CPU.Beam_index = 0
+			line ++
 
 
-	select {
-	case <-CPU.ScreenRefresh.C:
-	// When ticker run (60 times in a second, check de DelayTimer)
 
-		win.Update()
-		// frames++
+
+		// --------------------------------------- VBLANK --------------------------------------- //
+		case CPU.VBLANK: //0x01
+
+			// Enable VBLANK
+			if CPU.Memory[CPU.VBLANK] == 0x02 {
+				fmt.Printf("\n\tVBLANK Enabled")
+
+			} else if CPU.Memory[CPU.VBLANK] == 0x00 {
+				fmt.Printf("\n\tVBLANK Disabled")
+
+			} else {
+				fmt.Printf("\n\tVBLANK VALUE !=0 !=2 exiting")
+				// os.Exit(0)
+			}
+
+		// --------------------------------------- VSYNC --------------------------------------- //
+		case CPU.VSYNC: //0x00
+
+			// Enable VSYNC
+			if CPU.Memory[CPU.VSYNC] == 0x02 {
+				fmt.Printf("\n\tVSYNC Enabled\n")
+			} else if CPU.Memory[CPU.VSYNC] == 0x00 {
+				fmt.Printf("\n\tVSYNC Disabled\n")
+			} else {
+				fmt.Printf("\n\tVSYNC VALUE !=0 !=2 exiting")
+				os.Exit(0)
+			}
+
+		case CPU.COLUBK: //0x09
+			fmt.Printf("\n\tCOLUBK SET!\n")
+			// drawBackground()
+
+		case 32, 16, 33, 17, 42, 13, 14, 15, 27, 28, 8, 10, 6, 5, 7, 44:
+			//fmt.Printf("\n\tDO NOTHING\n")
+
 		default:
-			// No timer to handle
+			fmt.Printf("\n\tInvalid CRT action %d!\n\n", action)
+			os.Exit(0)
 	}
 
 
+}
+
+
+
+func drawBackground() {
+
+
+	fmt.Println(CPU.Beam_index)
+	// os.Exit(2)
+	CPU.XPositionP0 = CPU.Beam_index
+
+
+	// READ COLUBK (Memory[0x09]) - Set the Background Color
+	R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
+	imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+	// Draw
+	imd.Push(pixel.V( (float64( ((CPU.XPositionP0)*3) - 68 ) ) * width						, float64(232-line) * height ))
+	imd.Push(pixel.V( (float64( ((CPU.XPositionP0)*3) - 68 ) ) * width + width				, float64(232-line) * height + height))
+	imd.Rectangle(0)
+
+	imd.Draw(win)
+
+	// Count draw operations number per second
+	draws ++
 }
 
 
@@ -535,7 +626,6 @@ func keyboard() {
 		// ------------------ Personal Control Flags ------------------ //
 		CPU.Beam_index	= 0		// Beam index to control where to draw objects using cpu cycles
 		// Draw instuctions
-		CPU.DrawLine		= false	// Instruct Graphics to draw a new line
 		CPU.DrawP0		= false	// Instruct Graphics to draw Player 0 sprite
 		CPU.DrawP1		= false	// Instruct Graphics to draw Player 1 sprite
 
@@ -634,10 +724,17 @@ func Run() {
 				// Call a CPU Cycle
 				CPU.Interpreter()
 
+				// Check TIA Registers
+				if CPU.TIA_Update >= 0 {
+					CRT( byte(CPU.TIA_Update) )
+					CPU.TIA_Update = -1
+				}
+
 				// Reset Controllers Buttons to 1 (not pressed)
 				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
 
 			}
+
 			// DRAW
 
 			// When finished drawing the screen, reset and start a new frame
@@ -655,18 +752,17 @@ func Run() {
 
 
 			select {
-			case <-CPU.Second: // Second
-				win.SetTitle(fmt.Sprintf("%s | FPS: %d | Draws: %d", cfg.Title, frames, draws))
-				frames = 0
-				draws  = 0
-			default:
+				case <-CPU.Second: // Second
+					win.SetTitle(fmt.Sprintf("%s | FPS: %d | Draws: %d", cfg.Title, frames, draws))
+					frames = 0
+					draws  = 0
+				default:
 			}
 
 			default:
 				// No timer to handle
 		}
 
-		drawGraphics()
 
 
 
@@ -716,6 +812,16 @@ func Run() {
 		// os.Exit(2)
 		// ----------------------------------------------------------------------------------- //
 
+
+		select {
+		case <-CPU.ScreenRefresh.C:
+		// When ticker run (60 times in a second, Refresh the screen)
+
+			win.Update()
+			// frames++
+			default:
+				// No timer to handle
+		}
 
 	}
 

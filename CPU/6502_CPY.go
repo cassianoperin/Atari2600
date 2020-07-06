@@ -2,14 +2,14 @@ package CPU
 
 import	"fmt"
 
-// CPY  Compare Memory and Index Y (immidiate)
+// CPY  Compare Memory and Index Y
 //
 //      Y - M                            N Z C I D V
 //                                       + + + - - -
 //
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
-//      immidiate     CPY #oper     C0    2     2
+//      immediate     CPY #oper     C0    2     2
 //      zeropage      CPY oper      C4    2     3
 func opc_CPY(memAddr uint16, mode string) {
 
@@ -27,7 +27,7 @@ func opc_CPY(memAddr uint16, mode string) {
 	flags_N(tmp)
 	flags_C(Y,Memory[memAddr])
 
-	// If mode=immidiate
+	// If mode=immediate
 	if Opcode == 0xC0 {
 		PC += 2
 		Beam_index += 2
