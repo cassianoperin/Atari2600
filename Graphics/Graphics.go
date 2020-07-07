@@ -107,10 +107,10 @@ func keyboard() {
 		line = 1
 
 		// Players Vertical Positioning
-		CPU.XPositionP0	= 0
-		CPU.XFinePositionP0	= 0
-		CPU.XPositionP1	= 0
-		CPU.XFinePositionP1	= 0
+		XPositionP0		= 0
+		XFinePositionP0	= 0
+		XPositionP1		= 0
+		XFinePositionP1	= 0
 
 		// ------------------ Personal Control Flags ------------------ //
 		CPU.Beam_index	= 0		// Beam index to control where to draw objects using cpu cycles
@@ -139,10 +139,91 @@ func keyboard() {
 	if win.Pressed(pixelgl.KeyI) {
 		if CPU.Pause {
 			fmt.Printf("\t\tStep Forward - MISSING IMPLEMENT TIA UPDATE STA like in RUN()\n")
-			CPU.Interpreter()
 
-			CRT( CPU.TIA_Update )
-			CPU.TIA_Update = -1
+
+			switch CPU.Memory[CPU.PC] {
+
+				// Zeropage: STX, STA, STY
+				case 0x86, 0x85, 0x84:
+
+					CPU.Beam_index += 3
+					// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+					memAddr, mode := CPU.Addr_mode_Zeropage(CPU.PC+1)
+					_ = mode	// not used
+
+					if memAddr < 128 {
+						CPU.TIA_Update = int8(memAddr)
+					}
+
+					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+					CRT( CPU.TIA_Update )
+
+					// Reset to default value
+					CPU.TIA_Update = -1
+
+					// Runs the interpreter
+					CPU.Interpreter()
+
+				// Zeropage,X: STA
+				case 0x95:
+
+					CPU.Beam_index += 4
+					// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+					memAddr, mode := CPU.Addr_mode_ZeropageX(CPU.PC+1)
+					_ = mode	// not used
+
+					if memAddr < 128 {
+						CPU.TIA_Update = int8(memAddr)
+					}
+
+					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+					CRT( CPU.TIA_Update )
+
+					// Reset to default value
+					CPU.TIA_Update = -1
+
+					// Runs the interpreter
+					CPU.Interpreter()
+
+				// Zeropage,X: STA
+			case 0x99:
+
+					CPU.Beam_index += 5
+					// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+					memAddr, mode := CPU.Addr_mode_AbsoluteY(CPU.PC+1)
+					_ = mode	// not used
+
+					if memAddr < 128 {
+						CPU.TIA_Update = int8(memAddr)
+					}
+
+					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+					CRT( CPU.TIA_Update )
+
+					// Reset to default value
+					CPU.TIA_Update = -1
+
+					// Runs the interpreter
+					CPU.Interpreter()
+
+				default:
+
+					// Runs the interpreter
+					CPU.Interpreter()
+
+					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+					CRT( CPU.TIA_Update )
+
+					// Reset to default value
+					CPU.TIA_Update = -1
+
+			}
+
+
+			win.Update()
 
 			time.Sleep(50 * time.Millisecond)
 		}
@@ -305,35 +386,6 @@ func Run() {
 				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
 
 			}
-
-			// DRAW
-
-			// TODO MOVE IT FROM HERE TO CRT
-			// When finished drawing the screen, reset and start a new frame
-			if line == line_max + 1 {
-				if debug {
-					fmt.Printf("\nFinished the screen height, start a new frame.\n")
-				}
-				// Reset line counter
-				line = 1
-				// Workaround for WSYNC before VSYNC
-				VSYNC_passed = false
-				// Increment frames
-				frames ++
-			}
-
-			// TODO MOVE IT FROM HERE TO CRT
-			// When finished drawing the LINE, reset Beamer and start a new LINE
-			// Needed for colorbg demo
-			// DISABLED because its causing empty lines in the begin
-			// if CPU.Beam_index > 76 {
-			// 	// if debug {
-			// 		fmt.Printf("\nFinished the line, starting a new one.\n")
-			// 	// }
-			// 	CPU.Beam_index = 0
-			// 	old_BeamIndex = 0
-			// 	line ++
-			// }
 
 
 			select {

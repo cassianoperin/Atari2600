@@ -40,12 +40,6 @@ var (
 	ScreenRefresh		*time.Ticker	// Screen Refresh
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
-	// Players Vertical Positioning
-	XPositionP0		byte
-	XFinePositionP0	int8
-	XPositionP1		byte
-	XFinePositionP1	int8
-
 	// ------------------ Personal Control Flags ------------------ //
 	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
 	// Draw instuctions
@@ -107,53 +101,6 @@ const (
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
 
 )
-
-
-func Fine(HMPX byte) int8 {
-
-	var value int8
-
-	switch HMPX {
-		case 0x70:
-			value = -7
-		case 0x60:
-			value = -6
-		case 0x50:
-			value = -5
-		case 0x40:
-			value = -4
-		case 0x30:
-			value = -3
-		case 0x20:
-			value = -2
-		case 0x10:
-			value = -1
-		case 0x00:
-			value =  0
-		case 0xF0:
-			value =  1
-		case 0xE0:
-			value =  2
-		case 0xD0:
-			value =  3
-		case 0xC0:
-			value =  4
-		case 0xB0:
-			value =  5
-		case 0xA0:
-			value =  6
-		case 0x90:
-			value =  7
-		case 0x80:
-			value =  8
-		default:
-			fmt.Printf("\n\tInvalid HMP0 %02X!\n\n", HMP0)
-			os.Exit(0)
-	}
-
-	return value
-
-}
 
 
 func MemPageBoundary(Address1, Address2 uint16) bool {
