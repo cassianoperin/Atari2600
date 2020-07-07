@@ -49,6 +49,9 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB
 - Implement TIA Collision Detection
+- TIA Rewrite: Improve Graphics.Run() function for opcodes that needs to update beam_index and run TIA prior to Interpreter (STA, STX, STY)
+- TIA Rewrite: drawBackground is drawing on all lines, event out of visible area
+- TIA Rewrite: Recreate Playfield with the new TIA/CRT functions 
 
 
 ## Documentation:

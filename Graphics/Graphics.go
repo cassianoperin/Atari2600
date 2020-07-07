@@ -35,10 +35,10 @@ var (
 	VSYNC_passed		bool = false
 
 	// Debug mode
-	debug			bool = true
+	debug			bool = false
 
-
-
+	old_BeamIndex	byte = 0	// Used to draw the beam updates every cycle on the CRT
+	visibleArea		bool		// Not used yet, but will be used to just draw in visible area
 )
 
 const (
@@ -410,11 +410,8 @@ func CRT(action byte) {
 			}
 
 			// Reset the beam index
-			// TODOOOO FIRST NEEDS TO DRAW the 2 bytes
 			CPU.Beam_index = 0
 			line ++
-
-
 
 
 		// --------------------------------------- VBLANK --------------------------------------- //
@@ -422,13 +419,13 @@ func CRT(action byte) {
 
 			// Enable VBLANK
 			if CPU.Memory[CPU.VBLANK] == 0x02 {
-				fmt.Printf("\n\tVBLANK Enabled")
+				fmt.Printf("\tVBLANK Enabled\n")
 
 			} else if CPU.Memory[CPU.VBLANK] == 0x00 {
-				fmt.Printf("\n\tVBLANK Disabled")
+				fmt.Printf("\tVBLANK Disabled\n")
 
 			} else {
-				fmt.Printf("\n\tVBLANK VALUE !=0 !=2 exiting")
+				fmt.Printf("\tVBLANK VALUE !=0 !=2 exiting\n")
 				// os.Exit(0)
 			}
 
@@ -437,23 +434,23 @@ func CRT(action byte) {
 
 			// Enable VSYNC
 			if CPU.Memory[CPU.VSYNC] == 0x02 {
-				fmt.Printf("\n\tVSYNC Enabled\n")
+				fmt.Printf("\tVSYNC Enabled\n")
 			} else if CPU.Memory[CPU.VSYNC] == 0x00 {
-				fmt.Printf("\n\tVSYNC Disabled\n")
+				fmt.Printf("\tVSYNC Disabled\n")
 			} else {
-				fmt.Printf("\n\tVSYNC VALUE !=0 !=2 exiting")
+				fmt.Printf("\tVSYNC VALUE !=0 !=2 exiting")
 				os.Exit(0)
 			}
 
 		case CPU.COLUBK: //0x09
-			fmt.Printf("\n\tCOLUBK SET!\n")
+			fmt.Printf("\tCOLUBK SET!\n")
 			// drawBackground()
 
 		case 32, 16, 33, 17, 42, 13, 14, 15, 27, 28, 8, 10, 6, 5, 7, 44:
 			//fmt.Printf("\n\tDO NOTHING\n")
 
 		default:
-			fmt.Printf("\n\tInvalid CRT action %d!\n\n", action)
+			fmt.Printf("\tInvalid CRT action %d!\n\n", action)
 			os.Exit(0)
 	}
 
@@ -461,28 +458,216 @@ func CRT(action byte) {
 }
 
 
+func CRT2(action int8) {
+
+
+
+		// Just draw in visible Area
+		// if visibleArea {
+
+			drawBackground()
+
+			// if line ==40 {
+			// 	CPU.Pause = true
+			//
+			// }
+		// }
+
+
+
+
+	switch action {
+		// --------------------------------------- WSYNC --------------------------------------- //
+		// Halt CPU until next scanline starts
+		// Skip to the next scanline
+		case int8(CPU.WSYNC): //0x02
+			if debug {
+				fmt.Printf("\tCRT - WSYNC SET\n")
+			}
+
+			// Test if in Vertical Blank (do not draw anything)
+			if CPU.Memory[CPU.VBLANK] == 2 {
+				// os.Exit(2)
+
+
+				// During Vertical Blank, if vsync is set
+				if  CPU.Memory[CPU.VSYNC] == 2  {
+
+					VSYNC_passed = true	// Used to control WSYNCS before VSYNC
+
+					// When VSYNC is set, CPU inform CRT to start a new frame
+					// 3 lines VSYNC
+
+					// ENABLE VSYNC
+					if CPU.Memory[CPU.VSYNC] == 0x02 {
+
+						if CPU.Memory[CPU.VBLANK] == 2 {
+							if debug {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
+							}
+						} else {
+							if debug {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
+							}
+						}
+
+					// DISABLE VSYNC
+					} else if CPU.Memory[CPU.VSYNC] == 0x00 {
+						if debug {
+							fmt.Printf("\tCRT - VSYNC DISABLED\n")
+						}
+
+					} else {
+						fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
+						os.Exit(2)
+					}
+
+				// 37 lines VBLANK
+				} else if CPU.Memory[CPU.VBLANK] == 2 {
+					if debug {
+						fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,CPU.Memory[CPU.VBLANK], CPU.Memory[CPU.VSYNC])
+					}
+					visibleArea = false // Inform that finished visible lines
+
+				}
+
+			// VBLANK turned OFF, start drawing the 192 lines of visible Area
+			} else {
+				visibleArea = true // Inform that reached visible lines
+
+				// Finish drawing line (X=228) 76x3
+				CPU.Beam_index = 76
+				if debug {
+					fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
+				}
+				drawBackground()
+
+
+
+				//
+				// 	readPF0()
+				// 	readPF1()
+				// 	readPF2()
+				//
+				// 	drawVisibleModeLine()
+
+					// // DRAW PLAYER 0
+					// if CPU.DrawP0 {
+					// 	drawPlayer0()
+					//
+					// 	CPU.DrawP0 = false
+					// }
+					//
+					// // DRAW PLAYER 1
+					// if CPU.DrawP1 {
+					// 	drawPlayer1()
+					//
+					// 	CPU.DrawP1 = false
+					// }
+
+
+					/////// ISSO PRA CIMA FUNCIONA
+
+				// }
+
+			}
+
+			// Reset the beam index
+			CPU.Beam_index = 0
+			old_BeamIndex = 0
+			line ++
+
+
+		// --------------------------------------- VBLANK --------------------------------------- //
+		case int8(CPU.VBLANK): //0x01
+
+			// Enable VBLANK
+			if CPU.Memory[CPU.VBLANK] == 0x02 {
+				if debug {
+					fmt.Printf("\n\tVBLANK Enabled")
+				}
+			} else if CPU.Memory[CPU.VBLANK] == 0x00 {
+				if debug {
+					fmt.Printf("\n\tVBLANK Disabled")
+				}
+			} else {
+				if debug {
+					fmt.Printf("\n\tVBLANK VALUE !=0 !=2 exiting\t%d", CPU.Memory[CPU.VBLANK])
+				}
+				// os.Exit(0)
+			}
+
+		// --------------------------------------- VSYNC --------------------------------------- //
+		case int8(CPU.VSYNC): //0x00
+
+			// Enable VSYNC
+			if CPU.Memory[CPU.VSYNC] == 0x02 {
+				if debug {
+					fmt.Printf("\n\tVSYNC Enabled\n")
+				}
+			} else if CPU.Memory[CPU.VSYNC] == 0x00 {
+				if debug {
+					fmt.Printf("\n\tVSYNC Disabled\n")
+				}
+			} else {
+				if debug {
+					fmt.Printf("\n\tVSYNC VALUE !=0 !=2 exiting\t%d",CPU.Memory[CPU.VSYNC] )
+				}
+				os.Exit(0)
+			}
+
+		case int8(CPU.COLUBK): //0x09
+			if debug {
+				fmt.Printf("\n\n\n\n\n\n\n\n\tCOLUBK SET! %d\n", CPU.Beam_index)
+			}
+
+		case 32, 16, 33, 17, 42, 13, 14, 15, 27, 28, 8, 10, 6, 5, 7, 44:
+			//fmt.Printf("\n\tDO NOTHING\n")
+
+		case -1:
+
+			// READ COLUBK (Memory[0x09]) - Set the Background Color
+
+
+		default:
+			fmt.Printf("\n\tInvalid CRT action %d!\n\n", action)
+			os.Exit(0)
+		}
+
+
+
+}
+
 
 func drawBackground() {
 
+	// Dont draw in horizontal blank
+	// if CPU.Beam_index*3 >=50 {
 
-	fmt.Println(CPU.Beam_index)
-	// os.Exit(2)
-	CPU.XPositionP0 = CPU.Beam_index
+		imd	= imdraw.New(nil)
+
+		R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
+		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+		// Draw
+		imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 )  * width				, float64(232-line) * height ))
+		imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * width 				, float64(232-line) * height + height))
+		imd.Rectangle(0)
+
+		if debug {
+			fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
+		}
+
+		old_BeamIndex = CPU.Beam_index
+
+		imd.Draw(win)
+
+		// Count draw operations number per second
+		draws ++
 
 
-	// READ COLUBK (Memory[0x09]) - Set the Background Color
-	R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
-	imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+	// }
 
-	// Draw
-	imd.Push(pixel.V( (float64( ((CPU.XPositionP0)*3) - 68 ) ) * width						, float64(232-line) * height ))
-	imd.Push(pixel.V( (float64( ((CPU.XPositionP0)*3) - 68 ) ) * width + width				, float64(232-line) * height + height))
-	imd.Rectangle(0)
-
-	imd.Draw(win)
-
-	// Count draw operations number per second
-	draws ++
 }
 
 
@@ -651,6 +836,10 @@ func keyboard() {
 		if CPU.Pause {
 			fmt.Printf("\t\tStep Forward\n")
 			CPU.Interpreter()
+
+			CRT2( CPU.TIA_Update )
+			CPU.TIA_Update = -1
+
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
@@ -722,12 +911,90 @@ func Run() {
 
 			if !CPU.Pause {
 				// Call a CPU Cycle
-				CPU.Interpreter()
 
-				// Check TIA Registers
-				if CPU.TIA_Update >= 0 {
-					CRT( byte(CPU.TIA_Update) )
-					CPU.TIA_Update = -1
+
+				// MAP STA, STX and STY that needs to first increment the beamer for correctly TIA rendering
+				// The opcode spends 2 or 3 cycles to update Memory (TIA NEEDS TO DRAW THIS cycles) prior to use the updated value
+				// Ex.: If updated COLUBK, TIA needs to draw the TIA color cycles with the current Background color, and after this, can use the new
+				switch CPU.Memory[CPU.PC] {
+
+					// Zeropage: STX, STA, STY
+					case 0x86, 0x85, 0x84:
+
+						CPU.Beam_index += 3
+						// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+						memAddr, mode := CPU.Addr_mode_Zeropage(CPU.PC+1)
+						_ = mode	// not used
+
+						if memAddr < 128 {
+							CPU.TIA_Update = int8(memAddr)
+						}
+
+						// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+						CRT2( CPU.TIA_Update )
+
+						// Reset to default value
+						CPU.TIA_Update = -1
+
+						// Runs the interpreter
+						CPU.Interpreter()
+
+					// Zeropage,X: STA
+					case 0x95:
+
+						CPU.Beam_index += 4
+						// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+						memAddr, mode := CPU.Addr_mode_ZeropageX(CPU.PC+1)
+						_ = mode	// not used
+
+						if memAddr < 128 {
+							CPU.TIA_Update = int8(memAddr)
+						}
+
+						// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+						CRT2( CPU.TIA_Update )
+
+						// Reset to default value
+						CPU.TIA_Update = -1
+
+						// Runs the interpreter
+						CPU.Interpreter()
+
+					// Zeropage,X: STA
+				case 0x99:
+
+						CPU.Beam_index += 5
+						// fmt.Printf("Opcode: %02X\n",CPU.Opcode)
+
+						memAddr, mode := CPU.Addr_mode_AbsoluteY(CPU.PC+1)
+						_ = mode	// not used
+
+						if memAddr < 128 {
+							CPU.TIA_Update = int8(memAddr)
+						}
+
+						// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+						CRT2( CPU.TIA_Update )
+
+						// Reset to default value
+						CPU.TIA_Update = -1
+
+						// Runs the interpreter
+						CPU.Interpreter()
+
+					default:
+
+						// Runs the interpreter
+						CPU.Interpreter()
+
+						// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+						CRT2( CPU.TIA_Update )
+
+						// Reset to default value
+						CPU.TIA_Update = -1
+
 				}
 
 				// Reset Controllers Buttons to 1 (not pressed)
@@ -737,6 +1004,7 @@ func Run() {
 
 			// DRAW
 
+			// TODO MOVE IT FROM HERE TO CRT
 			// When finished drawing the screen, reset and start a new frame
 			if line == line_max + 1 {
 				if debug {

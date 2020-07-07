@@ -52,13 +52,15 @@ var (
 	DrawP0		bool = false	// Instruct Graphics to draw Player 0 sprite
 	DrawP1		bool = false	// Instruct Graphics to draw Player 1 sprite
 
+	// TIA
+	TIA_Update	int8 = -1		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
+
 	// Pause
 	Pause		bool = false
 
 	//Debug
 	Debug 		bool = false
 
-	TIA_Update	int8 = -1
 )
 
 
@@ -293,7 +295,7 @@ func Interpreter() {
 		//-------------------------------------------------- Just zeropage --------------------------------------------------//
 
 		case 0xE6:	// Instruction INC (zeropage)
-			opc_INC( addr_mode_Zeropage(PC+1) )
+			opc_INC( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
@@ -320,7 +322,7 @@ func Interpreter() {
 		//-------------------------------------------------- STX --------------------------------------------------//
 
 		case 0x86: // Instruction STX (zeropage)
-			opc_STX( addr_mode_Zeropage(PC+1) )
+			opc_STX( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- JMP --------------------------------------------------//
 
@@ -336,7 +338,7 @@ func Interpreter() {
 			opc_BIT( addr_mode_Absolute(PC+1) )
 
 		case 0x24:	// Instruction BIT (zeropage)
-			opc_BIT( addr_mode_Zeropage(PC+1) )
+			opc_BIT( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
@@ -344,10 +346,10 @@ func Interpreter() {
 			opc_LDA( addr_mode_Immediate(PC+1) )
 
 		case 0xA5:	// Instruction LDA (zeropage)
-			opc_LDA( addr_mode_Zeropage(PC+1) )
+			opc_LDA( Addr_mode_Zeropage(PC+1) )
 
 		case 0xB9:	// Instruction LDA (absolute,Y)
-			opc_LDA( addr_mode_AbsoluteY(PC+1) )
+			opc_LDA( Addr_mode_AbsoluteY(PC+1) )
 
 		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
@@ -359,13 +361,13 @@ func Interpreter() {
 
 		// Used by the wrong horizontal demo
 		// case 0xA4:	// Instruction LDY (zeropage)
-		// 	opc_LDY( addr_mode_Zeropage(PC+1) )
+		// 	opc_LDY( Addr_mode_Zeropage(PC+1) )
 		// 	// os.Exit(2)
 
 		//-------------------------------------------------- STY --------------------------------------------------//
 
 		case 0x84:	// Instruction STY (zeropage)
-			opc_STY( addr_mode_Zeropage(PC+1) )
+			opc_STY( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
@@ -373,7 +375,7 @@ func Interpreter() {
 			opc_CPY( addr_mode_Immediate(PC+1) )
 
 		case 0xC4:	// Instruction STY (zeropage)
-			opc_CPY( addr_mode_Zeropage(PC+1) )
+			opc_CPY( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- CPX --------------------------------------------------//
 
@@ -383,7 +385,7 @@ func Interpreter() {
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
 		case 0xE5:	// Instruction STY (zeropage)
-			opc_SBC( addr_mode_Zeropage(PC+1) )
+			opc_SBC( Addr_mode_Zeropage(PC+1) )
 
 		case 0xE9:	// Instruction STY (immediate)
 			opc_SBC( addr_mode_Immediate(PC+1) )
@@ -391,7 +393,7 @@ func Interpreter() {
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
 		case 0xC6:	// Instruction DEC (zeropage)
-			opc_DEC( addr_mode_Zeropage(PC+1) )
+			opc_DEC( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- AND --------------------------------------------------//
 
@@ -404,7 +406,7 @@ func Interpreter() {
 			opc_EOR( addr_mode_Immediate(PC+1) )
 
 		case 0x45:	// Instruction EOR (zeropage)
-			opc_EOR( addr_mode_Zeropage(PC+1) )
+			opc_EOR( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- SHIFT --------------------------------------------------//
 
@@ -417,7 +419,7 @@ func Interpreter() {
 		//-------------------------------------------------- CMP --------------------------------------------------//
 
 		case 0xC5:	// Instruction CMP (zeropage)
-			opc_CMP( addr_mode_Zeropage(PC+1) )
+			opc_CMP( Addr_mode_Zeropage(PC+1) )
 
 		case 0xC9:	// Instruction CMP (immediate)
 			opc_CMP( addr_mode_Immediate(PC+1) )
@@ -426,25 +428,25 @@ func Interpreter() {
 
 		// Used in 1-cleanmem
 		case 0x95:	// Instruction STA (zeropage,X)
-			opc_STA( addr_mode_ZeropageX(PC+1) )
+			opc_STA( Addr_mode_ZeropageX(PC+1) )
 
 		// Used in 2-colorbg, to 103-bomber
 		case 0x85:	// Instruction STA (zeropage)
-			opc_STA( addr_mode_Zeropage(PC+1) )
+			opc_STA( Addr_mode_Zeropage(PC+1) )
 
 		// Used in 103-bomber
 		case 0x99:	// Instruction STA (zeropage)
-			opc_STA( addr_mode_AbsoluteY(PC+1) )
+			opc_STA( Addr_mode_AbsoluteY(PC+1) )
 
 		//-------------------------------------------------- ADC --------------------------------------------------//
 
 		case 0x65:	// Instruction ADC (zeropage)
-			opc_ADC( addr_mode_Zeropage(PC+1) )
+			opc_ADC( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- ROL --------------------------------------------------//
 
 		case 0x26:	// Instruction ROL (zeropage)
-			opc_ROL( addr_mode_Zeropage(PC+1) )
+			opc_ROL( Addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
