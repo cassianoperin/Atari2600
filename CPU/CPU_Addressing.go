@@ -19,7 +19,7 @@ func addr_mode_Relative(offset uint16) int8 {
 
 
 // Zeropage
-func Addr_mode_Zeropage(offset uint16) (uint16, string) {
+func addr_mode_Zeropage(offset uint16) (uint16, string) {
 
 	value	:= Memory[ Memory[offset] ]
 	memAddr 	:= Memory[offset]
@@ -34,7 +34,7 @@ func Addr_mode_Zeropage(offset uint16) (uint16, string) {
 
 
 // Zeropage,X
-func Addr_mode_ZeropageX(offset uint16) (uint16, string) {
+func addr_mode_ZeropageX(offset uint16) (uint16, string) {
 
 	value	:= Memory[ Memory[offset] + X ]
 	memAddr 	:= Memory[offset] + X
@@ -77,7 +77,7 @@ func addr_mode_Absolute(offset uint16) (uint16, string) {
 
 
 // Absolute,Y
-func Addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
+func addr_mode_AbsoluteY	(offset uint16) (uint16, string) {
 
 	memAddr := ( uint16(Memory[offset+1])<<8 | uint16(Memory[offset]) ) + uint16(Y)
 	value := Memory[memAddr]

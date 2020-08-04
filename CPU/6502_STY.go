@@ -12,10 +12,6 @@ import	"fmt"
 //      zeropage      STY oper      84    2     3
 func opc_STY(memAddr uint16, mode string) {
 
-	// if memAddr < 128 {
-	// 	TIA_Update = int8(memAddr)	// Change variable to a positive number to TIA detect the change
-	// }
-
 	Memory[memAddr] = Y
 
 	if Debug {
@@ -23,5 +19,5 @@ func opc_STY(memAddr uint16, mode string) {
 	}
 
 	PC += 2
-	// Beam_index += 3
+	Beam_index += 3
 }

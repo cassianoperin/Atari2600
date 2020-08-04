@@ -1,6 +1,7 @@
 package CPU
 
 import	"fmt"
+// import	"os"
 
 // STA  Store Accumulator in Memory (zeropage,X)
 //
@@ -13,10 +14,6 @@ import	"fmt"
 //      zeropage      STA oper      85    2     3
 //      absolute,Y    STA oper,Y    99    3     5
 func opc_STA(memAddr uint16, mode string) {
-
-	// if memAddr < 128 {
-	// 	TIA_Update = int8(memAddr)	// Change variable to a positive number to TIA detect the change
-	// }
 
 	Memory[ memAddr ] = A
 
@@ -34,17 +31,20 @@ func opc_STA(memAddr uint16, mode string) {
 	// If mode = zeropage,X
 	if Opcode == 0x95 {
 		PC += 2
-		// Beam_index += 4
+		Beam_index += 4
 
 	// If mode = zeropage
 	} else if Opcode == 0x85 {
 		PC += 2
-		// Beam_index += 3
+		Beam_index += 3
 
 	// If mode = absolute,Y
 	} else if Opcode == 0x99 {
 		PC += 3
-		// Beam_index += 5
+		Beam_index += 5
 	}
+
+	// Test STA (Store A in Memory), which address is being set to draw the element
+	testAction(memAddr)
 
 }

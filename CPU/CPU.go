@@ -40,21 +40,24 @@ var (
 	ScreenRefresh		*time.Ticker	// Screen Refresh
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
 
+	// Players Vertical Positioning
+	XPositionP0		byte
+	XFinePositionP0	int8
+	XPositionP1		byte
+	XFinePositionP1	int8
+
 	// ------------------ Personal Control Flags ------------------ //
 	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
 	// Draw instuctions
+	DrawLine		bool = false	// Instruct Graphics to draw a new line
 	DrawP0		bool = false	// Instruct Graphics to draw Player 0 sprite
 	DrawP1		bool = false	// Instruct Graphics to draw Player 1 sprite
-
-	// TIA
-	TIA_Update	int8 = -1		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
 
 	// Pause
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
-
+	Debug 		bool = true
 )
 
 
@@ -101,6 +104,121 @@ const (
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
 
 )
+
+func testAction(memAddr uint16) {
+	// Wait for a new line and authorize graphics to draw the line
+	// Wait for Horizontal Blank to draw the new line
+
+	// TODO: when tested, maybe tranform this to byte???
+	// address := byte(memAddr)
+
+	if memAddr == uint16(WSYNC) {
+		if Debug {
+			fmt.Printf("\nWSYNC SET\n")
+		}
+		DrawLine = true
+		Beam_index = 0
+
+		if Memory[GRP0] != 0 {
+			if Debug {
+				fmt.Printf("\nGRP0 SET\n")
+			}
+			DrawP0 = true
+		}
+
+		if Memory[GRP1] != 0 {
+			if Debug {
+				fmt.Printf("\nGRP1 SET\n")
+			}
+			DrawP1 = true
+		}
+
+	}
+
+	if memAddr == uint16(RESP0) {
+		if Memory[RESP0] != 0 {
+			XPositionP0 = Beam_index
+			if Debug {
+				fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
+			}
+		}
+	}
+
+	if memAddr == uint16(RESP1) {
+		if Memory[RESP1] != 0 {
+			XPositionP1 = Beam_index
+			if Debug {
+				fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
+			}
+
+		}
+	}
+
+
+	if memAddr == uint16(HMP0) {
+		XFinePositionP0 = Fine(Memory[HMP0])
+
+		if Debug {
+			fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
+		}
+
+	}
+
+	if memAddr == uint16(HMP1) {
+		XFinePositionP1 = Fine(Memory[HMP1])
+		if Debug {
+			fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
+		}
+	}
+}
+
+
+
+func Fine(HMPX byte) int8 {
+
+	var value int8
+
+	switch HMPX {
+		case 0x70:
+			value = -7
+		case 0x60:
+			value = -6
+		case 0x50:
+			value = -5
+		case 0x40:
+			value = -4
+		case 0x30:
+			value = -3
+		case 0x20:
+			value = -2
+		case 0x10:
+			value = -1
+		case 0x00:
+			value =  0
+		case 0xF0:
+			value =  1
+		case 0xE0:
+			value =  2
+		case 0xD0:
+			value =  3
+		case 0xC0:
+			value =  4
+		case 0xB0:
+			value =  5
+		case 0xA0:
+			value =  6
+		case 0x90:
+			value =  7
+		case 0x80:
+			value =  8
+		default:
+			fmt.Printf("\n\tInvalid HMP0 %02X!\n\n", HMP0)
+			os.Exit(0)
+		}
+
+	return value
+
+}
 
 
 func MemPageBoundary(Address1, Address2 uint16) bool {
@@ -242,7 +360,7 @@ func Interpreter() {
 		//-------------------------------------------------- Just zeropage --------------------------------------------------//
 
 		case 0xE6:	// Instruction INC (zeropage)
-			opc_INC( Addr_mode_Zeropage(PC+1) )
+			opc_INC( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
@@ -269,7 +387,7 @@ func Interpreter() {
 		//-------------------------------------------------- STX --------------------------------------------------//
 
 		case 0x86: // Instruction STX (zeropage)
-			opc_STX( Addr_mode_Zeropage(PC+1) )
+			opc_STX( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- JMP --------------------------------------------------//
 
@@ -285,7 +403,7 @@ func Interpreter() {
 			opc_BIT( addr_mode_Absolute(PC+1) )
 
 		case 0x24:	// Instruction BIT (zeropage)
-			opc_BIT( Addr_mode_Zeropage(PC+1) )
+			opc_BIT( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
@@ -293,10 +411,10 @@ func Interpreter() {
 			opc_LDA( addr_mode_Immediate(PC+1) )
 
 		case 0xA5:	// Instruction LDA (zeropage)
-			opc_LDA( Addr_mode_Zeropage(PC+1) )
+			opc_LDA( addr_mode_Zeropage(PC+1) )
 
 		case 0xB9:	// Instruction LDA (absolute,Y)
-			opc_LDA( Addr_mode_AbsoluteY(PC+1) )
+			opc_LDA( addr_mode_AbsoluteY(PC+1) )
 
 		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
@@ -308,13 +426,13 @@ func Interpreter() {
 
 		// Used by the wrong horizontal demo
 		// case 0xA4:	// Instruction LDY (zeropage)
-		// 	opc_LDY( Addr_mode_Zeropage(PC+1) )
+		// 	opc_LDY( addr_mode_Zeropage(PC+1) )
 		// 	// os.Exit(2)
 
 		//-------------------------------------------------- STY --------------------------------------------------//
 
 		case 0x84:	// Instruction STY (zeropage)
-			opc_STY( Addr_mode_Zeropage(PC+1) )
+			opc_STY( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
@@ -322,7 +440,7 @@ func Interpreter() {
 			opc_CPY( addr_mode_Immediate(PC+1) )
 
 		case 0xC4:	// Instruction STY (zeropage)
-			opc_CPY( Addr_mode_Zeropage(PC+1) )
+			opc_CPY( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- CPX --------------------------------------------------//
 
@@ -332,7 +450,7 @@ func Interpreter() {
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
 		case 0xE5:	// Instruction STY (zeropage)
-			opc_SBC( Addr_mode_Zeropage(PC+1) )
+			opc_SBC( addr_mode_Zeropage(PC+1) )
 
 		case 0xE9:	// Instruction STY (immediate)
 			opc_SBC( addr_mode_Immediate(PC+1) )
@@ -340,7 +458,7 @@ func Interpreter() {
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
 		case 0xC6:	// Instruction DEC (zeropage)
-			opc_DEC( Addr_mode_Zeropage(PC+1) )
+			opc_DEC( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- AND --------------------------------------------------//
 
@@ -353,7 +471,7 @@ func Interpreter() {
 			opc_EOR( addr_mode_Immediate(PC+1) )
 
 		case 0x45:	// Instruction EOR (zeropage)
-			opc_EOR( Addr_mode_Zeropage(PC+1) )
+			opc_EOR( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- SHIFT --------------------------------------------------//
 
@@ -366,7 +484,7 @@ func Interpreter() {
 		//-------------------------------------------------- CMP --------------------------------------------------//
 
 		case 0xC5:	// Instruction CMP (zeropage)
-			opc_CMP( Addr_mode_Zeropage(PC+1) )
+			opc_CMP( addr_mode_Zeropage(PC+1) )
 
 		case 0xC9:	// Instruction CMP (immediate)
 			opc_CMP( addr_mode_Immediate(PC+1) )
@@ -375,25 +493,25 @@ func Interpreter() {
 
 		// Used in 1-cleanmem
 		case 0x95:	// Instruction STA (zeropage,X)
-			opc_STA( Addr_mode_ZeropageX(PC+1) )
+			opc_STA( addr_mode_ZeropageX(PC+1) )
 
 		// Used in 2-colorbg, to 103-bomber
 		case 0x85:	// Instruction STA (zeropage)
-			opc_STA( Addr_mode_Zeropage(PC+1) )
+			opc_STA( addr_mode_Zeropage(PC+1) )
 
 		// Used in 103-bomber
 		case 0x99:	// Instruction STA (zeropage)
-			opc_STA( Addr_mode_AbsoluteY(PC+1) )
+			opc_STA( addr_mode_AbsoluteY(PC+1) )
 
 		//-------------------------------------------------- ADC --------------------------------------------------//
 
 		case 0x65:	// Instruction ADC (zeropage)
-			opc_ADC( Addr_mode_Zeropage(PC+1) )
+			opc_ADC( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- ROL --------------------------------------------------//
 
 		case 0x26:	// Instruction ROL (zeropage)
-			opc_ROL( Addr_mode_Zeropage(PC+1) )
+			opc_ROL( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
