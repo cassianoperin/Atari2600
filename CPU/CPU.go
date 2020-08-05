@@ -48,16 +48,15 @@ var (
 
 	// ------------------ Personal Control Flags ------------------ //
 	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
-	// Draw instuctions
-	DrawLine		bool = false	// Instruct Graphics to draw a new line
-	DrawP0		bool = false	// Instruct Graphics to draw Player 0 sprite
-	DrawP1		bool = false	// Instruct Graphics to draw Player 1 sprite
+
+	TIA_Update	int8 = -1		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
+	TIA_CPU_HOLD	bool = false		// Tells Interpreter to do not update PC yet, first let TIA draw prior to update the memory
 
 	// Pause
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = true
+	Debug 		bool = false
 )
 
 
@@ -104,73 +103,6 @@ const (
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
 
 )
-
-func testAction(memAddr uint16) {
-	// Wait for a new line and authorize graphics to draw the line
-	// Wait for Horizontal Blank to draw the new line
-
-	// TODO: when tested, maybe tranform this to byte???
-	// address := byte(memAddr)
-
-	if memAddr == uint16(WSYNC) {
-		if Debug {
-			fmt.Printf("\nWSYNC SET\n")
-		}
-		DrawLine = true
-		Beam_index = 0
-
-		if Memory[GRP0] != 0 {
-			if Debug {
-				fmt.Printf("\nGRP0 SET\n")
-			}
-			DrawP0 = true
-		}
-
-		if Memory[GRP1] != 0 {
-			if Debug {
-				fmt.Printf("\nGRP1 SET\n")
-			}
-			DrawP1 = true
-		}
-
-	}
-
-	if memAddr == uint16(RESP0) {
-		if Memory[RESP0] != 0 {
-			XPositionP0 = Beam_index
-			if Debug {
-				fmt.Printf("\nRESP0 SET\tXPositionP0: %d\n", XPositionP0)
-			}
-		}
-	}
-
-	if memAddr == uint16(RESP1) {
-		if Memory[RESP1] != 0 {
-			XPositionP1 = Beam_index
-			if Debug {
-				fmt.Printf("\nRESP1 SET\tXPositionP1: %d\n", XPositionP1)
-			}
-
-		}
-	}
-
-
-	if memAddr == uint16(HMP0) {
-		XFinePositionP0 = Fine(Memory[HMP0])
-
-		if Debug {
-			fmt.Printf("\nHMP0 SET: %d\n", XFinePositionP0)
-		}
-
-	}
-
-	if memAddr == uint16(HMP1) {
-		XFinePositionP1 = Fine(Memory[HMP1])
-		if Debug {
-			fmt.Printf("\nHMP1 SET: %d\n", XFinePositionP1)
-		}
-	}
-}
 
 
 

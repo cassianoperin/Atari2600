@@ -28,6 +28,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Graphics: Background | OK |
 | Graphics: Playfield | OK |
 | Graphics: Scoreboard | OK |
+| Graphics: Scoreboard Player Color | OK |
 | Graphics: Player 0 and Player 1 | OK |
 | Graphics: Player Vertical Movement | OK |
 | Graphics: Player Horizontal Movement | OK |
@@ -49,11 +50,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB
 - Implement TIA Collision Detection
-- TIA Rewrite: drawBackground is drawing on all lines, event out of visible area
-- TIA Rewrite: Understand if VSYNC reset the line counter to a new frame
-- Split keyboard from Graphics
-- TIA Rewrite: Improve Graphics.Run() function for opcodes that needs to update beam_index and run TIA prior to Interpreter (STA, STX, STY) (causing problems with player positioning)
-
+- Correct TIA implementation (I'm drawing first the background, then playfield and then objects and not following the beam)
 
 
 ## Documentation:
