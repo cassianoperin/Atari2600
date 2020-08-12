@@ -429,7 +429,6 @@ func CRT(action int8) {
 				// fmt.Println(playfield)
 
 				// DRAW PLAYFIELD ENTIRE LINE
-
 				for i := 0 ; i < len(playfield) ; i++ {
 
 					if playfield[i] == 1 {
@@ -464,9 +463,6 @@ func CRT(action int8) {
 					}
 				}
 
-
-
-				// drawVisibleModeLine()
 
 				// // DRAW PLAYER 0
 				if CPU.Memory[CPU.GRP0] != 0 {
@@ -543,7 +539,7 @@ func CRT(action int8) {
 				fmt.Printf("\tRESP0 SET - DRAW P0 SPRITE!\tBeam: %d\n", CPU.Beam_index)
 			}
 			XPositionP0 = CPU.Beam_index
-			drawPlayer0()
+			// drawPlayer0()
 
 
 		case int8(CPU.RESP1): //0x1C
@@ -551,7 +547,7 @@ func CRT(action int8) {
 				fmt.Printf("\tRESP1 SET - DRAW P1 SPRITE!\tBeam: %d\n", CPU.Beam_index)
 			}
 			XPositionP1 = CPU.Beam_index
-			drawPlayer1()
+			// drawPlayer1()
 
 		case int8(CPU.HMP0): //0x20
 			if debug {
@@ -613,6 +609,8 @@ func drawBackground() {
 			R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
+			// fmt.Printf("\n%d\n", CPU.Beam_index - old_BeamIndex)
+
 			// Draw
 			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * width	, float64(232-line) * height ))
 			imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * width 	, float64(232-line) * height + height))
@@ -632,90 +630,4 @@ func drawBackground() {
 	old_BeamIndex = CPU.Beam_index
 
 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-func drawVisibleModeLine() {
-
-	// Value that Im looking for repetitions
-	search := playfield[0]
-	// Where to draw
-	index := 0
-	count := 1
-
-	for i := 0 ; i < len(playfield) -1; i++ {
-
-		if playfield[i+1] == search {
-			// fmt.Printf("\nI: %d\tRepeated Number\n",i)
-			count++
-		} else {
-			// Set color (0: Background | 1: Playfield)
-			if search == 0 {
-				// READ COLUBK (Memory[0x09]) - Set the Background Color
-				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			} else {
-				// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-				R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUPF])
-				imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-			}
-
-
-			// If it is rendering the playfield
-			if search == 1 {
-				// Check D1 status to use color of players in the score
-
-				if (CPU.Memory[CPU.CTRLPF] & 0x02) >> 1 == 1  {
-					// READ COLUP0 (Memory[0x06]) - Set the Player 0 Color (On Score)
-					R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP0])
-					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-					// Set P1 Color
-					if i >= 20 {
-						// READ COLUP1 (Memory[0x07]) - Set the Player 1 Color (On Score)
-						R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUP1])
-						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-					}
-				}
-
-			}
-
-			// Draw
-			imd.Push(pixel.V(  (float64(index) *pixelSize)*width																			, float64(232-line)*height ))
-			imd.Push(pixel.V(  (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(232-line)*height + height))
-			imd.Rectangle(0)
-			count = 1
-			index = i+1
-			search = playfield[i+1]
-		}
-	}
-
-	// Process the last value [19]
-	if search == 0 {
-		// READ COLUBK (Memory[0x09]) - Set the Background Color
-		R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUBK])
-		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-	} else {
-		// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-		R, G, B := Palettes.NTSC(CPU.Memory[CPU.COLUPF])
-		imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
-	}
-
-	imd.Push(pixel.V(  (float64(index) *pixelSize)*width								, float64(232-line)*height ))
-	imd.Push(pixel.V(  (float64(index) *pixelSize)*width +float64(count*int(pixelSize))*width	, float64(232-line)*height + height))
-	imd.Rectangle(0)
-
-	imd.Draw(win)
-
-	// Count draw operations number per second
-	draws ++
 }

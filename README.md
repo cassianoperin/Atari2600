@@ -50,7 +50,8 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB
 - Implement TIA Collision Detection
-- Correct TIA implementation (I'm drawing first the background, then playfield and then objects and not following the beam)
+- Correct TIA implementation (I'm drawing first the background, then playfield and then objects after wsync. ot following the beam)
+- Improve TIA changed address detection (it's inside STA, STX and STY opcodes)
 
 
 ## Documentation:
