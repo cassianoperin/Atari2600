@@ -229,6 +229,10 @@ func TIA(action int8) {
 		line = 1
 		// Workaround for WSYNC before VSYNC
 		VSYNC_passed = false
+
+		// Update Collision Detection Flags
+		CD_P0_P1_status = false				// Informm TIA to start looking for collisions again
+
 		// Increment frames
 		frames ++
 	}

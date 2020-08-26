@@ -1,5 +1,6 @@
 package CPU
 
+import	"os"
 import	"fmt"
 
 // BIT  Test Bits in Memory with Accumulator
@@ -43,7 +44,18 @@ func opc_BIT(memAddr uint16, mode string) {
 		fmt.Printf("%d\n",P[6])
 	}
 
-	flags_Z(A & Memory[memAddr])
+	// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
+	// Read from Memory (>280?)
+	if memAddr < 14 {
+		flags_Z(A & MemTIAWrite[memAddr])
+	// Read from regular registers
+	} else if memAddr < 280 {
+		os.Exit(2)
+		fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses")
+	// Read from RIOT Memory Map (> 0x280)
+	} else {
+		flags_Z(A & Memory[memAddr])
+	}
 
 	// If mode=zeropage
 	if Opcode == 0x24 {

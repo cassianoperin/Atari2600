@@ -10,6 +10,7 @@ import (
 var (
 
 	Memory		[65536]byte	// Memory
+	MemTIAWrite	[14]byte	// TIA Read-Only additional Registers
 	PC			uint16		// Program Counter
 	A			byte			// Accumulator
 	X			byte			// Index Register X
@@ -114,8 +115,7 @@ const (
 	CXM0FB			byte = 0x04		//xx00 0000                     M0-PF   M0-BL
 	CXM1FB			byte = 0x05		//xx00 0000                     M1-PF   M1-BL
 	CXBLPF			byte = 0x06		//x000 0000                     BL-PF   -----
-	// CXPPMM			byte = 0x07		//xx00 0000                     P0-P1   M0-M1
-	CXPPMM			byte = 0x37		//xx00 0000                     P0-P1   M0-M1
+	CXPPMM			byte = 0x07		//xx00 0000                     P0-P1   M0-M1
 
 
 
@@ -203,6 +203,7 @@ func Initialize() {
 
 	// Clean Memory Array
 	Memory		= [65536]byte{}
+	MemTIAWrite	= [14]byte{}
 	// Clean CPU Variables
 	PC			= 0
 	Opcode		= 0

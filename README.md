@@ -49,11 +49,19 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Sound
 - Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB "Opcode"
-- Implement TIA Collision Detection
-- Correct TIA implementation (I'm drawing first the background, then playfield and then objects after wsync. Not following the beam)
+- Correct TIA implementation (I'm drawing first the background, then playfield and then objects after wsync. Not following the beam. Generates some glitches.)
 - Improve TIA changed address detection (it's inside STA, STX and STY opcodes)
-- Implement TIA READ registers, split from WRITE ones
-
+- Implement TIA Collision Detection:
+	a) CXM0P - Not started
+	b) CXM1P - Not started
+	c) CXP0FB - Not started
+	d) CXP1FB - Not started
+	e) CXM0FB - Not started
+	f) CXM1FB - Not started
+	g) CXBLPF - Not started
+	h) CXPPMM:
+		D6 - Not started
+		D7 - P0-P1: 1) Implement for all NUSIZ
 
 ## Documentation:
 
