@@ -82,6 +82,8 @@ const (
 	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
 	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
 	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
+	CXCLR			byte =	0x2C	//---- ----   Clear Collision Latches
+
 
 	// CTRLPLF (8 bits register)
 	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF

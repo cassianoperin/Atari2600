@@ -61,7 +61,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 	g) CXBLPF - Not started
 	h) CXPPMM:
 		D6 - Not started
-		D7 - P0-P1: 1) Implement for all NUSIZ
+		D7 - P0-P1: 1) Implement for all NUSIZ 2) Equalize variables types
 
 ## Documentation:
 

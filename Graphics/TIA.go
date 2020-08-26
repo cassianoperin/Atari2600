@@ -214,6 +214,11 @@ func TIA(action int8) {
 			}
 			XFinePositionP1 = Fine(CPU.Memory[CPU.HMP1])
 
+		case int8(CPU.CXCLR): //0x2C
+			if debug {
+				fmt.Printf("\tCXCLR SET - Clear Collision Latches\n")
+			}
+			CPU.MemTIAWrite[CPU.CXPPMM] = 0x00
 
 		default:
 

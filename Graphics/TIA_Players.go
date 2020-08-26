@@ -82,11 +82,6 @@ func drawPlayer0() {
 		inverted	byte = 0
 	)
 
-	// Set variables used in Collision Detection
-	CD_drawP0_currentline	= true
-	CD_P0_StartPos			= uint8( ( (int8(XPositionP0) * 3) - 68 ) + XFinePositionP0 )
-	CD_P0_EndPos			= uint8( ( (int8(XPositionP0) * 3) - 68 ) + XFinePositionP0 + 8 )
-
 	// If a program doesnt use RESP0, initialize
 	if XPositionP0 == 0 {
 		XPositionP0 = 23
@@ -95,9 +90,6 @@ func drawPlayer0() {
 	if debug {
 		fmt.Printf("Line: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d\n", line, CPU.Memory[CPU.GRP0], XPositionP0, XFinePositionP0)
 	}
-
-	// Start Collision Detection Tests
-	// fmt.Printf("Line: %d\tPlayer 0 Pixel: Start: %d = End %d\n", line, p0startPos, p0endPos )
 
 	// For each bit in GRPn, draw if == 1
 	for i:=0 ; i <=7 ; i++ {
@@ -120,12 +112,16 @@ func drawPlayer0() {
 				imd.Push(pixel.V( (float64( ((XPositionP0)*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( ((XPositionP0)*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width + width				, float64(232-line) * height + height))
 				imd.Rectangle(0)
+				// Collision Detection - Sprite size
+				CD_P0_sprite_size = 8
+				// Copy of the Sprite
+				CD_P0_sprite_copy = uint16(CPU.Memory[CPU.GRP0])
 			} else if CPU.Memory[CPU.NUSIZ0] == 0x01 {
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width + width				, float64(232-line) * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) +float64(XFinePositionP0) + float64(16) )*width			, float64(232-line) * height ))
-				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) +float64(XFinePositionP0) + float64(16) )*width + width		, float64(232-line) * height + height))
+				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) + float64(16) )*width			, float64(232-line) * height ))
+				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) + float64(16) )*width + width	, float64(232-line) * height + height))
 				imd.Rectangle(0)
 			} else if CPU.Memory[CPU.NUSIZ0] == 0x02 {
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width						, float64(232-line) * height ))
@@ -155,6 +151,19 @@ func drawPlayer0() {
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i*2)) + float64(XFinePositionP0) ) * width					, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i*2)) + float64(XFinePositionP0) ) * width + (width*2)			, float64(232-line) * height + height))
 				imd.Rectangle(0)
+				// Collision Detection - Sprite size
+				CD_P0_sprite_size = 16
+
+				// Copy of the sprite
+				// var mask byte = 128
+				// CD_P1_sprite_copy = 0
+				// for i:=8 ; i > 0 ; i-- {
+				// 	// fmt.Println(i)
+				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << i )
+				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << (i-1) )
+				// }
+				// fmt.Printf("COPY: %08b\n%016b\n", uint16(CPU.Memory[CPU.GRP1]), CD_P1_sprite_copy)
+
 			} else if CPU.Memory[CPU.NUSIZ0] == 0x06 {
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP0*3) - 68 + byte(i)) + float64(XFinePositionP0) ) * width + width				, float64(232-line) * height + height))
@@ -174,6 +183,11 @@ func drawPlayer0() {
 		}
 	}
 
+	// Set variables used in Collision Detection
+	CD_drawP0_currentline	= true
+	CD_P0_StartPos			= uint8( ( (int8(XPositionP0) * 3) - 68 ) + XFinePositionP0 )
+	CD_P0_EndPos			= uint8( ( (int8(XPositionP0) * 3) - 68 ) + XFinePositionP0 + int8(CD_P0_sprite_size) )
+
 	imd.Draw(win)
 	// Count draw operations number per second
 	draws ++
@@ -189,11 +203,6 @@ func drawPlayer1() {
 	// TESTEEEEEE SPRITES DO MESMO TAMANHO
 	CPU.Memory[CPU.NUSIZ1] = 0x00
 
-	// Set variables used in Collision Detection
-	CD_drawP1_currentline	= true
-	CD_P1_StartPos			= uint8( ( (int8(XPositionP1) * 3) - 68 ) + XFinePositionP1 )
-	CD_P1_EndPos			= uint8( ( (int8(XPositionP1) * 3) - 68 ) + XFinePositionP1 + 8 )
-
 	// If a program doesnt use RESP0, initialize (Initial Player Position)
 	if XPositionP1 == 0 {
 		XPositionP1 = 30
@@ -202,9 +211,6 @@ func drawPlayer1() {
 	if debug {
 		fmt.Printf("Line: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d\n", line, CPU.Memory[CPU.GRP1], XPositionP1, CPU.Memory[CPU.HMP1])
 	}
-
-	// Start Collision Detection Tests
-	// fmt.Printf("Line: %d\tPlayer 1 Pixel: Start: %d = End %d\n", line, p1startPos, p1endPos )
 
 	// For each bit in GRPn, draw if == 1
 	for i:=0 ; i <=7 ; i++{
@@ -227,6 +233,10 @@ func drawPlayer1() {
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width + width				, float64(232-line) * height + height))
 				imd.Rectangle(0)
+				// Collision Detection - Sprite size
+				CD_P1_sprite_size = 8
+				// Copy of the sprite
+				CD_P1_sprite_copy = uint16(CPU.Memory[CPU.GRP1])
 			} else if CPU.Memory[CPU.NUSIZ1] == 0x01 {
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width + width				, float64(232-line) * height + height))
@@ -262,6 +272,19 @@ func drawPlayer1() {
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i*2)) + float64(XFinePositionP1) ) * width					, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i*2)) + float64(XFinePositionP1) ) * width + (width*2)			, float64(232-line) * height + height))
 				imd.Rectangle(0)
+				// Collision Detection - Sprite size
+				CD_P1_sprite_size = 16
+
+				// Copy of the sprite
+				// var mask byte = 128
+				// CD_P1_sprite_copy = 0
+				// for i:=8 ; i > 0 ; i-- {
+				// 	// fmt.Println(i)
+				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << i )
+				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << (i-1) )
+				// }
+				// fmt.Printf("COPY: %08b\n%016b\n", uint16(CPU.Memory[CPU.GRP1]), CD_P1_sprite_copy)
+
 			} else if CPU.Memory[CPU.NUSIZ1] == 0x06 {
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPositionP1*3) - 68 + byte(i)) + float64(XFinePositionP1) ) * width + width				, float64(232-line) * height + height))
@@ -279,6 +302,11 @@ func drawPlayer1() {
 			}
 		}
 	}
+
+	// Set variables used in Collision Detection
+	CD_drawP1_currentline	= true
+	CD_P1_StartPos			= uint8( ( (int8(XPositionP1) * 3) - 68 ) + XFinePositionP1 )
+	CD_P1_EndPos			= uint8( ( (int8(XPositionP1) * 3) - 68 ) + XFinePositionP1 + int8(CD_P1_sprite_size) )
 
 	imd.Draw(win)
 	// Count draw operations number per second
