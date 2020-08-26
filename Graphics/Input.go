@@ -82,7 +82,7 @@ func keyboard() {
 			CPU.Interpreter()
 
 			// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
-			CRT( CPU.TIA_Update )
+			TIA( CPU.TIA_Update )
 
 			// Reset to default value
 			CPU.TIA_Update = -1

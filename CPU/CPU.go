@@ -33,7 +33,8 @@ var (
 
 	// CPU Variables
 	Opcode		byte			// CPU Operation Code
-	Cycle		uint16		// CPU Cycle
+	Cycle		uint16		// CPU Cycle Counter
+	IPS			uint16		// Instructions per second Counter
 
 	// Timers
 	Clock			*time.Ticker	// CPU Clock // CPU: MOS Technology 6507 @ 1.19 MHz;
@@ -99,8 +100,29 @@ const (
 	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
 	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
 
+
+	// ;-------------------------------------------------------------------------------
+	//
+	// 			SEG.U TIA_REGISTERS_READ
+	// 			ORG TIA_BASE_READ_ADDRESS
+	//
+	// ;															bit 7   bit 6
+	CXM0P			byte = 0x00		//xx00 0000     Read Collision  M0-P1   M0-P0
+	CXM1P			byte = 0x01		//xx00 0000                     M1-P0   M1-P1
+	CXP0FB			byte = 0x02		//xx00 0000                     P0-PF   P0-BL
+	CXP1FB			byte = 0x03		//xx00 0000                     P1-PF   P1-BL
+	CXM0FB			byte = 0x04		//xx00 0000                     M0-PF   M0-BL
+	CXM1FB			byte = 0x05		//xx00 0000                     M1-PF   M1-BL
+	CXBLPF			byte = 0x06		//x000 0000                     BL-PF   -----
+	// CXPPMM			byte = 0x07		//xx00 0000                     P0-P1   M0-M1
+	CXPPMM			byte = 0x37		//xx00 0000                     P0-P1   M0-M1
+
+
+
 	//------------------- 0280-0297 - RIOT (I/O, Timer)
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
+
+
 
 )
 
@@ -185,6 +207,7 @@ func Initialize() {
 	PC			= 0
 	Opcode		= 0
 	Cycle		= 0
+	IPS			= 0
 
 	// Start Timers
 	Clock		= time.NewTicker(time.Nanosecond)	// CPU Clock
@@ -463,6 +486,9 @@ func Interpreter() {
 
 	}
 
+	// Increment Cycle
 	Cycle ++
+	// Increment Instructions per second counter
+	IPS ++
 
 }

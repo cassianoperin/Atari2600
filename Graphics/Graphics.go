@@ -71,7 +71,7 @@ func Run() {
 				CPU.Interpreter()
 
 				// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
-				CRT( CPU.TIA_Update )
+				TIA( CPU.TIA_Update )
 
 				// Reset Controllers Buttons to 1 (not pressed)
 				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
@@ -79,7 +79,8 @@ func Run() {
 
 			select {
 				case <-CPU.Second: // Second
-					win.SetTitle(fmt.Sprintf("%s | FPS: %d | Draws: %d", cfg.Title, frames, draws))
+					win.SetTitle(fmt.Sprintf("%s IPS: %d| FPS: %d | Draws: %d", cfg.Title, CPU.IPS, frames, draws))
+					CPU.IPS = 0
 					frames = 0
 					draws  = 0
 				default:
