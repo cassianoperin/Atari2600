@@ -115,12 +115,12 @@ func TIA(action int8) {
 				// // DRAW PLAYER 0
 				if CPU.Memory[CPU.GRP0] != 0 {
 					// fmt.Printf("Cycle: %d - DRAW P0\n", CPU.Cycle)
-					drawPlayer0()
+					drawPlayer(0)
 				}
 
 				// // DRAW PLAYER 1
 				if CPU.Memory[CPU.GRP1] != 0 {
-					drawPlayer1()
+					drawPlayer(1)
 				}
 
 				// COLLISION DETECTION
