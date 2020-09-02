@@ -75,12 +75,11 @@ func Fine(HMPX byte) int8 {
 
 }
 
-
 func drawPlayer(player byte) {
 	var (
-		bit			byte = 0
-		inverted	byte = 0
-		//
+		bit				byte = 0
+		inverted		byte = 0
+		// P0 and P1 registers
 		register_REFP	byte
 		register_GRP	byte
 		register_COLUP	byte
@@ -90,6 +89,7 @@ func drawPlayer(player byte) {
 	)
 
 	// // TESTEEEEEE SPRITES DO MESMO TAMANHO
+	// CPU.Memory[CPU.NUSIZ0] = 0x05
 	// CPU.Memory[CPU.NUSIZ1] = 0x00
 
 	// Configs for Drawing P0
@@ -99,9 +99,9 @@ func drawPlayer(player byte) {
 			XPositionP0 = 23
 		}
 
-		if debug {
-			fmt.Printf("Line: %d\tGRP0: %08b\tXPositionP0: %d\tXFinePositionP0: %d\n", line, CPU.Memory[CPU.GRP0], XPositionP0, XFinePositionP0)
-		}
+		// if debug {
+			fmt.Printf("Line: %d\tGRP0: %08b\tXPositionP0: %d\tHMP0: %d\n", line, CPU.Memory[CPU.GRP0], XPositionP0, CPU.Memory[CPU.HMP0])
+		// }
 
 		//
 		register_REFP	= CPU.Memory[CPU.REFP0]
@@ -118,10 +118,10 @@ func drawPlayer(player byte) {
 			XPositionP1 = 30
 		}
 
-		if debug {
+		// if debug {
 			fmt.Printf("Line: %d\tGRP1: %08b\tXPositionP1: %d\tHMP1: %d\n", line, CPU.Memory[CPU.GRP1], XPositionP1, CPU.Memory[CPU.HMP1])
-		}
-		//
+		// }
+
 		register_REFP	= CPU.Memory[CPU.REFP1]
 		register_GRP	= CPU.Memory[CPU.GRP1]
 		register_COLUP	= CPU.Memory[CPU.COLUP1]
@@ -130,10 +130,60 @@ func drawPlayer(player byte) {
 		XFinePosition	= XFinePositionP1
 	}
 
+	// ----- Collision Detection Variables ----- //
+	if register_NUSIZ == 0x00 {
+
+		// Sprite size and copy of the sprite
+		if player == 0 {
+			CD_P0_sprite_size = 8						// P0 Sprite size
+			CD_P0_sprite_copy = uint32(register_GRP)	// P0 sprite after NUSIZ
+		} else {
+			CD_P1_sprite_size = 8						// P1 sprite size
+			CD_P1_sprite_copy = uint32(register_GRP)	// P1 sprite after NUSIZ
+		}
+
+	} else if register_NUSIZ == 0x01 {
+		// Implement
+	} else if register_NUSIZ == 0x02 {
+		// Implement
+	} else if register_NUSIZ == 0x03 {
+		// Implement
+	} else if register_NUSIZ == 0x04 {
+		// Implement
+	} else if register_NUSIZ == 0x05 {
+
+		// Sprite size
+		if player == 0 {
+			CD_P0_sprite_size = 16
+			CD_P0_sprite_copy = 0	// clean
+		} else {
+			CD_P1_sprite_size = 16
+			CD_P1_sprite_copy = 0	// clean
+		}
+
+		// Copy of the sprite
+		var mask byte = 128
+		for j:=8 ; j > 0 ; j-- {
+			if player == 0 {
+				CD_P0_sprite_copy += ( uint32(register_GRP & (mask >> (8-j) ) ) <<  j    )
+				CD_P0_sprite_copy += ( uint32(register_GRP & (mask >> (8-j) ) ) << (j-1) )
+			} else {
+				CD_P1_sprite_copy += ( uint32(register_GRP & (mask >> (8-j) ) ) <<  j    )
+				CD_P1_sprite_copy += ( uint32(register_GRP & (mask >> (8-j) ) ) << (j-1) )
+			}
+		}
+		// fmt.Printf("COPY: %08b\n%016b\n", uint16(CPU.Memory[CPU.GRP1]), CD_P1_sprite_copy)
+
+	} else if register_NUSIZ == 0x06 {
+		// Implement
+	} else if register_NUSIZ == 0x07 {
+		// Implement
+	}
 
 
+	// ----- Draw Player Line ----- //
 	// For each bit in GRPn, draw if == 1
-	for i:=0 ; i <=7 ; i++{
+	for i:=0 ; i <=7 ; i++ {
 
 		// handle the order of the bits (normal or inverted)
 		if register_REFP == 0x00 {
@@ -153,14 +203,6 @@ func drawPlayer(player byte) {
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width + width				, float64(232-line) * height + height))
 				imd.Rectangle(0)
-				// Collision Detection - Sprite size
-				if player == 0 {
-					CD_P0_sprite_size = 8
-				} else {
-					CD_P1_sprite_size = 8
-				}
-				// Copy of the sprite
-				CD_P1_sprite_copy = uint16(register_GRP)
 			} else if register_NUSIZ == 0x01 {
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width + width				, float64(232-line) * height + height))
@@ -196,23 +238,6 @@ func drawPlayer(player byte) {
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i*2)) + float64(XFinePosition) ) * width					, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i*2)) + float64(XFinePosition) ) * width + (width*2)			, float64(232-line) * height + height))
 				imd.Rectangle(0)
-				// Collision Detection - Sprite size
-				// Collision Detection - Sprite size
-				if player == 0 {
-					CD_P0_sprite_size = 16
-				} else {
-					CD_P1_sprite_size = 16
-				}
-				// Copy of the sprite
-				// var mask byte = 128
-				// CD_P1_sprite_copy = 0
-				// for i:=8 ; i > 0 ; i-- {
-				// 	// fmt.Println(i)
-				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << i )
-				// 	CD_P1_sprite_copy += ( uint16(CPU.Memory[CPU.GRP1] & (mask >> (8-i) ) ) << (i-1) )
-				// }
-				// fmt.Printf("COPY: %08b\n%016b\n", uint16(CPU.Memory[CPU.GRP1]), CD_P1_sprite_copy)
-
 			} else if register_NUSIZ == 0x06 {
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width						, float64(232-line) * height ))
 				imd.Push(pixel.V( (float64( (XPosition*3) - 68 + byte(i)) + float64(XFinePosition) ) * width + width				, float64(232-line) * height + height))
