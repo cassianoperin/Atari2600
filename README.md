@@ -41,7 +41,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | 6502/6507 CPU Opcodes | 38 / 56 |
 
 ## Missing:
-- X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin)
+- X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin) and correct P0-P1 Collision detection over it
 - Graphics: Ball
 - Graphics: Missiles
 - Scoreboard value increment for both players

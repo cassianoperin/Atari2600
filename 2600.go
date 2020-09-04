@@ -65,7 +65,6 @@ func readROM(filename string) {
 	// 	fmt.Printf("%X ", CPU.Memory[i])
 	// }
 	// os.Exit(2)
-
 }
 
 func checkArgs() {

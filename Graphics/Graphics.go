@@ -48,6 +48,8 @@ func renderGraphics() {
 // Infinte Loop
 func Run() {
 
+	CD_P0_P1		= [160]byte{}
+
 	// Set up render system
 	renderGraphics()
 

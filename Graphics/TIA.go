@@ -125,12 +125,16 @@ func TIA(action int8) {
 
 				// COLLISION DETECTION
 				// P0 - P1
-				CollisionDetectionP0_P1()
+				// CollisionDetectionP0_P1()
 			}
 
 			// Reset the beam index
 			CPU.Beam_index = 0
 			old_BeamIndex = 0
+			// Reset Collision Detection Line Array
+			CD_P0_P1 = [160]byte{}
+
+			// Increment Line
 			line ++
 
 
