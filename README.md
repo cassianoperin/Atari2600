@@ -41,7 +41,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | 6502/6507 CPU Opcodes | 38 / 56 |
 
 ## Missing:
-- X and Y Movement: Need to split object when crossing the boundaries of the screen (test on 103bomber_WithoutADC.bin) and correct P0-P1 Collision detection over it
+- Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles
 - Scoreboard value increment for both players
@@ -54,14 +54,16 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Implement TIA Collision Detection:
 	a) CXM0P - Not started
 	b) CXM1P - Not started
-	c) CXP0FB - Not started
+	c) CXP0FB:
+		D6 - P0–BL: Not started
+		D7 - P0–PF: DONE!
 	d) CXP1FB - Not started
 	e) CXM0FB - Not started
 	f) CXM1FB - Not started
 	g) CXBLPF - Not started
 	h) CXPPMM:
-		D6 - Not started
-		D7 - P0-P1: 1) Implement for all NUSIZ 2) Equalize variables types
+		D6 - M0–M1: Not started
+		D7 - P0-P1: DONE!
 
 ## Documentation:
 

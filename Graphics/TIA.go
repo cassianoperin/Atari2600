@@ -133,6 +133,7 @@ func TIA(action int8) {
 			old_BeamIndex = 0
 			// Reset Collision Detection Line Array
 			CD_P0_P1 = [160]byte{}
+			CD_P0_PF = [160]byte{}
 
 			// Increment Line
 			line ++
@@ -223,6 +224,7 @@ func TIA(action int8) {
 				fmt.Printf("\tCXCLR SET - Clear Collision Latches\n")
 			}
 			CPU.MemTIAWrite[CPU.CXPPMM] = 0x00
+			CPU.MemTIAWrite[CPU.CXP0FB] = 0x00
 
 		default:
 
@@ -240,7 +242,8 @@ func TIA(action int8) {
 		VSYNC_passed = false
 
 		// Update Collision Detection Flags
-		CD_P0_P1_status = false				// Informm TIA to start looking for collisions again
+		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
+		CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
 
 		// Increment frames
 		frames ++

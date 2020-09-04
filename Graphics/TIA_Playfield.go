@@ -87,6 +87,12 @@ func draw_playfield() {
 			imd.Push(pixel.V( float64( i*4 + 4 ) * width 	, float64(232-line) * height + height))
 			imd.Rectangle(0)
 
+			// -------- Collision Detection -------- //
+			CD_P0_PF[  i*4 ]    = 1
+			CD_P0_PF[ (i*4)+1 ] = 1
+			CD_P0_PF[ (i*4)+2 ] = 1
+			CD_P0_PF[ (i*4)+3 ] = 1
+
 			imd.Draw(win)
 			draws ++
 

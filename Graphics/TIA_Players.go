@@ -18,8 +18,10 @@ var (
 
 	// Collision Detection
 	CD_debug			bool	= true	// Debug
-	CD_P0_P1			[160]byte	// Line Array // TODO FIX TO 160 DUE TO PLAYER POSITION ON SCREEN START IN 1
-	CD_P0_P1_status			bool	= false	// Set when collision is detected
+	CD_P0_P1			[160]byte
+	CD_P0_P1_collision_detected			bool	= false	// Set when collision is detected
+	CD_P0_PF			[160]byte
+	CD_P0_PF_collision_detected			bool	= false	// Set when collision is detected
 )
 
 
@@ -111,7 +113,7 @@ func drawPlayer(player byte) {
 	)
 
 	// Tests
-	// CPU.Memory[CPU.NUSIZ0] = 0x01
+	CPU.Memory[CPU.NUSIZ0] = 0x07
 	// CPU.Memory[CPU.NUSIZ1] = 0x03
 	// CPU.Memory[CPU.NUSIZ1] = 0x07
 
@@ -174,36 +176,62 @@ func drawPlayer(player byte) {
 			R, G, B := Palettes.NTSC(register_COLUP)
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-			// NUSIZx = 0x00
+			// ----------------------------------------------- NUSIZx = 0x00 ----------------------------------------------- //
 			if register_NUSIZ == 0x00 {
 
 				// --------------------------- Draw ---------------------------- //
 				drawLinePosition = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
 
 				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
 				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ] = 1
+						CD_P0_P1[ drawLinePosition ] = 1
+					}
+				}
+
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 {
+
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+								// fmt.Println(CD_P0_PF)
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ] = 1
 						}
 					}
 				}
 
-			// NUSIZx = 0x01
+
+			// ----------------------------------------------- NUSIZx = 0x01 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x01 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -222,18 +250,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -242,8 +270,29 @@ func drawPlayer(player byte) {
 					}
 				}
 
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 {
 
-			// NUSIZx = 0x02
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+						}
+					}
+				}
+
+
+			// ----------------------------------------------- NUSIZx = 0x02 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x02 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -262,18 +311,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -282,7 +331,28 @@ func drawPlayer(player byte) {
 					}
 				}
 
-			// NUSIZx = 0x03
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 {
+
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+						}
+					}
+				}
+
+			// ----------------------------------------------- NUSIZx = 0x03 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x03 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -306,18 +376,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -327,7 +397,30 @@ func drawPlayer(player byte) {
 					}
 				}
 
-			// NUSIZx = 0x04
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 || CD_P0_PF[ drawLinePosition3 ] ==  1 {
+
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+							CD_P0_PF[ drawLinePosition3 ] = 1
+						}
+					}
+				}
+
+
+			// ----------------------------------------------- NUSIZx = 0x04 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x04 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -346,18 +439,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -366,7 +459,28 @@ func drawPlayer(player byte) {
 					}
 				}
 
-			// NUSIZx = 0x05
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 {
+
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+						}
+					}
+				}
+
+			// ----------------------------------------------- NUSIZx = 0x05 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x05 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -385,18 +499,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1{
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -406,7 +520,34 @@ func drawPlayer(player byte) {
 					}
 				}
 
-			// NUSIZx = 0x06
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 {
+
+							fmt.Println(drawLinePosition)
+							fmt.Println(CD_P0_PF[ drawLinePosition ])
+							fmt.Println(drawLinePosition2)
+							fmt.Println(CD_P0_PF[ drawLinePosition2 ])
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							// Fill the 2 bytes drawed
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+						}
+					}
+				}
+
+
+			// ----------------------------------------------- NUSIZx = 0x06 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x06 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -431,18 +572,18 @@ func drawPlayer(player byte) {
 
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -452,8 +593,30 @@ func drawPlayer(player byte) {
 					}
 				}
 
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 || CD_P0_PF[ drawLinePosition3 ] ==  1 {
 
-			// NUSIZx = 0x07
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+							CD_P0_PF[ drawLinePosition3 ] = 1
+						}
+					}
+				}
+
+
+			// ----------------------------------------------- NUSIZx = 0x07 ----------------------------------------------- //
 			} else if register_NUSIZ == 0x07 {
 
 				// --------------------------- Draw ---------------------------- //
@@ -482,18 +645,18 @@ func drawPlayer(player byte) {
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
-				// If collition not detected yet in this frame, check for collisions
-				if !CD_P0_P1_status {
+
+				// CXPPMM (D7) - P0-P1
+				if !CD_P0_P1_collision_detected {
 					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 || CD_P0_P1[ drawLinePosition4 ] ==  1 {
-						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
 						// Inform TIA that does not need to check collisions anymore in this frame
-						CD_P0_P1_status = true
+						CD_P0_P1_collision_detected = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
-							// fmt.Println(CD_P0_P1)
 						}
 
 					} else {
@@ -505,9 +668,37 @@ func drawPlayer(player byte) {
 					}
 				}
 
+				// CXP0FB (D7) - P0-PF
+				if player == 0 {
+					if !CD_P0_PF_collision_detected {
+						if CD_P0_PF[ drawLinePosition ] ==  1 || CD_P0_PF[ drawLinePosition2 ] ==  1 || CD_P0_PF[ drawLinePosition3 ] ==  1 || CD_P0_PF[ drawLinePosition4 ] ==  1 {
+
+							CPU.MemTIAWrite[CPU.CXP0FB] = 0x80
+
+							// Inform TIA that does not need to check collisions anymore in this frame
+							CD_P0_PF_collision_detected = true
+
+							if CD_debug {
+								fmt.Println("Collision Detection: P0-PF Detected!")
+							}
+
+						} else {
+							// Fill the 4 bytes drawed
+							CD_P0_PF[ drawLinePosition ]  = 1
+							CD_P0_PF[ drawLinePosition2 ] = 1
+							CD_P0_PF[ drawLinePosition3 ] = 1
+							CD_P0_PF[ drawLinePosition4 ] = 1
+						}
+					}
+				}
+
 			}
 		}
 	}
+
+	// Debug Collision Detection arrays
+	// fmt.Println(CD_P0_P1)
+	// fmt.Println(CD_P0_PF)
 
 	imd.Draw(win)
 	// Count draw operations number per second
