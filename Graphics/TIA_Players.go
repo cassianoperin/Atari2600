@@ -11,15 +11,15 @@ import (
 
 var (
 	// Players Vertical Positioning
-	XPositionP0				byte
+	XPositionP0			byte
 	XFinePositionP0			int8
-	XPositionP1				byte
+	XPositionP1			byte
 	XFinePositionP1			int8
 
 	// Collision Detection
-	CD_debug				bool	= true	// Debug
-	CD_P0_P1				[160]byte		// Line Array // TODO FIX TO 160 DUE TO PLAYER POSITION ON SCREEN START IN 1
-	CD_P0_P1_status			bool 	= false	// Set when collision is detected
+	CD_debug			bool	= true	// Debug
+	CD_P0_P1			[160]byte	// Line Array // TODO FIX TO 160 DUE TO PLAYER POSITION ON SCREEN START IN 1
+	CD_P0_P1_status			bool	= false	// Set when collision is detected
 )
 
 
@@ -80,26 +80,39 @@ func Fine(HMPX byte) int8 {
 
 }
 
+func drawLineScroll(currentPosition int16) int16 {
+	// Left horizontal scroll
+	if currentPosition < 0 {
+		currentPosition = 160 + currentPosition
+	// Right horizontal scroll
+	} else if currentPosition > 159 {
+		currentPosition = currentPosition % 160
+	}
+
+	return currentPosition
+}
+
 func drawPlayer(player byte) {
 	var (
-		bit					byte = 0
+		bit				byte = 0
 		inverted			byte = 0
 		// P0 and P1 registers
 		register_REFP		byte
 		register_GRP		byte
 		register_COLUP		byte
 		register_NUSIZ		byte
-		XPosition			byte
+		XPosition		byte
 		XFinePosition		int8
-		drawLine			float64
-		drawLinePosition	byte
-
-
+		drawLine		float64
+		drawLinePosition	int16
+		drawLinePosition2	int16
+		drawLinePosition3	int16
+		drawLinePosition4	int16
 	)
 
-	// // TESTEEEEEE SPRITES DO MESMO TAMANHO
-	CPU.Memory[CPU.NUSIZ0] = 0x06
-	CPU.Memory[CPU.NUSIZ1] = 0x03
+	// Tests
+	// CPU.Memory[CPU.NUSIZ0] = 0x01
+	// CPU.Memory[CPU.NUSIZ1] = 0x03
 	// CPU.Memory[CPU.NUSIZ1] = 0x07
 
 	// Configs for Drawing P0
@@ -117,7 +130,7 @@ func drawPlayer(player byte) {
 		register_GRP	= CPU.Memory[CPU.GRP0]
 		register_COLUP	= CPU.Memory[CPU.COLUP0]
 		register_NUSIZ	= CPU.Memory[CPU.NUSIZ0]
-		XPosition		= XPositionP0
+		XPosition	= XPositionP0
 		XFinePosition	= XFinePositionP0
 
 	// Configs for Drawing P1
@@ -135,7 +148,7 @@ func drawPlayer(player byte) {
 		register_GRP	= CPU.Memory[CPU.GRP1]
 		register_COLUP	= CPU.Memory[CPU.COLUP1]
 		register_NUSIZ	= CPU.Memory[CPU.NUSIZ1]
-		XPosition		= XPositionP1
+		XPosition	= XPositionP1
 		XFinePosition	= XFinePositionP1
 	}
 
@@ -165,7 +178,7 @@ func drawPlayer(player byte) {
 			if register_NUSIZ == 0x00 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
+				drawLinePosition = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
 
 				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
 				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
@@ -194,21 +207,29 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x01 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 16
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition + 16) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition + 16) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 16 ] ==  1 {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_status = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
@@ -216,12 +237,8 @@ func drawPlayer(player byte) {
 						}
 
 					} else {
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +16 >= 0 && drawLinePosition +16 < 160 {
-							CD_P0_P1[ drawLinePosition + 16 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
 					}
 				}
 
@@ -230,21 +247,29 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x02 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 32
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition + 32 ) ) * width			,	 drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition + 32 ) ) * width + width	,	 drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 32 ] ==  1 {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_status = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
@@ -252,12 +277,8 @@ func drawPlayer(player byte) {
 						}
 
 					} else {
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +32 >= 0 && drawLinePosition +32 < 160 {
-							CD_P0_P1[ drawLinePosition + 32 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
 					}
 				}
 
@@ -265,23 +286,34 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x03 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 16
+				drawLinePosition3 = drawLinePosition + 32
+
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+				drawLinePosition3 = drawLineScroll(drawLinePosition3)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition + 16 ) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition + 16 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition + 32 ) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition + 32 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 16 ] ==  1 || CD_P0_P1[ drawLinePosition + 32 ] ==  1 {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 {
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_status = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
@@ -289,15 +321,9 @@ func drawPlayer(player byte) {
 						}
 
 					} else {
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +16 >= 0 && drawLinePosition +16 < 160 {
-							CD_P0_P1[ drawLinePosition + 16 ] = 1
-						}
-						if drawLinePosition +32 >= 0 && drawLinePosition +32 < 160 {
-							CD_P0_P1[ drawLinePosition + 32 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
+						CD_P0_P1[ drawLinePosition3 ] = 1
 					}
 				}
 
@@ -305,20 +331,29 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x04 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 64
+
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition + 64 ) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition + 64 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 64 ] ==  1 {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 {
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_status = true
 
 						if CD_debug {
 							fmt.Println("Collision Detection: P0-P1 Detected!")
@@ -326,12 +361,8 @@ func drawPlayer(player byte) {
 						}
 
 					} else {
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +64 >= 0 && drawLinePosition +64 < 160 {
-							CD_P0_P1[ drawLinePosition + 64 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
 					}
 				}
 
@@ -339,16 +370,24 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x05 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i*2) + byte(XFinePosition)
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i*2) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 1
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width					, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + (width*2)		, drawLine * height + height))
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Rectangle(0)
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 1] ==  1{
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1{
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
@@ -362,12 +401,8 @@ func drawPlayer(player byte) {
 
 					} else {
 						// Fill the 2 bytes drawed
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +1 >= 0 && drawLinePosition +1 < 160 {
-							CD_P0_P1[ drawLinePosition + 1 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
 					}
 				}
 
@@ -375,59 +410,81 @@ func drawPlayer(player byte) {
 			} else if register_NUSIZ == 0x06 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i) + byte(XFinePosition)
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 32
+				drawLinePosition3 = drawLinePosition + 64
 
-				imd.Push(pixel.V( (float64( drawLinePosition % 160 ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+				drawLinePosition3 = drawLineScroll(drawLinePosition3)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( (drawLinePosition + 32)  % 160  ) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( (drawLinePosition + 32)  % 160 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( (drawLinePosition + 64)  % 160 ) ) * width			, drawLine * height ))
-				imd.Push(pixel.V( (float64( (drawLinePosition + 64)  % 160 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
-				fmt.Println(drawLinePosition)
+
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
-				// if !CD_P0_P1_status {
-				// 	if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 32 ] ==  1 || CD_P0_P1[ drawLinePosition + 64 ] ==  1 {
-				// 		// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
-				// 		CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
-				//
-				// 		if CD_debug {
-				// 			fmt.Println("Collision Detection: P0-P1 Detected!")
-				// 			// fmt.Println(CD_P0_P1)
-				// 		}
-				//
-				// 	} else {
-				// 		if drawLinePosition >= 0 && drawLinePosition < 160 {
-				// 			CD_P0_P1[ drawLinePosition ]      = 1
-				// 		}
-				// 		if drawLinePosition +32 >= 0 && drawLinePosition +32 < 160 {
-				// 			CD_P0_P1[ drawLinePosition + 32 ] = 1
-				// 		}
-				// 		if drawLinePosition +64 >= 0 && drawLinePosition +64 < 160 {
-				// 			CD_P0_P1[ drawLinePosition + 64 ] = 1
-				// 		}
-				// 	}
-				// }
+				if !CD_P0_P1_status {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 {
+						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
+						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
+
+						// Inform TIA that does not need to check collisions anymore in this frame
+						CD_P0_P1_status = true
+
+						if CD_debug {
+							fmt.Println("Collision Detection: P0-P1 Detected!")
+							// fmt.Println(CD_P0_P1)
+						}
+
+					} else {
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
+						CD_P0_P1[ drawLinePosition3 ] = 1
+					}
+				}
 
 
 			// NUSIZx = 0x07
 			} else if register_NUSIZ == 0x07 {
 
 				// --------------------------- Draw ---------------------------- //
-				drawLinePosition = (XPosition*3) - 68 + byte(i*4) + byte(XFinePosition)
+				drawLinePosition  = int16(XPosition*3) - 68 + int16(i*4) + int16(XFinePosition)
+				drawLinePosition2 = drawLinePosition + 1
+				drawLinePosition3 = drawLinePosition + 2
+				drawLinePosition4 = drawLinePosition + 3
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width					, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + (width*4)		, drawLine * height + height))
+				// If value < 0 or > 159, scroll draw position
+				drawLinePosition  = drawLineScroll(drawLinePosition)
+				drawLinePosition2 = drawLineScroll(drawLinePosition2)
+				drawLinePosition3 = drawLineScroll(drawLinePosition3)
+				drawLinePosition4 = drawLineScroll(drawLinePosition4)
+
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Rectangle(0)
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Rectangle(0)
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, drawLine * height + height))
+				imd.Rectangle(0)
+				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width		, drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width + width	, drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
 				// If collition not detected yet in this frame, check for collisions
 				if !CD_P0_P1_status {
-					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition + 1 ] ==  1 || CD_P0_P1[ drawLinePosition + 2 ] ==  1 || CD_P0_P1[ drawLinePosition + 3] ==  1 {
+					if CD_P0_P1[ drawLinePosition ] ==  1 || CD_P0_P1[ drawLinePosition2 ] ==  1 || CD_P0_P1[ drawLinePosition3 ] ==  1 || CD_P0_P1[ drawLinePosition4 ] ==  1 {
 						// Set P0-P1 Collision (TIA READ-ONLY REGISTER CXPPMM: bit 7 - 10000000)
 						CPU.MemTIAWrite[CPU.CXPPMM] = 0x80
 
@@ -441,26 +498,12 @@ func drawPlayer(player byte) {
 
 					} else {
 						// Fill the 4 bytes drawed
-						CD_P0_P1[ drawLinePosition ]     = 1
-						CD_P0_P1[ drawLinePosition + 1 ] = 1
-						CD_P0_P1[ drawLinePosition + 2 ] = 1
-						CD_P0_P1[ drawLinePosition + 3 ] = 1
-
-						if drawLinePosition >= 0 && drawLinePosition < 160 {
-							CD_P0_P1[ drawLinePosition ]      = 1
-						}
-						if drawLinePosition +1 >= 0 && drawLinePosition +1 < 160 {
-							CD_P0_P1[ drawLinePosition + 1 ] = 1
-						}
-						if drawLinePosition +2 >= 0 && drawLinePosition +2 < 160 {
-							CD_P0_P1[ drawLinePosition + 2 ] = 1
-						}
-						if drawLinePosition +3 >= 0 && drawLinePosition +3 < 160 {
-							CD_P0_P1[ drawLinePosition + 3 ] = 1
-						}
+						CD_P0_P1[ drawLinePosition ]  = 1
+						CD_P0_P1[ drawLinePosition2 ] = 1
+						CD_P0_P1[ drawLinePosition3 ] = 1
+						CD_P0_P1[ drawLinePosition4 ] = 1
 					}
 				}
-
 
 			}
 		}
