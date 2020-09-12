@@ -13,16 +13,19 @@ import	"fmt"
 //      zeropage      LDA oper      A5    2     3
 //      absolute,Y    LDA oper,Y    B9    3     4*
 //      (indirect),Y  LDA (oper),Y  B1    2     5*
+//      zeropage,X    LDA oper,X    B5    2     4
+//      absolute      LDA oper      AD    3     4
+//      absolute,X    LDA oper,X    BD    3     4*
 func opc_LDA(memAddr uint16, mode string) {
 	A = Memory[memAddr]
 
 	if Debug {
 		// If mode = immediate OR zeropage OR (indirect),Y
-		if Opcode == 0xA9 || Opcode == 0xA5 || Opcode == 0xB1 {
+		if Opcode == 0xA9 || Opcode == 0xA5 || Opcode == 0xB1 || Opcode == 0xB5 {
 			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, memAddr, A)
 
 		// If mode = absolute,Y
-		} else if Opcode == 0xB9 {
+		} else if Opcode == 0xB9 || Opcode == 0xAD || Opcode == 0xBD {
 			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
 		}
 	}
@@ -40,14 +43,16 @@ func opc_LDA(memAddr uint16, mode string) {
 		PC += 2
 		Beam_index += 3
 
-	// if mode == "Absolute,Y"
-	} else if Opcode == 0xB9 {
+	// if mode == "Absolute,Y" || "Absolute,X"
+	} else if Opcode == 0xB9 || Opcode == 0xBD {
 		PC += 3
 		// Add 1 to cycles if page boundery is crossed
 		if MemPageBoundary(memAddr, PC) {
 			Beam_index += 1
 		}
 		Beam_index += 4
+
+	// if mode == "(indirect),Y"
 	} else if Opcode == 0xB1 {
 		PC += 2
 		// Add 1 to cycles if page boundery is crossed
@@ -55,5 +60,15 @@ func opc_LDA(memAddr uint16, mode string) {
 			Beam_index += 1
 		}
 		Beam_index += 5
+
+	// if mode == "zeropage,X"
+	} else if Opcode == 0xB5 {
+		PC += 2
+		Beam_index += 4
+
+	// if mode == "absolute"
+	} else if Opcode == 0xAD {
+		PC += 3
+		Beam_index += 4
 	}
 }

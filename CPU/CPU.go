@@ -58,7 +58,7 @@ var (
 	Pause		bool = false
 
 	//Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -282,6 +282,9 @@ func Interpreter() {
 		case 0x8A:	// Instruction TXA
 			opc_TXA()
 
+		case 0xAA:	// Instruction TAX
+			opc_TAX()
+
 		case 0xA8:	// Instruction TAY
 			opc_TAY()
 
@@ -374,18 +377,25 @@ func Interpreter() {
 		case 0xB9:	// Instruction LDA (absolute,Y)
 			opc_LDA( addr_mode_AbsoluteY(PC+1) )
 
+		case 0xBD:	// Instruction LDA (absolute,X)
+			opc_LDA( addr_mode_AbsoluteX(PC+1) )
+
 		case 0xB1:	// Instruction LDA (indirect,Y)
 			opc_LDA( addr_mode_IndirectY(PC+1) )
+
+		case 0xB5:	// Instruction LDA (zeropage,X)
+			opc_LDA( addr_mode_ZeropageX(PC+1) )
+
+		case 0xAD:	// Instruction LDA (absolute)
+			opc_LDA( addr_mode_Absolute(PC+1) )
 
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
 		case 0xA0:	// Instruction LDY (immediate)
 			opc_LDY( addr_mode_Immediate(PC+1) )
 
-		// Used by the wrong horizontal demo
-		// case 0xA4:	// Instruction LDY (zeropage)
-		// 	opc_LDY( addr_mode_Zeropage(PC+1) )
-		// 	// os.Exit(2)
+		case 0xA4:	// Instruction LDY (zeropage)
+			opc_LDY( addr_mode_Zeropage(PC+1) )
 
 		//-------------------------------------------------- STY --------------------------------------------------//
 
@@ -423,6 +433,11 @@ func Interpreter() {
 		case 0x29:	// Instruction AND (immediate)
 			opc_AND( addr_mode_Immediate(PC+1) )
 
+		//-------------------------------------------------- AND --------------------------------------------------//
+
+		case 0x05:	// Instruction ORA (zeropage)
+			opc_ORA( addr_mode_Zeropage(PC+1) )
+
 		//-------------------------------------------------- EOR --------------------------------------------------//
 
 		case 0x49:	// Instruction EOR (immediate)
@@ -458,8 +473,11 @@ func Interpreter() {
 			opc_STA( addr_mode_Zeropage(PC+1) )
 
 		// Used in 103-bomber
-		case 0x99:	// Instruction STA (zeropage)
+		case 0x99:	// Instruction STA (absolute,Y)
 			opc_STA( addr_mode_AbsoluteY(PC+1) )
+
+		case 0x8D:	// Instruction STA (absolute)
+			opc_STA( addr_mode_Absolute(PC+1) )
 
 		//-------------------------------------------------- ADC --------------------------------------------------//
 

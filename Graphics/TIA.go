@@ -98,7 +98,7 @@ func TIA(action int8) {
 				// Finish drawing line (X=228) 76x3
 				CPU.Beam_index = 76
 				if debug {
-					fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
+					// fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
 				}
 				drawBackground()
 
@@ -136,6 +136,7 @@ func TIA(action int8) {
 			CD_P0_PF = [160]byte{}
 
 			// Increment Line
+			// CPU.Pause = true
 			line ++
 
 
@@ -165,6 +166,7 @@ func TIA(action int8) {
 			if CPU.Memory[CPU.VSYNC] == 0x02 {
 				if debug {
 					fmt.Printf("\tVSYNC Enabled\n")
+					line = 1
 				}
 			} else if CPU.Memory[CPU.VSYNC] == 0x00 {
 				if debug {

@@ -1,7 +1,7 @@
 package Graphics
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"Atari2600/Palettes"
@@ -35,7 +35,7 @@ func drawBackground() {
 			imd.Rectangle(0)
 
 			if debug {
-				fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
+				// fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
 			}
 
 			imd.Draw(win)

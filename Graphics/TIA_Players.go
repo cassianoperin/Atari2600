@@ -113,7 +113,7 @@ func drawPlayer(player byte) {
 	)
 
 	// Tests
-	CPU.Memory[CPU.NUSIZ0] = 0x07
+	// CPU.Memory[CPU.NUSIZ0] = 0x07
 	// CPU.Memory[CPU.NUSIZ1] = 0x03
 	// CPU.Memory[CPU.NUSIZ1] = 0x07
 
