@@ -7,7 +7,7 @@ import	"fmt"
 //      M -> A                           N Z C I D V
 //                                       + + - - - -
 //
-//      addressing    assembler    opc  bytes  cyles
+//      addressing    assembler    opc  bytes  cycles
 //      --------------------------------------------
 //      immediate     LDA #oper     A9    2     2
 //      zeropage      LDA oper      A5    2     3
@@ -16,59 +16,55 @@ import	"fmt"
 //      zeropage,X    LDA oper,X    B5    2     4
 //      absolute      LDA oper      AD    3     4
 //      absolute,X    LDA oper,X    BD    3     4*
-func opc_LDA(memAddr uint16, mode string) {
-	A = Memory[memAddr]
+func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
+	// Increment the beam
+	Beam_index ++
+
+	// Check for extra cycles (*) in the first opcode cycle
+	if opc_cycle_count == 1 {
+		if Opcode == 0xB9 || Opcode == 0xBD || Opcode == 0xB1 {
+			// Add 1 to cycles if page boundery is crossed
+			if MemPageBoundary(memAddr, PC) {
+				opc_cycle_extra = 1
+			}
+		}
+	}
+
+	// Show current opcode cycle
 	if Debug {
-		// If mode = immediate OR zeropage OR (indirect),Y
-		if Opcode == 0xA9 || Opcode == 0xA5 || Opcode == 0xB1 || Opcode == 0xB5 {
-			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, memAddr, A)
-
-		// If mode = absolute,Y
-		} else if Opcode == 0xB9 || Opcode == 0xAD || Opcode == 0xBD {
-			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
-		}
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + %d extra cycles)\n", Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra, opc_cycles, opc_cycle_extra)
 	}
 
-	flags_Z(A)
-	flags_N(A)
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles +  opc_cycle_extra {
+		opc_cycle_count ++
 
-	// if mode == "Immediate"
-	if Opcode == 0xA9 {
-		PC += 2
-		Beam_index += 2
+	// After spending the cycles needed, execute the opcode
+	} else {
 
-	// if mode == "Zeropage"
-	} else if Opcode == 0xA5 {
-		PC += 2
-		Beam_index += 3
+		A = Memory[memAddr]
 
-	// if mode == "Absolute,Y" || "Absolute,X"
-	} else if Opcode == 0xB9 || Opcode == 0xBD {
-		PC += 3
-		// Add 1 to cycles if page boundery is crossed
-		if MemPageBoundary(memAddr, PC) {
-			Beam_index += 1
+		if Debug {
+			if bytes == 2 {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+1], mode, memAddr, A)
+
+			} else if bytes == 3 {
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
+			}
 		}
-		Beam_index += 4
 
-	// if mode == "(indirect),Y"
-	} else if Opcode == 0xB1 {
-		PC += 2
-		// Add 1 to cycles if page boundery is crossed
-		if MemPageBoundary(memAddr, PC) {
-			Beam_index += 1
-		}
-		Beam_index += 5
+		flags_Z(A)
+		flags_N(A)
 
-	// if mode == "zeropage,X"
-	} else if Opcode == 0xB5 {
-		PC += 2
-		Beam_index += 4
+		// Increment PC
+		PC += bytes
 
-	// if mode == "absolute"
-	} else if Opcode == 0xAD {
-		PC += 3
-		Beam_index += 4
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
+
+		// Reset Opcode Extra Cycle counter
+		opc_cycle_extra = 0
 	}
+
 }

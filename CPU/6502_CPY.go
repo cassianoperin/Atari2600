@@ -11,29 +11,42 @@ import	"fmt"
 //      --------------------------------------------
 //      immidiate     CPY #oper     C0    2     2
 //      zeropage      CPY oper      C4    2     3
-func opc_CPY(memAddr uint16, mode string) {
+func opc_CPY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
-	tmp := Y - Memory[memAddr]
+	// Increment the beam
+	Beam_index ++
 
+	// Show current opcode cycle
 	if Debug {
-		if tmp == 0 {
-			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
-		} else {
-			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", Cycle, opc_cycle_count, opc_cycles)
+	}
+
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles {
+		opc_cycle_count ++
+
+	// After spending the cycles needed, execute the opcode
+	} else {
+
+		tmp := Y - Memory[memAddr]
+
+		if Debug {
+			if tmp == 0 {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
+			} else {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
+			}
 		}
+
+		flags_Z(tmp)
+		flags_N(tmp)
+		flags_C(Y,Memory[memAddr])
+
+		// Increment PC
+		PC += bytes
+
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
 	}
 
-	flags_Z(tmp)
-	flags_N(tmp)
-	flags_C(Y,Memory[memAddr])
-
-	// If mode=immidiate
-	if Opcode == 0xC0 {
-		PC += 2
-		Beam_index += 2
-	// If mode=zeropage
-	} else if Opcode == 0xC4 {
-		PC += 2
-		Beam_index += 3
-	}
 }

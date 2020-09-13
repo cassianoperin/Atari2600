@@ -1,7 +1,6 @@
 package CPU
 
 import	"fmt"
-// import	"os"
 
 // STA  Store Accumulator in Memory (zeropage,X)
 //
@@ -14,64 +13,44 @@ import	"fmt"
 //      zeropage      STA oper      85    2     3
 //      absolute,Y    STA oper,Y    99    3     5
 //      absolute      STA oper      8D    3     4
-func opc_STA(memAddr uint16, mode string) {
+func opc_STA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
-	// Just increment the Beam (To let TIA Draw with the cycles used first)
-	if !TIA_CPU_HOLD {
+	// Increment the beam
+	Beam_index ++
 
-		// If mode = zeropage,X
-		if Opcode == 0x95 {
-			Beam_index += 4
+	// Show current opcode cycle
+	if Debug {
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", Cycle, opc_cycle_count, opc_cycles)
+	}
 
-		// If mode = zeropage
-		} else if Opcode == 0x85 {
-			Beam_index += 3
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles {
+		opc_cycle_count ++
 
-		// If mode = absolute,Y
-		} else if Opcode == 0x99 {
-			Beam_index += 5
+	// After spending the cycles needed, execute the opcode
+	} else {
 
-		// If mode = absolute
-		} else if Opcode == 0x8D {
-			Beam_index += 4
-		}
-
-		// Execute the operation and increment PC
-		} else {
+		// Change variable to a positive number to TIA detect the change
 		if memAddr < 128 {
-			TIA_Update = int8(memAddr)	// Change variable to a positive number to TIA detect the change
+			TIA_Update = int8(memAddr)
 		}
 
 		Memory[ memAddr ] = A
 
 		if Debug {
-			// If mode = zeropage,X OR zeropage
-			if Opcode == 0x95 || Opcode == 0x85 {
-				fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] )
+			if bytes == 2 {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] )
 
-			// If mode = absolute,Y
-			} else if Opcode == 0x99 || Opcode == 0x8D {
-				fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, Memory[memAddr] )
+			} else if bytes == 3 {
+				fmt.Printf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tSTA  Store Accumulator in Memory.\tMemory[%02X] = A (%d)\n", Opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, Memory[memAddr] )
 			}
 		}
 
-		// If mode = zeropage,X
-		if Opcode == 0x95 {
-			PC += 2
+		// Increment PC
+		PC += bytes
 
-		// If mode = zeropage
-		} else if Opcode == 0x85 {
-			PC += 2
-
-		// If mode = absolute,Y
-		} else if Opcode == 0x99 {
-			PC += 3
-
-		// If mode = absolute
-		} else if Opcode == 0x8D {
-			PC += 3
-		}
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
 	}
 
-	TIA_CPU_HOLD = !TIA_CPU_HOLD
 }

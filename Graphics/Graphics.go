@@ -15,7 +15,7 @@ var (
 	cfg				= pixelgl.WindowConfig{}
 
 	// Debug mode
-	debug			bool = true
+	debug			bool = false
 )
 
 const (

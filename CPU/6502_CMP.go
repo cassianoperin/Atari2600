@@ -11,28 +11,54 @@ import	"fmt"
 //      --------------------------------------------
 //      zeropage      CMP oper      C5    2     3
 //      immediate     CMP #oper     C9    2     2
-func opc_CMP(memAddr uint16, mode string) {
+func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
-	tmp := A - Memory[memAddr]
+	// Increment the beam
+	Beam_index ++
 
+	// // Check for extra cycles (*) in the first opcode cycle
+	// if opc_cycle_count == 1 {
+	// 	if Opcode == 0xB9 || Opcode == 0xBD || Opcode == 0xB1 {
+	// 		// Add 1 to cycles if page boundery is crossed
+	// 		if MemPageBoundary(memAddr, PC) {
+	// 			opc_cycle_extra = 1
+	// 		}
+	// 	}
+	// }
+
+	// Show current opcode cycle
 	if Debug {
-		if tmp == 0 {
-			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
-		} else {
-			fmt.Printf("\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + %d extra cycles)\n", Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra, opc_cycles, opc_cycle_extra)
+	}
+
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles +  opc_cycle_extra {
+		opc_cycle_count ++
+
+	// After spending the cycles needed, execute the opcode
+	} else {
+
+		tmp := A - Memory[memAddr]
+
+		if Debug {
+			if tmp == 0 {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
+			} else {
+				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCMP  Compare Memory with Accumulator.\tA(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], tmp)
+			}
 		}
-	}
-	flags_Z(tmp)
-	flags_N(tmp)
-	flags_C_Subtraction(A,Memory[memAddr])
+		flags_Z(tmp)
+		flags_N(tmp)
+		flags_C_Subtraction(A,Memory[memAddr])
 
-	// If mode=zeropage
-	if Opcode == 0xC5 {
-		Beam_index += 3
-	// If mode=immediate
-	} else if Opcode == 0xC9 {
-		Beam_index += 2
+		// Increment PC
+		PC += bytes
+
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
+
+		// Reset Opcode Extra Cycle counter
+		opc_cycle_extra = 0
 	}
 
-	PC += 2
 }

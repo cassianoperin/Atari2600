@@ -15,55 +15,67 @@ import	"fmt"
 //      --------------------------------------------
 //      zeropage      BIT oper      24    2     3
 //      absolute      BIT oper      2C    3     4
-func opc_BIT(memAddr uint16, mode string) {
+func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Increment the beam
+	Beam_index ++
+
+	// Show current opcode cycle
 	if Debug {
-		// If mode=zeropage
-		if Opcode == 0x24 {
-			fmt.Printf("\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
-		// if mode=absolute
-		} else {
-			fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", Cycle, opc_cycle_count, opc_cycles)
+	}
+
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles {
+		opc_cycle_count ++
+
+	// After spending the cycles needed, execute the opcode
+	} else {
+
+		if Debug {
+			if bytes == 2 {
+				fmt.Printf("\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+			} else if bytes == 3 {
+				fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", Opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+			}
 		}
+
+		// Memory Address bit 7 (A) -> N (Negative)
+		if Debug {
+			fmt.Printf("\tFlag N: %d -> ",P[7])
+		}
+		P[7] = A >> 7 & 0x1
+		if Debug {
+			fmt.Printf("%d\n",P[7])
+		}
+
+		// Memory Address bit 6 (A) -> V (oVerflow)
+		if Debug {
+			fmt.Printf("\tFlag V: %d -> ",P[6])
+		}
+		P[6] = A >> 6 & 0x1
+		if Debug {
+			fmt.Printf("%d\n",P[6])
+		}
+
+		// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
+		// Read from Memory (>280?)
+		if memAddr < 14 {
+			flags_Z(A & MemTIAWrite[memAddr])
+		// Read from regular registers
+		} else if memAddr < 280 {
+			os.Exit(2)
+			fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses")
+		// Read from RIOT Memory Map (> 0x280)
+		} else {
+			flags_Z(A & Memory[memAddr])
+		}
+
+		// Increment PC
+		PC += bytes
+
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
 	}
 
-	// Memory Address bit 7 (A) -> N (Negative)
-	if Debug {
-		fmt.Printf("\tFlag N: %d -> ",P[7])
-	}
-	P[7] = A >> 7 & 0x1
-	if Debug {
-		fmt.Printf("%d\n",P[7])
-	}
-
-	// Memory Address bit 6 (A) -> V (oVerflow)
-	if Debug {
-		fmt.Printf("\tFlag V: %d -> ",P[6])
-	}
-	P[6] = A >> 6 & 0x1
-	if Debug {
-		fmt.Printf("%d\n",P[6])
-	}
-
-	// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
-	// Read from Memory (>280?)
-	if memAddr < 14 {
-		flags_Z(A & MemTIAWrite[memAddr])
-	// Read from regular registers
-	} else if memAddr < 280 {
-		os.Exit(2)
-		fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses")
-	// Read from RIOT Memory Map (> 0x280)
-	} else {
-		flags_Z(A & Memory[memAddr])
-	}
-
-	// If mode=zeropage
-	if Opcode == 0x24 {
-		PC += 2
-		Beam_index += 3
-	// if mode=absolute
-	} else {
-		PC += 3
-		Beam_index += 4
-	}
 }

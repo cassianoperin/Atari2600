@@ -33,9 +33,14 @@ var (
 	// 0    C     Carry         (0=No Carry, 1=Carry)
 
 	// CPU Variables
-	Opcode		byte			// CPU Operation Code
-	Cycle		uint16		// CPU Cycle Counter
-	IPS			uint16		// Instructions per second Counter
+	Opcode			byte		// CPU Operation Code
+	Cycle			uint16		// CPU Cycle Counter
+	opc_cycle_count	byte		// Opcode cycle counter
+	opc_cycle_extra	byte		// Opcode extra cycle
+	memAddr			uint16		// Receive the memory address needed by the opcode
+	mode			string		// Receive the addressing mode used in the debug
+	value			int8		// Receive the value needed by the opcode (branches)
+	IPS				uint16		// Instructions per second Counter
 
 	// Timers
 	Clock			*time.Ticker	// CPU Clock // CPU: MOS Technology 6507 @ 1.19 MHz;
@@ -52,7 +57,6 @@ var (
 	Beam_index	byte = 0		// Beam index to control where to draw objects using cpu cycles
 
 	TIA_Update	int8 = -1		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
-	TIA_CPU_HOLD	bool = false		// Tells Interpreter to do not update PC yet, first let TIA draw prior to update the memory
 
 	// Pause
 	Pause		bool = false
@@ -204,13 +208,15 @@ func MemPageBoundary(Address1, Address2 uint16) bool {
 func Initialize() {
 
 	// Clean Memory Array
-	Memory		= [65536]byte{}
-	MemTIAWrite	= [14]byte{}
+	Memory					= [65536]byte{}
+	MemTIAWrite				= [14]byte{}
 	// Clean CPU Variables
-	PC			= 0
-	Opcode		= 0
-	Cycle		= 0
-	IPS			= 0
+	PC				= 0
+	Opcode			= 0
+	Cycle			= 0
+	opc_cycle_count	= 1		// Opcode cycle counter
+	opc_cycle_extra	= 0		// Opcode extra cycle
+	IPS				= 0
 
 	// Start Timers
 	Clock		= time.NewTicker(time.Nanosecond)	// CPU Clock
@@ -259,7 +265,10 @@ func Interpreter() {
 
 	// Print Cycle and Debug Information
 	if Debug {
-		Show()
+		// Just show in the first opcode cycle
+		if opc_cycle_count == 1 {
+			Show()
+		}
 	}
 
 	// Map Opcode
@@ -268,226 +277,343 @@ func Interpreter() {
 		//-------------------------------------------------- Implied --------------------------------------------------//
 
 		case 0x78:	// Instruction SEI
-			opc_SEI()
+			opc_SEI( 1, 2 )
 
 		case 0x38:	// Instruction SEC
-			opc_SEC()
+			opc_SEC( 1, 2 )
 
 		case 0x18:	// Instruction CLC
-			opc_CLC()
+			opc_CLC( 1, 2 )
 
 		case 0xD8:	// Instruction CLD
-			opc_CLD()
+			opc_CLD( 1, 2 )
 
 		case 0x8A:	// Instruction TXA
-			opc_TXA()
+			opc_TXA( 1, 2 )
 
 		case 0xAA:	// Instruction TAX
-			opc_TAX()
+			opc_TAX( 1, 2 )
 
 		case 0xA8:	// Instruction TAY
-			opc_TAY()
+			opc_TAY( 1, 2 )
 
 		case 0xCA:	// Instruction DEX
-			opc_DEX()
+			opc_DEX( 1, 2 )
 
 		case 0x88:	// Instruction DEY
-			opc_DEY()
+			opc_DEY( 1, 2 )
 
 		case 0x9A:	// Instruction TXS
-			opc_TXS()
+			opc_TXS( 1, 2 )
 
 		case 0x48:	// Instruction PHA
-			opc_PHA()
+			opc_PHA( 1, 3 )
 
 		case 0x68:	// Instruction PLA
-			opc_PLA()
+			opc_PLA( 1, 4 )
 
 		case 0x00:	// Instruction BRK
-			opc_BRK()
+			opc_BRK( 1, 7 )
 
 		case 0xC8:	// Instruction INY
-			opc_INY()
+			opc_INY( 1, 2 )
 
 		case 0xE8:	// Instruction INX
-			opc_INX()
+			opc_INX( 1, 2 )
 
 		case 0x60:	// Instruction RTS
-			opc_RTS()
+			opc_RTS( 1, 6 )
 
 		case 0xEA:	// Instruction NOP
-			opc_NOP()
+			opc_NOP( 1, 2 )
 
 		//-------------------------------------------------- Just zeropage --------------------------------------------------//
 
 		case 0xE6:	// Instruction INC (zeropage)
-			opc_INC( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_INC( memAddr, mode, 2, 5 )
 
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
 		case 0xD0:	// Instruction BNE (relative)
-			opc_BNE( addr_mode_Relative(PC+1) )
+			if opc_cycle_count == 1 {
+				value = addr_mode_Relative(PC+1)
+			}
+			opc_BNE( value, 2, 2 )
 
 		case 0x90:	// Instruction BCC (relative)
-			opc_BCC( addr_mode_Relative(PC+1) )
+			if opc_cycle_count == 1 {
+				value = addr_mode_Relative(PC+1)
+			}
+			opc_BCC( value, 2, 2 )
 
 		case 0xB0:	// Instruction BCS (relative)
-			opc_BCS( addr_mode_Relative(PC+1) )
+			if opc_cycle_count == 1 {
+				value = addr_mode_Relative(PC+1)
+			}
+			opc_BCS( value, 2, 2 )
 
 		case 0x30:	// Instruction BMI (relative)
-			opc_BMI( addr_mode_Relative(PC+1) )
+			if opc_cycle_count == 1 {
+				value = addr_mode_Relative(PC+1)
+			}
+			opc_BMI( value, 2, 2 )
 
 		case 0x10:	// Instruction BPL (relative)
-			opc_BPL( addr_mode_Relative(PC+1) )
+			if opc_cycle_count == 1 {
+				value = addr_mode_Relative(PC+1)
+			}
+			opc_BPL( value, 2, 2 )
 
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
 		case 0xA2:	// Instruction LDX (immediate)
-			opc_LDX( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_LDX( memAddr, mode, 2, 2 )
 
 		//-------------------------------------------------- STX --------------------------------------------------//
 
 		case 0x86: // Instruction STX (zeropage)
-			opc_STX( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_STX( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- JMP --------------------------------------------------//
 
 		case 0x4C:	// Instruction JMP (absolute)
-			opc_JMP( addr_mode_Absolute(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Absolute(PC+1)
+			}
+			opc_JMP( memAddr, mode, 3, 3 )
 
 		case 0x20:	// Instruction JSR (absolute)
-			opc_JSR( addr_mode_Absolute(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Absolute(PC+1)
+			}
+			opc_JSR( memAddr, mode, 3, 6 )
 
 		//-------------------------------------------------- BIT --------------------------------------------------//
 
 		case 0x2C:	// Instruction BIT (absolute)
-			opc_BIT( addr_mode_Absolute(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Absolute(PC+1)
+			}
+			opc_BIT( memAddr, mode, 3, 4 )
 
 		case 0x24:	// Instruction BIT (zeropage)
-			opc_BIT( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_BIT( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- LDA --------------------------------------------------//
 
 		case 0xA9:	// Instruction LDA (immediate)
-			opc_LDA( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_LDA( memAddr, mode, 2, 2 )
 
 		case 0xA5:	// Instruction LDA (zeropage)
-			opc_LDA( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_LDA( memAddr, mode, 2, 3 )
 
 		case 0xB9:	// Instruction LDA (absolute,Y)
-			opc_LDA( addr_mode_AbsoluteY(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_AbsoluteY(PC+1)
+			}
+			opc_LDA( memAddr, mode, 3, 4 )
 
 		case 0xBD:	// Instruction LDA (absolute,X)
-			opc_LDA( addr_mode_AbsoluteX(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_AbsoluteX(PC+1)
+			}
+			opc_LDA( memAddr, mode, 3, 4 )
 
 		case 0xB1:	// Instruction LDA (indirect,Y)
-			opc_LDA( addr_mode_IndirectY(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_IndirectY(PC+1)
+			}
+			opc_LDA( memAddr, mode, 2, 5 )
 
 		case 0xB5:	// Instruction LDA (zeropage,X)
-			opc_LDA( addr_mode_ZeropageX(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_LDA( memAddr, mode, 2, 4 )
 
 		case 0xAD:	// Instruction LDA (absolute)
-			opc_LDA( addr_mode_Absolute(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Absolute(PC+1)
+			}
+			opc_LDA( memAddr, mode, 3, 4 )
 
 		//-------------------------------------------------- LDY --------------------------------------------------//
 
 		case 0xA0:	// Instruction LDY (immediate)
-			opc_LDY( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_LDY( memAddr, mode, 2, 2 )
 
 		case 0xA4:	// Instruction LDY (zeropage)
-			opc_LDY( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_LDY( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- STY --------------------------------------------------//
 
 		case 0x84:	// Instruction STY (zeropage)
-			opc_STY( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_STY( memAddr, mode,2 , 3 )
 
 		//-------------------------------------------------- CPY --------------------------------------------------//
 
 		case 0xC0:	// Instruction CPY (immediate)
-			opc_CPY( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_CPY( memAddr, mode, 2, 2 )
 
 		case 0xC4:	// Instruction STY (zeropage)
-			opc_CPY( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_CPY( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- CPX --------------------------------------------------//
 
 		case 0xE0:	// Instruction CPX (immediate)
-			opc_CPX( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_CPX( memAddr, mode, 2, 2 )
 
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
 		case 0xE5:	// Instruction STY (zeropage)
-			opc_SBC( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_SBC( memAddr, mode, 2, 3 )
 
 		case 0xE9:	// Instruction STY (immediate)
-			opc_SBC( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_SBC( memAddr, mode, 2, 2 )
 
 		//-------------------------------------------------- DEC --------------------------------------------------//
 
 		case 0xC6:	// Instruction DEC (zeropage)
-			opc_DEC( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_DEC( memAddr, mode, 2, 5 )
 
 		//-------------------------------------------------- AND --------------------------------------------------//
 
 		case 0x29:	// Instruction AND (immediate)
-			opc_AND( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_AND( memAddr, mode, 2 , 2 )
 
 		//-------------------------------------------------- AND --------------------------------------------------//
 
 		case 0x05:	// Instruction ORA (zeropage)
-			opc_ORA( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_ORA( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- EOR --------------------------------------------------//
 
 		case 0x49:	// Instruction EOR (immediate)
-			opc_EOR( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_EOR( memAddr, mode, 2, 2 )
 
 		case 0x45:	// Instruction EOR (zeropage)
-			opc_EOR( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_EOR( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- SHIFT --------------------------------------------------//
 
 		case 0x0A:	// Instruction ASL (accumulator)
-			opc_ASL()
+			opc_ASL( 1, 2 )
 
 		case 0x4A:	// Instruction LSR (accumulator)
-			opc_LSR()
+			opc_LSR( 1, 2 )
 
 		//-------------------------------------------------- CMP --------------------------------------------------//
 
 		case 0xC5:	// Instruction CMP (zeropage)
-			opc_CMP( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_CMP( memAddr, mode, 2, 3 )
 
 		case 0xC9:	// Instruction CMP (immediate)
-			opc_CMP( addr_mode_Immediate(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Immediate(PC+1)
+			}
+			opc_CMP( memAddr, mode, 2, 2 )
 
 		//-------------------------------------------------- STA --------------------------------------------------//
 
-		// Used in 1-cleanmem
 		case 0x95:	// Instruction STA (zeropage,X)
-			opc_STA( addr_mode_ZeropageX(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_STA( memAddr, mode, 2, 4 )
 
-		// Used in 2-colorbg, to 103-bomber
 		case 0x85:	// Instruction STA (zeropage)
-			opc_STA( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_STA( memAddr, mode, 2, 3 )
 
-		// Used in 103-bomber
 		case 0x99:	// Instruction STA (absolute,Y)
-			opc_STA( addr_mode_AbsoluteY(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_AbsoluteY(PC+1)
+			}
+			opc_STA( memAddr, mode, 3, 5 )
 
 		case 0x8D:	// Instruction STA (absolute)
-			opc_STA( addr_mode_Absolute(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Absolute(PC+1)
+			}
+			opc_STA( memAddr, mode, 3, 4 )
 
 		//-------------------------------------------------- ADC --------------------------------------------------//
 
 		case 0x65:	// Instruction ADC (zeropage)
-			opc_ADC( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_ADC( memAddr, mode, 2, 3 )
 
 		//-------------------------------------------------- ROL --------------------------------------------------//
 
 		case 0x26:	// Instruction ROL (zeropage)
-			opc_ROL( addr_mode_Zeropage(PC+1) )
+			if opc_cycle_count == 1 {
+				memAddr, mode = addr_mode_Zeropage(PC+1)
+			}
+			opc_ROL( memAddr, mode, 2, 5 )
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 
@@ -509,6 +635,8 @@ func Interpreter() {
 
 	// Increment Cycle
 	Cycle ++
+
+	// Pause = true
 	// Increment Instructions per second counter
 	IPS ++
 

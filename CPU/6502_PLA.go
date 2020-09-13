@@ -10,20 +10,42 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      implied       PLA           68    1     4
-func opc_PLA() {
-	A = Memory[SP+1]
+func opc_PLA(bytes uint16, opc_cycles byte) {
 
-	// Not documented, clean the value on the stack after pull it to accumulator
-	Memory[SP+1] = 0
+	// Increment the beam
+	Beam_index ++
 
+	// Show current opcode cycle
 	if Debug {
-		fmt.Printf("\tOpcode %02X [1 byte] [Mode: Implied]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
+		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", Cycle, opc_cycle_count, opc_cycles)
 	}
 
-	flags_N(A)
-	flags_Z(A)
+	// Just increment the Opcode cycle Counter
+	if opc_cycle_count < opc_cycles {
+		opc_cycle_count ++
 
-	PC += 1
-	SP++
-	Beam_index += 4
+	// After spending the cycles needed, execute the opcode
+	} else {
+
+		A = Memory[SP+1]
+
+		// Not documented, clean the value on the stack after pull it to accumulator
+		Memory[SP+1] = 0
+
+		if Debug {
+			fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tPLA  Pull Accumulator from Stack.\tA = Memory[%02X] (%d) | SP++\n", Opcode, SP, A )
+		}
+
+		flags_N(A)
+		flags_Z(A)
+
+		SP++
+
+		// Increment PC
+		PC += bytes
+
+		// Reset Opcode Cycle counter
+		opc_cycle_count = 1
+	}
+
 }
