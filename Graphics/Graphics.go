@@ -2,6 +2,7 @@ package Graphics
 
 import (
 	"fmt"
+	"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -56,6 +57,7 @@ func Run() {
 	// Main Infinite Loop
 	for !win.Closed() {
 
+
 		// Esc to quit program
 		if win.Pressed(pixelgl.KeyEscape) {
 			break
@@ -69,6 +71,11 @@ func Run() {
 			keyboard()
 
 			if !CPU.Pause {
+				// Time measurement - CPU Cycle
+				if CPU.DebugTiming {
+					CPU.StartCycle = time.Now()
+				}
+
 				// Runs the interpreter
 				CPU.Interpreter()
 
@@ -77,6 +84,15 @@ func Run() {
 
 				// Reset Controllers Buttons to 1 (not pressed)
 				CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
+
+				// Time measurement - CPU Cycle
+				if CPU.DebugTiming {
+					elapsed := time.Since(CPU.StartCycle)
+					if elapsed.Seconds() > CPU.DebugTimingLimit {
+						fmt.Printf("\nTiming: Opcode: %X\tEntire CYCLE took %f seconds\n", CPU.Opcode, elapsed.Seconds())
+						// CPU.Pause = true
+					}
+				}
 			}
 
 			select {

@@ -58,11 +58,18 @@ var (
 
 	TIA_Update	int8 = -1		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
 
+	// Debug Timing Measurement
+	DebugTiming 		bool	= false
+	DebugTimingLimit	float64 = 0.00001
+	StartCycle			time.Time
+	StartTIA			time.Time
+	StartTIA_BG			time.Time
+
 	// Pause
 	Pause		bool = false
 
-	//Debug
-	Debug 		bool = true
+	// Debug
+	Debug 		bool = false
 )
 
 
@@ -220,7 +227,6 @@ func Initialize() {
 
 	// Start Timers
 	Clock		= time.NewTicker(time.Nanosecond)	// CPU Clock
-	// Clock		= time.NewTicker(time.Second/60)	// CPU Clock
 	ScreenRefresh	= time.NewTicker(time.Second / 60)	// 60Hz Clock for screen refresh rate
 
 	// Reset Controllers Buttons to 1 (not pressed)

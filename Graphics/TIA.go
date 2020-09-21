@@ -3,6 +3,7 @@ package Graphics
 import (
 	"os"
 	"fmt"
+	"time"
 	"Atari2600/CPU"
 )
 
@@ -22,6 +23,12 @@ var (
 
 
 func TIA(action int8) {
+
+	// Time measurement - TIA Cycle
+	if CPU.DebugTiming {
+		CPU.StartTIA = time.Now()
+	}
+
 
 	// TODO
 	// Just draw in visible Area
@@ -257,6 +264,7 @@ func TIA(action int8) {
 	// if CPU.Beam_index > 76 {
 	// 	// if debug {
 	// 		fmt.Printf("\nFinished the line, starting a new one.\n")
+	// 		// CPU.Pause = true
 	// 	// }
 	// 	CPU.Beam_index = 0
 	// 	old_BeamIndex = 0
@@ -265,4 +273,13 @@ func TIA(action int8) {
 
 	// Reset to default value
 	CPU.TIA_Update = -1
+
+	// Time measurement - TIA Cycle
+	if CPU.DebugTiming {
+		elapsedTIA := time.Since(CPU.StartTIA)
+		if elapsedTIA.Seconds() > CPU.DebugTimingLimit {
+			fmt.Printf("\tOpcode: %X\tEntire TIA Cycle took %f seconds\n", CPU.Opcode, elapsedTIA.Seconds())
+			// CPU.Pause = true
+		}
+	}
 }

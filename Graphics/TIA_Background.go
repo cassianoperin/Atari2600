@@ -1,7 +1,8 @@
 package Graphics
 
 import (
-	// "fmt"
+	"fmt"
+	"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"Atari2600/Palettes"
@@ -16,6 +17,11 @@ var (
 )
 
 func drawBackground() {
+
+	// Time measurement - TIA Background Draw
+	if CPU.DebugTiming {
+		CPU.StartTIA_BG = time.Now()
+	}
 
 	// Dont draw in horizontal blank
 	if CPU.Beam_index*3 > 68 {
@@ -46,4 +52,13 @@ func drawBackground() {
 	}
 
 	old_BeamIndex = CPU.Beam_index
+
+	// Time measurement - TIA Background Draw
+	if CPU.DebugTiming {
+		elapsedBG := time.Since(CPU.StartTIA_BG)
+		if elapsedBG.Seconds() > CPU.DebugTimingLimit {
+			fmt.Printf("\tOpcode: %X\tBackground Draw took %f seconds\n", CPU.Opcode, elapsedBG.Seconds())
+			// CPU.Pause = true
+		}
+	}
 }
