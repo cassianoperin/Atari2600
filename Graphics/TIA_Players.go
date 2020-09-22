@@ -3,10 +3,11 @@ package Graphics
 import (
 	"os"
 	"fmt"
+	"Atari2600/CPU"
+	"Atari2600/Global"
+	"image/color"
 	"github.com/faiface/pixel"
 	"Atari2600/Palettes"
-	"Atari2600/CPU"
-	"image/color"
 )
 
 var (
@@ -156,6 +157,8 @@ func drawPlayer(player byte) {
 
 
 	// ----- Draw Player Line ----- //
+	//screenHeight * (1 - Global.SizeYused))  used to add the draw to the top of screen
+
 	// Set the line
 	drawLine = 232 - float64(line)
 
@@ -185,8 +188,8 @@ func drawPlayer(player byte) {
 				// If value < 0 or > 159, scroll draw position
 				drawLinePosition  = drawLineScroll(drawLinePosition)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width				, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -242,11 +245,11 @@ func drawPlayer(player byte) {
 				drawLinePosition  = drawLineScroll(drawLinePosition)
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -303,11 +306,11 @@ func drawPlayer(player byte) {
 				drawLinePosition  = drawLineScroll(drawLinePosition)
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	,(screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -365,14 +368,14 @@ func drawPlayer(player byte) {
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 				drawLinePosition3 = drawLineScroll(drawLinePosition3)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -431,11 +434,11 @@ func drawPlayer(player byte) {
 				drawLinePosition  = drawLineScroll(drawLinePosition)
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) +  drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -491,11 +494,11 @@ func drawPlayer(player byte) {
 				drawLinePosition  = drawLineScroll(drawLinePosition)
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -560,14 +563,14 @@ func drawPlayer(player byte) {
 				drawLinePosition2 = drawLineScroll(drawLinePosition2)
 				drawLinePosition3 = drawLineScroll(drawLinePosition3)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 
@@ -631,17 +634,17 @@ func drawPlayer(player byte) {
 				drawLinePosition3 = drawLineScroll(drawLinePosition3)
 				drawLinePosition4 = drawLineScroll(drawLinePosition4)
 
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition2 ) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition3) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
-				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width		, drawLine * height ))
-				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width + width	, drawLine * height + height))
+				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width		, (screenHeight * (1 - Global.SizeYused)) + drawLine * height ))
+				imd.Push(pixel.V( (float64( drawLinePosition4) ) * width + width	, (screenHeight * (1 - Global.SizeYused)) + drawLine * height + height))
 				imd.Rectangle(0)
 
 				// -------------------- Collision Detection -------------------- //
@@ -700,7 +703,7 @@ func drawPlayer(player byte) {
 	// fmt.Println(CD_P0_P1)
 	// fmt.Println(CD_P0_PF)
 
-	imd.Draw(win)
+	imd.Draw(Global.Win)
 	// Count draw operations number per second
 	draws ++
 }

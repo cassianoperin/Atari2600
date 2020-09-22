@@ -1,10 +1,11 @@
 package Graphics
 
 import (
-	"github.com/faiface/pixel"
-	"Atari2600/Palettes"
 	"Atari2600/CPU"
+	"Atari2600/Global"
+	"Atari2600/Palettes"
 	"image/color"
+	"github.com/faiface/pixel"
 )
 
 var (
@@ -83,8 +84,8 @@ func draw_playfield() {
 			}
 
 			// Draw
-			imd.Push(pixel.V( float64( i*4 )     * width	, float64(232-line) * height ))
-			imd.Push(pixel.V( float64( i*4 + 4 ) * width 	, float64(232-line) * height + height))
+			imd.Push(pixel.V( float64( i*4 )     * width	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height ))
+			imd.Push(pixel.V( float64( i*4 + 4 ) * width 	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height + height))
 			imd.Rectangle(0)
 
 			// -------- Collision Detection -------- //
@@ -93,7 +94,7 @@ func draw_playfield() {
 			CD_P0_PF[ (i*4)+2 ] = 1
 			CD_P0_PF[ (i*4)+3 ] = 1
 
-			imd.Draw(win)
+			imd.Draw(Global.Win)
 			draws ++
 
 		}

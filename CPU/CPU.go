@@ -46,6 +46,8 @@ var (
 	Clock			*time.Ticker	// CPU Clock // CPU: MOS Technology 6507 @ 1.19 MHz;
 	ScreenRefresh		*time.Ticker	// Screen Refresh
 	Second			= time.Tick(time.Second)			// 1 second to track FPS and draws
+	MessagesClock		*time.Ticker		// Clock used to display messages on screen
+
 
 	// Players Vertical Positioning
 	XPositionP0		byte
@@ -228,6 +230,7 @@ func Initialize() {
 	// Start Timers
 	Clock		= time.NewTicker(time.Nanosecond)	// CPU Clock
 	ScreenRefresh	= time.NewTicker(time.Second / 60)	// 60Hz Clock for screen refresh rate
+	MessagesClock		= time.NewTicker(time.Second * 5)			// Clock used to display messages on screen
 
 	// Reset Controllers Buttons to 1 (not pressed)
 	Memory[SWCHA] = 0xFF //1111 11111

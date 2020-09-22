@@ -3,11 +3,12 @@ package Graphics
 import (
 	"fmt"
 	"time"
+	"Atari2600/CPU"
+	"Atari2600/Global"
+	"Atari2600/Palettes"
+	"image/color"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
-	"Atari2600/Palettes"
-	"Atari2600/CPU"
-	"image/color"
 )
 
 var (
@@ -36,15 +37,15 @@ func drawBackground() {
 			// fmt.Printf("\n%d\n", CPU.Beam_index - old_BeamIndex)
 
 			// Draw
-			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * width	, float64(232-line) * height ))
-			imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * width 	, float64(232-line) * height + height))
+			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * width	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height ))
+			imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * width 	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height + height))
 			imd.Rectangle(0)
 
-			if debug {
-				// fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
-			}
+			// if debug {
+			// 	fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, CPU.Beam_index)
+			// }
 
-			imd.Draw(win)
+			imd.Draw(Global.Win)
 
 			// Count draw operations number per second
 			draws ++

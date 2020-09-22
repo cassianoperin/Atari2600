@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 	"Atari2600/CPU"
+	"Atari2600/Global"
+	"github.com/faiface/pixel"
 )
 
 var (
@@ -16,9 +18,6 @@ var (
 	// FPS count
 	frames			= 0
 	draws			= 0
-
-	// Workaround to avoid  WSYNC before VSYNC
-	VSYNC_passed		bool = false
 )
 
 
@@ -60,7 +59,7 @@ func TIA(action int8) {
 				// During Vertical Blank, if vsync is set
 				if  CPU.Memory[CPU.VSYNC] == 2  {
 
-					VSYNC_passed = true	// Used to control WSYNCS before VSYNC
+					Global.VSYNC_passed = true	// Used to control WSYNCS before VSYNC
 
 					// When VSYNC is set, CPU inform CRT to start a new frame
 					// 3 lines VSYNC
@@ -248,7 +247,7 @@ func TIA(action int8) {
 		// Reset line counter
 		line = 1
 		// Workaround for WSYNC before VSYNC
-		VSYNC_passed = false
+		Global.VSYNC_passed = false
 
 		// Update Collision Detection Flags
 		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
@@ -256,6 +255,10 @@ func TIA(action int8) {
 
 		// Increment frames
 		frames ++
+
+		if CPU.Debug {
+			drawDebugScreen(imd)
+		}
 	}
 
 	// When finished drawing the LINE, reset Beamer and start a new LINE
@@ -282,4 +285,13 @@ func TIA(action int8) {
 			// CPU.Pause = true
 		}
 	}
+
+	// Draw messages into the screen
+	if Global.ShowMessage {
+		textMessage.Clear()
+		fmt.Fprintf(textMessage, Global.TextMessageStr)
+		textMessage.Draw(Global.Win, pixel.IM.Scaled(textMessage.Orig, 1))
+	}
+
+
 }
