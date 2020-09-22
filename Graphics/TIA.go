@@ -58,7 +58,7 @@ func TIA(action int8) {
 
 				// During Vertical Blank, if vsync is set
 				if  CPU.Memory[CPU.VSYNC] == 2  {
-
+					line = 1
 					Global.VSYNC_passed = true	// Used to control WSYNCS before VSYNC
 
 					// When VSYNC is set, CPU inform CRT to start a new frame

@@ -61,7 +61,7 @@ func renderGraphics() {
 		Resizable: false,
 		Undecorated: false,
 		NoIconify: false,
-		AlwaysOnTop: true,
+		AlwaysOnTop: false,
 	}
 	var err error
 	Global.Win, err = pixelgl.NewWindow(cfg)
@@ -157,8 +157,6 @@ func renderGraphics() {
 
 // Infinte Loop
 func Run() {
-
-	CD_P0_P1		= [160]byte{}
 
 	// Set up render system
 	renderGraphics()

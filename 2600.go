@@ -54,11 +54,36 @@ func readROM(filename string) {
 	//fmt.Printf("%d\n", data)
 	//fmt.Printf("%X\n", data)
 
-	// Load ROM from 0x200 address in memory
-	for i := 0; i < len(data); i++ {
-		// F000 - FFFF // Cartridge ROM
-		CPU.Memory[0xF000+i] = data[i]
+	// 4KB roms
+	if romsize == 4096  {
+		// Load ROM to memory
+		for i := 0; i < len(data); i++ {
+			// F000 - FFFF // Cartridge ROM
+			CPU.Memory[0xF000+i] = data[i]
+		}
 	}
+
+	// 2KB roms (needs to duplicate it in memory)
+	if romsize == 2048 {
+		// Load ROM to memory
+		for i := 0; i < len(data); i++ {
+			// F000 - F7FF (2KB Cartridge ROM)
+			CPU.Memory[0xF000+i] = data[i]
+			// F800 - FFFF (2KB Mirror Cartridge ROM)
+			CPU.Memory[0xF800+i] = data[i]
+		}
+	}
+
+	// // Print Memory -  Fist 2kb
+	// for i := 0xF7F0; i <= 0xF7FF; i++ {
+	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// }
+	// fmt.Println()
+	// //
+	// for i := 0xFFF0; i <= 0xFFFF; i++ {
+	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// }
+	// fmt.Println()
 
 	//Print Memory
 	// for i := 0; i < len(CPU.Memory); i++ {

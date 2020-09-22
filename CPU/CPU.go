@@ -71,7 +71,7 @@ var (
 	Pause		bool = false
 
 	// Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 
@@ -242,7 +242,6 @@ func Initialize() {
 func Reset() {
 	// Read the Opcode from PC+1 and PC bytes (Little Endian)
 	PC = uint16(Memory[0xFFFD])<<8 | uint16(Memory[0xFFFC])
-	//fmt.Printf("\nRESET: %04X\n",PC)
 }
 
 
