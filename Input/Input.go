@@ -23,17 +23,18 @@ func Keyboard() {
 			}
 			Global.TextMessageStr = "DEBUG mode Disabled"
 			Global.ShowMessage = true
+
+			// Update Width and Height values accordingly to new resolutions
+			Global.ScreenWidth	= Global.Win.Bounds().W()
+			Global.ScreenHeight	= Global.Win.Bounds().H()
+			Global.Width		= Global.ScreenWidth/Global.SizeX
+			Global.Height		= Global.ScreenHeight/Global.SizeY * Global.SizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
+
+			Global.Win.Update()
 		} else {
 			CPU.Debug = true
-			Global.Win.Clear(colornames.Black)
-			Global.SizeYused = 0.7
-			// Show messages
-			if CPU.Debug {
-				fmt.Printf("\t\tDEBUG mode Enabled\n")
-			}
-			// Global.Win.Clear(colornames.Black)
-			Global.TextMessageStr = "DEBUG mode Enabled"
-			Global.ShowMessage = true
+
+			InitializeDebug()
 		}
 	}
 
@@ -92,21 +93,26 @@ func Keyboard() {
 		// if CPU.Pause {
 		// 	fmt.Printf("\t\tStep Forward\n")
 		//
-		//
 		// 	// Runs the interpreter
 		// 	CPU.Interpreter()
 		//
 		// 	// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 		// 	TIA( CPU.TIA_Update )
 		//
-		// 	// Reset to default value
-		// 	CPU.TIA_Update = -1
+		// 	// Reset Controllers Buttons to 1 (not pressed)
+		// 	CPU.Memory[CPU.SWCHA] = 0xFF //1111 11111
 		//
-		//
-		// 	Global.Win.Update()
+		// 	// Draw Debug Screen
+		// 	if CPU.Debug {
+		// 		// Background
+		// 		drawDebugScreen(imd)
+		// 		// Info
+		// 		drawDebugInfo()
+		// 	}
 		//
 		// 	time.Sleep(50 * time.Millisecond)
 		// }
+
 	}
 
 
@@ -115,30 +121,45 @@ func Keyboard() {
 	// Change video resolution
 	if Global.Win.JustPressed(pixelgl.KeyM) {
 
-		// If the mode is smaller than the number of resolutions available increment (-4 to avoid the biggest ones)
-		if Global.ResolutionCounter < len(Global.Settings) -4  {
-			Global.ResolutionCounter ++
+		if !CPU.Debug {
+			// If the mode is smaller than the number of resolutions available increment (-4 to avoid the biggest ones)
+			if Global.ResolutionCounter < len(Global.Settings) -4  {
+				Global.ResolutionCounter ++
+			} else {
+				Global.ResolutionCounter = 0	// reset Global.ResolutionCounter
+			}
+
+			Global.ActiveSetting = &Global.Settings[Global.ResolutionCounter]
+
+			if Global.IsFullScreen {
+				Global.Win.SetMonitor(Global.ActiveSetting.Monitor)
+			} else {
+				Global.Win.SetMonitor(nil)
+			}
+			Global.Win.SetBounds(pixel.R(0, 0, float64(Global.ActiveSetting.Mode.Width), float64(Global.ActiveSetting.Mode.Height)))
+
+			// Show messages
+			if CPU.Debug {
+				fmt.Printf("\t\tResolution mode[%d]: %dx%d @ %dHz\n",Global.ResolutionCounter ,Global.ActiveSetting.Mode.Width, Global.ActiveSetting.Mode.Height, Global.ActiveSetting.Mode.RefreshRate)
+			}
+			Global.TextMessageStr=fmt.Sprintf("Resolution mode[%d]: %dx%d @ %dHz",Global.ResolutionCounter ,Global.ActiveSetting.Mode.Width, Global.ActiveSetting.Mode.Height, Global.ActiveSetting.Mode.RefreshRate)
+			Global.ShowMessage = true
+
+			// Update Width and Height values accordingly to new resolutions
+			Global.ScreenWidth	= Global.Win.Bounds().W()
+			Global.ScreenHeight	= Global.Win.Bounds().H()
+			Global.Width		= Global.ScreenWidth/Global.SizeX
+			Global.Height		= Global.ScreenHeight/Global.SizeY * Global.SizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
+
+			Global.Win.Update()
+
+			Global.CenterWindow()
 		} else {
-			Global.ResolutionCounter = 0	// reset Global.ResolutionCounter
+			Global.TextMessageStr = "Cannot change resolution in Debug Mode"
+			Global.ShowMessage = true
 		}
 
-		Global.ActiveSetting = &Global.Settings[Global.ResolutionCounter]
 
-		if Global.IsFullScreen {
-			Global.Win.SetMonitor(Global.ActiveSetting.Monitor)
-		} else {
-			Global.Win.SetMonitor(nil)
-		}
-		Global.Win.SetBounds(pixel.R(0, 0, float64(Global.ActiveSetting.Mode.Width), float64(Global.ActiveSetting.Mode.Height)))
-
-		// Show messages
-		if CPU.Debug {
-			fmt.Printf("\t\tResolution mode[%d]: %dx%d @ %dHz\n",Global.ResolutionCounter ,Global.ActiveSetting.Mode.Width, Global.ActiveSetting.Mode.Height, Global.ActiveSetting.Mode.RefreshRate)
-		}
-		Global.TextMessageStr=fmt.Sprintf("Resolution mode[%d]: %dx%d @ %dHz",Global.ResolutionCounter ,Global.ActiveSetting.Mode.Width, Global.ActiveSetting.Mode.Height, Global.ActiveSetting.Mode.RefreshRate)
-		Global.ShowMessage = true
-
-		Global.CenterWindow()
 	}
 
 
@@ -216,4 +237,35 @@ func Keyboard() {
 	if Global.Win.Pressed(pixelgl.KeyW) {
 		CPU.Memory[CPU.SWCHA] = 0xFE // 1111 1110
 	}
+}
+
+
+func InitializeDebug() {
+	Global.Win.Clear(colornames.Black)
+	Global.SizeYused = 0.3
+	// Show messages
+	if CPU.Debug {
+		fmt.Printf("\t\tDEBUG mode Enabled\n")
+	}
+	// Global.Win.Clear(colornames.Black)
+	Global.TextMessageStr = "DEBUG mode Enabled"
+	Global.ShowMessage = true
+
+	// Set Initial resolution
+	Global.ActiveSetting = &Global.Settings[3]
+
+	if Global.IsFullScreen {
+		Global.Win.SetMonitor(Global.ActiveSetting.Monitor)
+	} else {
+		Global.Win.SetMonitor(nil)
+	}
+	Global.Win.SetBounds(pixel.R(0, 0, float64(Global.ActiveSetting.Mode.Width), float64(Global.ActiveSetting.Mode.Height)))
+
+	// Update Width and Height values accordingly to new resolutions
+	Global.ScreenWidth	= Global.Win.Bounds().W()
+	Global.ScreenHeight	= Global.Win.Bounds().H()
+	Global.Width		= Global.ScreenWidth/Global.SizeX
+	Global.Height		= Global.ScreenHeight/Global.SizeY * Global.SizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
+
+	Global.Win.Update()
 }

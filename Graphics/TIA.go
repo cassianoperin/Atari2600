@@ -255,10 +255,6 @@ func TIA(action int8) {
 
 		// Increment frames
 		frames ++
-
-		if CPU.Debug {
-			drawDebugScreen(imd)
-		}
 	}
 
 	// When finished drawing the LINE, reset Beamer and start a new LINE

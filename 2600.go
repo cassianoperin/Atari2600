@@ -119,8 +119,8 @@ func main() {
 	CPU.Initialize()
 
 	// Read ROM to the memory
-	readROM(os.Args[1])
-	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/7horizontal.bin")
+	// readROM(os.Args[1])
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Demos/kernel_11.bin")
 
 	// Reset system
 	CPU.Reset()

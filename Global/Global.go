@@ -13,10 +13,10 @@ type Setting struct {
 }
 
 var (
-	// // ------------------------ Global Variables ------------------------ //
+	// ------------------------ Global Variables ------------------------ //
 	// Game_signature		string	= ""	// Game Signature (identify games that needs legacy opcodes)
-	//
-	// // ----------------------- Graphics Variables ----------------------- //
+
+	// ----------------------- Graphics Variables ----------------------- //
 	Win			*pixelgl.Window
 	WindowTitle		string = "Atari 2600"
 	// Color_theme		= 2
@@ -27,22 +27,31 @@ var (
 	ActiveSetting		*Setting
 	IsFullScreen		= false		// Fullscrenn flag
 	ResolutionCounter	int = 0		// Index of the available video resolution supported
-	// // FPS
+	// FPS
 	// ShowFPS			bool		// Show or hide FPS counter flag
-	// // On screen messages
+	// On screen messages
 	ShowMessage		bool
 	TextMessageStr		string
 
-	// // Screen Size
+	// Screen Size
 	SizeX			float64	= 160.0 	// 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
 	SizeY			float64	= 192.0	// 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
+	SizeYused			float64	= 1.0	// Percentage of the Screen Heigh used by the emulator // 1.0 = 100%, 0.0 = 0%
+	// Window Resolution
+	ScreenWidth		float64 = 1024
+	ScreenHeight		float64 = 768
+	// Pixel size
+	Width			float64
+	Height			float64
 
-	SizeYused		float64	= 1.0	// Percentage of the Screen Heigh used by the emulator // 1.0 = 100%, 0.0 = 0%
-	// // Monitor Size (to center Window)
+
+
+	// Monitor Size (to center Window)
 	MonitorWidth	float64
 	MonitorHeight	float64
+
 	//
-	// // ----------------------- SaveStates Variables ----------------------- //
+	// ----------------------- SaveStates Variables ----------------------- //
 	// SavestateFolder		string = "Savestates"
 	//
 	// // ------------------------ Sound Variables ------------------------- //

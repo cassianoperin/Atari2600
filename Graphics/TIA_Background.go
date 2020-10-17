@@ -37,8 +37,8 @@ func drawBackground() {
 			// fmt.Printf("\n%d\n", CPU.Beam_index - old_BeamIndex)
 
 			// Draw
-			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * width	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height ))
-			imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * width 	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height + height))
+			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * Global.Width	, (Global.ScreenHeight * (1 - Global.SizeYused)) + float64(232-line) * Global.Height ))
+			imd.Push(pixel.V( (float64(CPU.Beam_index * 3) -68 ) * Global.Width 	, (Global.ScreenHeight * (1 - Global.SizeYused)) + float64(232-line) * Global.Height + Global.Height))
 			imd.Rectangle(0)
 
 			// if debug {

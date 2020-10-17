@@ -26,17 +26,7 @@ var (
 	// Fonts
 	atlas = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
-	// Screen Size
-	// screenWidth	= float64(1024)
-	// screenHeight	= float64(768)
-	screenWidth	= float64(640)
-	screenHeight	= float64(480)
-
-	width			= screenWidth  / Global.SizeX
-	height			= screenHeight / Global.SizeY
-
 	// Window Configuration
-	// win				* pixelgl.Window
 	imd				= imdraw.New(nil)
 	cfg				= pixelgl.WindowConfig{}
 
@@ -44,19 +34,18 @@ var (
 	debug			bool = false
 )
 
-// const (
-	// sizeX			float64	= 160.0 	// 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
-	// sizeY			float64	= 192.0	// 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
-
-
-
-// )
 
 
 func renderGraphics() {
+
+
+	// Initial Pixel Size
+	Global.Width		= Global.ScreenWidth  / Global.SizeX
+	Global.Height		= Global.ScreenHeight / Global.SizeY
+
 	cfg := pixelgl.WindowConfig{
 		Title:  Global.WindowTitle,
-		Bounds: pixel.R(0, 0, screenWidth, screenHeight),
+		Bounds: pixel.R(0, 0, Global.ScreenWidth, Global.ScreenHeight),
 		VSync:  false,
 		Resizable: false,
 		Undecorated: false,
@@ -139,7 +128,7 @@ func renderGraphics() {
 	Global.Win.SetBounds(pixel.R(0, 0, float64(Global.ActiveSetting.Mode.Width), float64(Global.ActiveSetting.Mode.Height)))
 
 	// Center Window
-	Global.CenterWindow()
+	// Global.CenterWindow()
 	// winPos := Global.Win.GetPos()
 	// winPos.X = (Global.MonitorWidth  - float64(Global.ActiveSetting.Mode.Width) ) / 2
 	// winPos.Y = (Global.MonitorHeight - float64(Global.ActiveSetting.Mode.Height) ) / 2
@@ -161,6 +150,10 @@ func Run() {
 	// Set up render system
 	renderGraphics()
 
+	if CPU.Debug {
+		Input.InitializeDebug()
+	}
+
 	// Main Infinite Loop
 	for !Global.Win.Closed() {
 
@@ -173,10 +166,6 @@ func Run() {
 		// Every Cycle Control the clock!!!
 		select {
 			case <-CPU.Clock.C:
-
-				width		= screenWidth/Global.SizeX
-				height		= screenHeight/Global.SizeY * Global.SizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
-
 
 				// Handle Input
 				Input.Keyboard()
@@ -203,6 +192,14 @@ func Run() {
 							fmt.Printf("\nTiming: Opcode: %X\tEntire CYCLE took %f seconds\n", CPU.Opcode, elapsed.Seconds())
 							// CPU.Pause = true
 						}
+					}
+
+					// Draw Debug Screen
+					if CPU.Debug {
+						// Background
+						drawDebugScreen(imd)
+						// Info
+						drawDebugInfo()
 					}
 				}
 

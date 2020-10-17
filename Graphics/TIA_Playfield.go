@@ -84,8 +84,8 @@ func draw_playfield() {
 			}
 
 			// Draw
-			imd.Push(pixel.V( float64( i*4 )     * width	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height ))
-			imd.Push(pixel.V( float64( i*4 + 4 ) * width 	, (screenHeight * (1 - Global.SizeYused)) + float64(232-line) * height + height))
+			imd.Push(pixel.V( float64( i*4 )     * Global.Width	, (Global.ScreenHeight * (1 - Global.SizeYused)) + float64(232-line) * Global.Height ))
+			imd.Push(pixel.V( float64( i*4 + 4 ) * Global.Width 	, (Global.ScreenHeight * (1 - Global.SizeYused)) + float64(232-line) * Global.Height + Global.Height))
 			imd.Rectangle(0)
 
 			// -------- Collision Detection -------- //

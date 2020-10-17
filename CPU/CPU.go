@@ -71,7 +71,7 @@ var (
 	Pause		bool = false
 
 	// Debug
-	Debug 		bool = true
+	Debug 		bool = false
 )
 
 
