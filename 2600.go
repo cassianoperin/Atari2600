@@ -4,8 +4,7 @@ import (
 	"os"
 	"log"
 	"fmt"
-	"Atari2600/Graphics"
-	"Atari2600/CPU"
+	"Atari2600/VGS"
 	"github.com/faiface/pixel/pixelgl"
 )
 
@@ -59,7 +58,7 @@ func readROM(filename string) {
 		// Load ROM to memory
 		for i := 0; i < len(data); i++ {
 			// F000 - FFFF // Cartridge ROM
-			CPU.Memory[0xF000+i] = data[i]
+			VGS.Memory[0xF000+i] = data[i]
 		}
 	}
 
@@ -68,26 +67,26 @@ func readROM(filename string) {
 		// Load ROM to memory
 		for i := 0; i < len(data); i++ {
 			// F000 - F7FF (2KB Cartridge ROM)
-			CPU.Memory[0xF000+i] = data[i]
+			VGS.Memory[0xF000+i] = data[i]
 			// F800 - FFFF (2KB Mirror Cartridge ROM)
-			CPU.Memory[0xF800+i] = data[i]
+			VGS.Memory[0xF800+i] = data[i]
 		}
 	}
 
 	// // Print Memory -  Fist 2kb
 	// for i := 0xF7F0; i <= 0xF7FF; i++ {
-	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// 	fmt.Printf("%X ", VGS.Memory[i])
 	// }
 	// fmt.Println()
 	// //
 	// for i := 0xFFF0; i <= 0xFFFF; i++ {
-	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// 	fmt.Printf("%X ", VGS.Memory[i])
 	// }
 	// fmt.Println()
 
 	//Print Memory
-	// for i := 0; i < len(CPU.Memory); i++ {
-	// 	fmt.Printf("%X ", CPU.Memory[i])
+	// for i := 0; i < len(VGS.Memory); i++ {
+	// 	fmt.Printf("%X ", VGS.Memory[i])
 	// }
 	// os.Exit(2)
 }
@@ -116,16 +115,16 @@ func main() {
 	//testFile(os.Args[1])
 
 	// Set initial variables values
-	CPU.Initialize()
+	VGS.Initialize()
 
 	// Read ROM to the memory
 	// readROM(os.Args[1])
 	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Demos/kernel_11.bin")
 
 	// Reset system
-	CPU.Reset()
+	VGS.Reset()
 
 	// Start Window System and draw Graphics
-	pixelgl.Run(Graphics.Run)
+	pixelgl.Run(VGS.RunInfiniteLoop)
 
 }
