@@ -15,6 +15,7 @@ func Keyboard() {
 		if Debug {
 			Debug = false
 			sizeYused = 1.0
+			sizeXused = 1.0
 			// Show messages
 			if Debug {
 				fmt.Printf("\t\tDEBUG mode Disabled\n")
@@ -39,38 +40,37 @@ func Keyboard() {
 	// Reset
 	if win.Pressed(pixelgl.Key0) {
 		// F000 - FFFF
-		// var ROM_dump = [4096]byte{}
-		//
-		// // Dump the rom from memory prior to clear all information
-		// for i := 0 ; i < 4096 ; i ++{
-		// 	ROM_dump[i] = Memory[0xF000+i]
-		// }
-		//
-		// // Workaround for WSYNC before VSYNC
-		// VSYNC_passed = false
-		//
-		// Initialize()
-		//
-		// // Restore ROM to memory
-		// for i := 0 ; i < 4096 ; i ++{
-		// 	Memory[0xF000+i] = ROM_dump[i]
-		// }
-		//
-		// // Reset graphics
-		// //renderGraphics()
-		// // Restart Draw from the beginning
-		// line = 1
-		//
-		// // Players Vertical Positioning
-		// XPositionP0		= 0
-		// XFinePositionP0	= 0
-		// XPositionP1		= 0
-		// XFinePositionP1	= 0
-		//
-		// // ------------------ Personal Control Flags ------------------ //
-		// Beam_index	= 0		// Beam index to control where to draw objects using cpu cycles
-		//
-		// Reset()
+		var ROM_dump = [4096]byte{}
+
+		// Dump the rom from memory prior to clear all information
+		for i := 0 ; i < 4096 ; i ++{
+			ROM_dump[i] = Memory[0xF000+i]
+		}
+
+		Initialize()
+
+		// Restore ROM to memory
+		for i := 0 ; i < 4096 ; i ++{
+			Memory[0xF000+i] = ROM_dump[i]
+		}
+
+		// Reset PC
+		Reset()
+		// Restart CPU
+		// CPU_Interpreter()
+
+		// Reset graphics
+		win.Clear(colornames.Black)
+
+		// Draw Debug Screen
+		if Debug {
+			// Background
+			drawDebugScreen(imd)
+			// Info
+			drawDebugInfo()
+		}
+
+		win.Update()
 	}
 
 	// Pause Key
@@ -78,38 +78,47 @@ func Keyboard() {
 		if Pause {
 			Pause = false
 			fmt.Printf("\t\tPAUSE mode Disabled\n")
-			time.Sleep(500 * time.Millisecond)
+			// Control repetition
+			win.UpdateInputWait(time.Second)
 		} else {
 			Pause = true
 			fmt.Printf("\t\tPAUSE mode Enabled\n")
-			time.Sleep(500 * time.Millisecond)
+			win.UpdateInputWait(time.Second)
 		}
 	}
 
 	// Step Forward
 	if win.Pressed(pixelgl.KeyI) {
-		// if Pause {
-		// 	fmt.Printf("\t\tStep Forward\n")
-		//
-		// 	// Runs the interpreter
-		// 	Interpreter()
-		//
-		// 	// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
-		// 	TIA( TIA_Update )
-		//
-		// 	// Reset Controllers Buttons to 1 (not pressed)
-		// 	Memory[SWCHA] = 0xFF //1111 11111
-		//
-		// 	// Draw Debug Screen
-		// 	if Debug {
-		// 		// Background
-		// 		drawDebugScreen(imd)
-		// 		// Info
-		// 		drawDebugInfo()
-		// 	}
-		//
-		// 	time.Sleep(50 * time.Millisecond)
-		// }
+		if Pause {
+			fmt.Printf("\t\tStep Forward\n")
+
+
+
+			win.UpdateInput()
+			// win.Update()
+
+			// Draw Debug Screen
+			if Debug {
+				// Background
+				drawDebugScreen(imd)
+				// Info
+				drawDebugInfo()
+			}
+
+
+
+			// Runs the interpreter
+			CPU_Interpreter()
+
+			// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+			TIA( TIA_Update )
+
+			// Reset Controllers Buttons to 1 (not pressed)
+			Memory[SWCHA] = 0xFF //1111 11111
+
+			// Control repetition
+			win.UpdateInputWait(time.Second)
+		}
 
 	}
 
@@ -163,10 +172,10 @@ func Keyboard() {
 
 	// // Fullscreen
 	// if win.JustPressed(pixelgl.KeyN) {
-	// 	if IsFullScreen {
+	// 	if isFullScreen {
 	// 		// Switch to windowed and backup the correct monitor.
 	// 		win.SetMonitor(nil)
-	// 		IsFullScreen = false
+	// 		isFullScreen = false
 	//
 	// 		CenterWindow()
 	//
@@ -180,7 +189,7 @@ func Keyboard() {
 	// 	} else {
 	// 		// Switch to fullscreen.
 	// 		win.SetMonitor(activeSetting.Monitor)
-	// 		IsFullScreen = true
+	// 		isFullScreen = true
 	//
 	// 		// Show messages
 	// 		if Debug {
@@ -192,12 +201,6 @@ func Keyboard() {
 	// 	win.SetBounds(pixel.R(0, 0, float64(activeSetting.Mode.Width), float64(activeSetting.Mode.Height)))
 	//
 	// }
-
-
-
-
-
-
 
 
 	// -------------- PLAYER 0 -------------- //
@@ -235,35 +238,4 @@ func Keyboard() {
 	if win.Pressed(pixelgl.KeyW) {
 		Memory[SWCHA] = 0xFE // 1111 1110
 	}
-}
-
-
-func InitializeDebug() {
-	win.Clear(colornames.Black)
-	sizeYused = 0.3
-	// Show messages
-	if Debug {
-		fmt.Printf("\t\tDEBUG mode Enabled\n")
-	}
-	// win.Clear(colornames.Black)
-	TextMessageStr = "DEBUG mode Enabled"
-	ShowMessage = true
-
-	// Set Initial resolution
-	activeSetting = &settings[3]
-
-	if isFullScreen {
-		win.SetMonitor(activeSetting.Monitor)
-	} else {
-		win.SetMonitor(nil)
-	}
-	win.SetBounds(pixel.R(0, 0, float64(activeSetting.Mode.Width), float64(activeSetting.Mode.Height)))
-
-	// Update Width and Height values accordingly to new resolutions
-	screenWidth	= win.Bounds().W()
-	screenHeight	= win.Bounds().H()
-	width		= screenWidth/sizeX
-	height		= screenHeight/sizeY * sizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
-
-	win.Update()
 }

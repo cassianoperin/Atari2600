@@ -30,7 +30,7 @@ func opc_BCS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 		// Show current opcode cycle
 		if Debug {
-			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + 1 cycle for branch + %d extra cycles for branch in different page)\n", Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra + 1, opc_cycles, opc_cycle_extra)
+			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + 1 cycle for branch + %d extra cycles for branch in different page)\n", counter_F_Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra + 1, opc_cycles, opc_cycle_extra)
 		}
 
 		// Just increment the Opcode cycle Counter
@@ -62,7 +62,7 @@ func opc_BCS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 		// Show current opcode cycle
 		if Debug {
-			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", Cycle, opc_cycle_count, opc_cycles)
+			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", counter_F_Cycle, opc_cycle_count, opc_cycles)
 		}
 
 		// Just increment the Opcode cycle Counter

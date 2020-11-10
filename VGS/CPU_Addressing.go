@@ -115,3 +115,42 @@ func addr_mode_IndirectY	(offset uint16) (uint16, string) {
 	}
 	return memAddr, mode
 }
+
+// ---------------------------- Library Function ---------------------------- //
+
+// Memory Page Boundary cross detection
+func MemPageBoundary(Address1, Address2 uint16) bool {
+
+	var cross bool = false
+
+	// Get the High byte only to compare
+	// Page Boundary Cross detected
+	if Address1 >> 8 != Address2 >> 8 {
+		cross = true
+
+		if Debug {
+			fmt.Printf("\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+		}
+	// NO Page Boundary Cross detected
+	} else {
+		if Debug {
+			fmt.Printf("\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+		}
+	}
+
+	return cross
+}
+
+
+// Decode Two's Complement
+func DecodeTwoComplement(num byte) int8 {
+
+	var sum int8 = 0
+
+	for i := 0 ; i < 8 ; i++ {
+		// Sum each bit and sum the value of the bit power of i (<<i)
+		sum += (int8(num) >> i & 0x01) << i
+	}
+
+	return sum
+}

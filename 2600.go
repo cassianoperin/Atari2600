@@ -116,10 +116,13 @@ func main() {
 
 	// Set initial variables values
 	VGS.Initialize()
+	// Initialize Timers
+	VGS.InitializeTimers()
 
 	// Read ROM to the memory
 	// readROM(os.Args[1])
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Demos/kernel_11.bin")
+	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
 
 	// Reset system
 	VGS.Reset()

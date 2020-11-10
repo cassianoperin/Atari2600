@@ -44,12 +44,13 @@ var (
 	opcode			byte		// CPU Operation Code
 
 	// ------------------------------ Counters ------------------------------ //
-	Cycle			uint16		// CPU Cycle Counter
-	opc_cycle_count	byte		// Opcode cycle counter
-	opc_cycle_extra	byte		// Opcode extra cycle
-	counter_IPS		uint16		// Instructions per second
-	counter_FPS		uint16		// Frames per second
-	counter_DPS		uint16		// Draws per sewcond
+	counter_Frame		uint16		// Frames Counter
+	counter_F_Cycle		uint16		// Frame Cycles
+	opc_cycle_count		byte		// Opcode cycle counter
+	opc_cycle_extra		byte		// Opcode extra cycle
+	counter_IPS			uint16		// Instructions per second
+	counter_FPS			uint16		// Frames per second
+	counter_DPS			uint16		// Draws per second
 
 	// -------------------------- Memory Variables -------------------------- //
 	memAddr			uint16		// Receive the memory address needed by the opcode
@@ -115,6 +116,7 @@ var (
 	sizeX			float64	= 160.0 	// 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
 	sizeY			float64	= 192.0		// 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
 	sizeYused		float64	= 1.0	// Percentage of the Screen Heigh used by the emulator // 1.0 = 100%, 0.0 = 0%
+	sizeXused		float64	= 1.0	// Percentage of the Screen Width used by the emulator // 1.0 = 100%, 0.0 = 0%
 	// Window Resolution
 	screenWidth		float64 = 1024
 	screenHeight	float64 = 768

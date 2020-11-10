@@ -38,7 +38,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
-| 6502/6507 CPU Opcodes | 38 / 56 |
+| 6507 CPU Opcodes | 44 / 56 |
 
 ## Missing:
 - Improve P0 and P1 scroll (X and Y)

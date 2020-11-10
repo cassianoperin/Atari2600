@@ -45,7 +45,7 @@ func TIA(action int8) {
 
 				// During Vertical Blank, if vsync is set
 				if  Memory[VSYNC] == 2  {
-					line = 1
+					newFrame()
 					VSYNC_passed = true	// Used to control WSYNCS before VSYNC
 
 					// When VSYNC is set, CPU inform CRT to start a new frame
@@ -159,7 +159,7 @@ func TIA(action int8) {
 			if Memory[VSYNC] == 0x02 {
 				if debugGraphics {
 					fmt.Printf("\tVSYNC Enabled\n")
-					line = 1
+					newFrame()
 				}
 			} else if Memory[VSYNC] == 0x00 {
 				if debugGraphics {
@@ -225,25 +225,6 @@ func TIA(action int8) {
 
 	}
 
-
-	// When finished drawing the screen, reset and start a new frame
-	if line == line_max + 1 {
-		if debugGraphics {
-			fmt.Printf("\nFinished the screen height, start a new frame.\n")
-		}
-		// Reset line counter
-		line = 1
-		// Workaround for WSYNC before VSYNC
-		VSYNC_passed = false
-
-		// Update Collision Detection Flags
-		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
-		CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
-
-		// Increment frames
-		counter_FPS ++
-	}
-
 	// When finished drawing the LINE, reset Beamer and start a new LINE
 	// Needed for colorbg demo
 	// DISABLED because its causing empty lines in the begin
@@ -277,4 +258,26 @@ func TIA(action int8) {
 	}
 
 
+}
+
+// When finished drawing the screen, reset and start a new frame
+func newFrame() {
+	if debugGraphics {
+		fmt.Printf("\nFinished the screen height, start a new frame.\n")
+	}
+	// Reset line counter
+	line = 1
+	// Workaround for WSYNC before VSYNC
+	VSYNC_passed = false
+
+	// Update Collision Detection Flags
+	CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
+	CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
+
+	// Increment frames
+	counter_FPS ++
+	// Reset Frame Cycle counter
+	counter_F_Cycle = 0
+	// Increment Frame Counter
+	counter_Frame ++
 }

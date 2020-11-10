@@ -147,7 +147,7 @@ func RunInfiniteLoop() {
 					}
 
 					// Runs the interpreter
-					Interpreter()
+					CPU_Interpreter()
 
 					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 					TIA( TIA_Update )

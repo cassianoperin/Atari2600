@@ -16,13 +16,18 @@ func Initialize() {
 	// Clean CPU Variables
 	PC				= 0
 	opcode			= 0
+	X				= 0
+	Y				= 0
+	A				= 0
 
 	// Cycles
-	Cycle			= 0
+	counter_F_Cycle	= 0
 	opc_cycle_count	= 1		// Opcode cycle counter
 	opc_cycle_extra	= 0		// Opcode extra cycle
 
 	// Counters
+	counter_Frame	= 0
+	counter_F_Cycle	= 0
 	counter_IPS		= 0
 	counter_FPS		= 0
 	counter_DPS		= 0
@@ -35,17 +40,26 @@ func Initialize() {
 	line			=   1
 	line_max		= 262
 	TIA_Update		=  -1
+	VSYNC_passed	= false	// Workaround for WSYNC before VSYNC
 
 	// Debug Timing
 	debugTiming_Limit = 0.00001
 
+	// Player Vertical Positioning
+	XPositionP0			= 0
+	XFinePositionP0		= 0
+	XPositionP1			= 0
+	XFinePositionP1		= 0
+
+	// Reset Controllers Buttons to 1 (not pressed)
+	Memory[SWCHA] = 0xFF //1111 11111
+}
+
+func InitializeTimers() {
 	// Start Timers
 	clock_timer		= time.NewTicker(time.Nanosecond)	// CPU Clock
 	screenRefresh_timer	= time.NewTicker(time.Second / 60)	// 60Hz Clock for screen refresh rate
 	messagesClock_timer		= time.NewTicker(time.Second * 5)			// Clock used to display messages on screen
-
-	// Reset Controllers Buttons to 1 (not pressed)
-	Memory[SWCHA] = 0xFF //1111 11111
 }
 
 
@@ -55,52 +69,14 @@ func Reset() {
 	PC = uint16(Memory[0xFFFD])<<8 | uint16(Memory[0xFFFC])
 }
 
-
-func MemPageBoundary(Address1, Address2 uint16) bool {
-
-	var cross bool = false
-
-	// Get the High byte only to compare
-	// Page Boundary Cross detected
-	if Address1 >> 8 != Address2 >> 8 {
-		cross = true
-
-		if Debug {
-			fmt.Printf("\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
-		}
-	// NO Page Boundary Cross detected
-	} else {
-		if Debug {
-			fmt.Printf("\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
-		}
-	}
-
-	return cross
-}
-
-
-// Decode Two's Complement
-func DecodeTwoComplement(num byte) int8 {
-
-	var sum int8 = 0
-
-	for i := 0 ; i < 8 ; i++ {
-		// Sum each bit and sum the value of the bit power of i (<<i)
-		sum += (int8(num) >> i & 0x01) << i
-	}
-
-	return sum
-}
-
-
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\tBeam_index: %d\n", Cycle, opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], beamIndex )
+	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\tBeam_index: %d\n", counter_F_Cycle, opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], beamIndex )
 }
 
 
 // CPU Interpreter
-func Interpreter() {
+func CPU_Interpreter() {
 
 	// Read the Next Instruction to be executed
 	opcode = Memory[PC]
@@ -476,7 +452,7 @@ func Interpreter() {
 	}
 
 	// Increment Cycle
-	Cycle ++
+	counter_F_Cycle ++
 
 	// Pause = true
 	// Increment Instructions per second counter

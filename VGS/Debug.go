@@ -11,15 +11,21 @@ import (
 // Print Graphics on Console
 func drawDebugScreen(imd *imdraw.IMDraw) {
 
-	basePosition := screenHeight * (1 - sizeYused)	// Value reserved for debug on screen
+	basePositionX := screenWidth  * sizeXused	// Value reserved for debug on screen
+	basePositionY := screenHeight * (1 - sizeYused)	// Value reserved for debug on screen
 
 	// -------------------------- Draw Debug Rectangle -------------------------- //
 	// Background
 	imd.Color = colornames.Bisque
+	// imd.Push(pixel.V ( screenWidth , basePositionX  ) )
 	imd.Push(pixel.V ( 0 , 0  ) )
-	imd.Push(pixel.V ( screenWidth , basePosition ) )
+	imd.Push(pixel.V ( screenWidth , basePositionY ) )
 	imd.Rectangle(0)
-
+	// imd.Push(pixel.V ( screenWidth , basePositionY ) )
+	// imd.Push(pixel.V ( basePositionX , screenHeight  ) )
+	imd.Push(pixel.V ( basePositionX , basePositionY ) )
+	imd.Push(pixel.V ( screenWidth , screenHeight  ) )
+	imd.Rectangle(0)
 	// ------------------------------- Draw Boxes ------------------------------- //
 
 	// Frames
@@ -140,8 +146,8 @@ func drawDebugScreen(imd *imdraw.IMDraw) {
 
 	imd.Color = colornames.White
 	// Up bar
-	imd.Push(pixel.V ( 0 , basePosition  ) )
-	imd.Push(pixel.V ( screenWidth , basePosition -2 ) )
+	imd.Push(pixel.V ( 0 , basePositionY  ) )
+	imd.Push(pixel.V ( screenWidth , basePositionY -2 ) )
 	imd.Rectangle(0)
 	// Down bar
 	imd.Push(pixel.V ( 0 , 0  ) )
@@ -149,11 +155,11 @@ func drawDebugScreen(imd *imdraw.IMDraw) {
 	imd.Rectangle(0)
 	// Left bar
 	imd.Push(pixel.V ( 0 , 0  ) )
-	imd.Push(pixel.V ( 2 , basePosition ) )
+	imd.Push(pixel.V ( 2 , basePositionY ) )
 	imd.Rectangle(0)
 	// Right bar
 	imd.Push(pixel.V ( screenWidth , 0  ) )
-	imd.Push(pixel.V ( screenWidth -2 , basePosition ) )
+	imd.Push(pixel.V ( screenWidth -2 , basePositionY ) )
 	imd.Rectangle(0)
 
 	imd.Draw(win)
@@ -188,11 +194,11 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Frame:            ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	if Cycle == 0 {
-		txt = fmt.Sprintf("%d  \n",Cycle)
-	} else {
-		txt = fmt.Sprintf("%d  \n",Cycle - 1)
-	}
+	// if counter_F_Cycle == 0 {
+		txt = fmt.Sprintf("%d  \n", counter_Frame)
+	// } else {
+	// 	txt = fmt.Sprintf("%d  \n",counter_Frame - 1)
+	// }
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -201,11 +207,11 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "F. Cycle:         ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	if Cycle == 0 {
-		txt = fmt.Sprintf("%d  \n",Cycle)
-	} else {
-		txt = fmt.Sprintf("%d  \n",Cycle - 1)
-	}
+	// if counter_F_Cycle == 0 {
+		txt = fmt.Sprintf("%d  \n", counter_F_Cycle)
+	// } else {
+	// 	txt = fmt.Sprintf("%d  \n",counter_F_Cycle - 1)
+	// }
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -222,7 +228,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Scan Line:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",PC)
+	txt = fmt.Sprintf("%d  \n", line)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -231,7 +237,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Scan Cycle:         ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",PC)
+	txt = fmt.Sprintf("%d  \n", beamIndex)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -240,7 +246,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Pixel Pos:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",PC)
+	txt = fmt.Sprintf("%d  \n", int8( (beamIndex * 3) - 68) )
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -249,7 +255,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Color Clk:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",PC)
+	txt = fmt.Sprintf("%d  \n", beamIndex * 3)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -393,4 +399,36 @@ func drawDebugInfo() {
 
 	// Draw Text
 	// cpuMessage.Draw(Win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+}
+
+
+func InitializeDebug() {
+	win.Clear(colornames.Black)
+	sizeYused = 0.3
+	sizeXused = 0.3
+	// Show messages
+	if Debug {
+		fmt.Printf("\t\tDEBUG mode Enabled\n")
+	}
+	// win.Clear(colornames.Black)
+	TextMessageStr = "DEBUG mode Enabled"
+	ShowMessage = true
+
+	// Set Initial resolution
+	activeSetting = &settings[3]
+
+	if isFullScreen {
+		win.SetMonitor(activeSetting.Monitor)
+	} else {
+		win.SetMonitor(nil)
+	}
+	win.SetBounds(pixel.R(0, 0, float64(activeSetting.Mode.Width), float64(activeSetting.Mode.Height)))
+
+	// Update Width and Height values accordingly to new resolutions
+	screenWidth	= win.Bounds().W()
+	screenHeight	= win.Bounds().H()
+	width		= screenWidth/sizeX * sizeXused		// Define the width of the pixel, considering the percentage of screen reserved for emulator
+	height		= screenHeight/sizeY * sizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
+
+	win.Update()
 }
