@@ -272,7 +272,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "PC:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",PC)
+	txt = fmt.Sprintf("%X  \n",PC)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -402,7 +402,10 @@ func drawDebugInfo() {
 }
 
 
-func InitializeDebug() {
+func startDebug() {
+
+	Debug = true
+
 	win.Clear(colornames.Black)
 	sizeYused = 0.3
 	sizeXused = 0.3
@@ -430,5 +433,38 @@ func InitializeDebug() {
 	width		= screenWidth/sizeX * sizeXused		// Define the width of the pixel, considering the percentage of screen reserved for emulator
 	height		= screenHeight/sizeY * sizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
 
+	// Draw Debug Screen
+	drawDebugScreen(imd)	// Background
+	drawDebugInfo()			// Info
+
 	win.Update()
+}
+
+
+func stopDebug() {
+
+	Debug = false
+
+	sizeYused = 1.0
+	sizeXused = 1.0
+	// Show messages
+	fmt.Printf("\t\tDEBUG mode Disabled\n")
+	TextMessageStr = "DEBUG mode Disabled"
+	ShowMessage = true
+
+	// Update Width and Height values accordingly to new resolutions
+	screenWidth	= win.Bounds().W()
+	screenHeight	= win.Bounds().H()
+	width		= screenWidth/sizeX
+	height		= screenHeight/sizeY * sizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
+
+	// Reset graphics
+	win.Clear(colornames.Black)
+
+	win.Update()
+}
+
+func updateDebug() {
+	drawDebugScreen(imd)	// Background
+	drawDebugInfo()			// Info
 }

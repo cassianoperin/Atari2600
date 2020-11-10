@@ -13,27 +13,9 @@ func Keyboard() {
 	// Debug
 	if win.JustPressed(pixelgl.Key9) {
 		if Debug {
-			Debug = false
-			sizeYused = 1.0
-			sizeXused = 1.0
-			// Show messages
-			if Debug {
-				fmt.Printf("\t\tDEBUG mode Disabled\n")
-			}
-			TextMessageStr = "DEBUG mode Disabled"
-			ShowMessage = true
-
-			// Update Width and Height values accordingly to new resolutions
-			screenWidth	= win.Bounds().W()
-			screenHeight	= win.Bounds().H()
-			width		= screenWidth/sizeX
-			height		= screenHeight/sizeY * sizeYused	// Define the heigh of the pixel, considering the percentage of screen reserved for emulator
-
-			win.Update()
+			stopDebug()
 		} else {
-			Debug = true
-
-			InitializeDebug()
+			startDebug()
 		}
 	}
 
@@ -64,10 +46,7 @@ func Keyboard() {
 
 		// Draw Debug Screen
 		if Debug {
-			// Background
-			drawDebugScreen(imd)
-			// Info
-			drawDebugInfo()
+			startDebug()
 		}
 
 		win.Update()
@@ -92,20 +71,12 @@ func Keyboard() {
 		if Pause {
 			fmt.Printf("\t\tStep Forward\n")
 
-
-
 			win.UpdateInput()
-			// win.Update()
 
-			// Draw Debug Screen
+			// Update Debug Screen
 			if Debug {
-				// Background
-				drawDebugScreen(imd)
-				// Info
-				drawDebugInfo()
+				updateDebug()
 			}
-
-
 
 			// Runs the interpreter
 			CPU_Interpreter()

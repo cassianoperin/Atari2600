@@ -122,7 +122,7 @@ func RunInfiniteLoop() {
 	renderGraphics()
 
 	if Debug {
-		InitializeDebug()
+		startDebug()
 	}
 
 	// Main Infinite Loop
@@ -164,12 +164,9 @@ func RunInfiniteLoop() {
 						}
 					}
 
-					// Draw Debug Screen
+					// Update Debug Screen
 					if Debug {
-						// Background
-						drawDebugScreen(imd)
-						// Info
-						drawDebugInfo()
+						updateDebug()
 					}
 				}
 
