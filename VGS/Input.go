@@ -50,6 +50,9 @@ func Keyboard() {
 		}
 
 		win.Update()
+
+		// Control repetition
+		win.UpdateInputWait(time.Second)
 	}
 
 	// Pause Key
@@ -72,14 +75,14 @@ func Keyboard() {
 			fmt.Printf("\t\tStep Forward\n")
 
 			win.UpdateInput()
-
+			// Runs the interpreter
+			CPU_Interpreter()
 			// Update Debug Screen
 			if Debug {
 				updateDebug()
 			}
 
-			// Runs the interpreter
-			CPU_Interpreter()
+
 
 			// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 			TIA( TIA_Update )

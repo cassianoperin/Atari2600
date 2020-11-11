@@ -123,7 +123,7 @@ func TIA(action int8) {
 
 			// Reset the beam index
 			beamIndex = 0
-			old_BeamIndex = 0
+			old_beamIndex = 0
 			// Reset Collision Detection Line Array
 			CD_P0_P1 = [160]byte{}
 			CD_P0_PF = [160]byte{}
@@ -228,15 +228,14 @@ func TIA(action int8) {
 	// When finished drawing the LINE, reset Beamer and start a new LINE
 	// Needed for colorbg demo
 	// DISABLED because its causing empty lines in the begin
-	// if Beam_index > 76 {
-	// 	// if debug {
-	// 		fmt.Printf("\nFinished the line, starting a new one.\n")
-	// 		// Pause = true
-	// 	// }
-	// 	Beam_index = 0
-	// 	old_BeamIndex = 0
-	// 	line ++
-	// }
+	if beamIndex > 76 {
+		if debugGraphics {
+			fmt.Printf("\nFinished the line, starting a new one.\n")
+		}
+		beamIndex = beamIndex - 76
+		old_beamIndex = 0
+		line ++
+	}
 
 	// Reset to default value
 	TIA_Update = -1

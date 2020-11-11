@@ -19,22 +19,22 @@ func drawBackground() {
 	// Dont draw in horizontal blank
 	if beamIndex * 3 > 68 {
 		// Avoid to draw if already drawed in the first STA, STY or STX cycle
-		if old_BeamIndex != beamIndex {
+		if old_beamIndex != beamIndex {
 
 			imd	= imdraw.New(nil)
 
 			R, G, B := NTSC(Memory[COLUBK])
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-			// fmt.Printf("\n%d\n", Beam_index - old_BeamIndex)
+			// fmt.Printf("\n%d\n", Beam_index - old_beamIndex)
 
 			// Draw
-			imd.Push(pixel.V( (float64(old_BeamIndex  * 3) -68 ) * width	, (screenHeight * (1 - sizeYused)) + float64(232-line) * height ))
+			imd.Push(pixel.V( (float64(old_beamIndex  * 3) -68 ) * width	, (screenHeight * (1 - sizeYused)) + float64(232-line) * height ))
 			imd.Push(pixel.V( (float64(beamIndex * 3) -68 ) * width 	, (screenHeight * (1 - sizeYused)) + float64(232-line) * height + height))
 			imd.Rectangle(0)
 
 			// if debug {
-			// 	fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, Beam_index)
+			// 	fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_beamIndex, Beam_index)
 			// }
 
 			imd.Draw(win)
@@ -44,7 +44,7 @@ func drawBackground() {
 		}
 	}
 
-	old_BeamIndex = beamIndex
+	old_beamIndex = beamIndex
 
 	// Time measurement - TIA Background Draw
 	if debugTiming {

@@ -65,7 +65,7 @@ var (
 
 	// ------------------------------- Beamer ------------------------------- //
 	beamIndex	byte 		// Beam index to control where to draw objects using cpu cycles
-	old_BeamIndex	byte 	// Used to draw the beam updates every cycle on the CRT
+	old_beamIndex	byte 	// Used to draw the beam updates every cycle on the CRT
 
 	// -------------------------------- TIA --------------------------------- //
 	line		int			// Line draw control
@@ -137,12 +137,20 @@ var (
 	monitorWidth	float64
 	monitorHeight	float64
 
+	// --------------------------- Debug Interface -------------------------- //
+	dbg_opc_PC			uint16
+	dbg_opc_mnm			string
+	dbg_opc_bytes		uint16
+	dbg_opc_opcode		byte
+	dbg_opc_payload1	byte
+	dbg_opc_payload2	byte
+
 
 	// Pause
-	Pause		bool = false
+	Pause		bool = true
 
 	// Debug
-	Debug 		bool = false
+	Debug 		bool = true
 )
 
 const (

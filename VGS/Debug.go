@@ -14,9 +14,9 @@ func drawDebugScreen(imd *imdraw.IMDraw) {
 	basePositionX := screenWidth  * sizeXused	// Value reserved for debug on screen
 	basePositionY := screenHeight * (1 - sizeYused)	// Value reserved for debug on screen
 
-	// -------------------------- Draw Debug Rectangle -------------------------- //
+	// ------------------------ Draw Debug Rectangles ----------------------- //
 	// Background
-	imd.Color = colornames.Bisque
+	imd.Color = colornames.Lightgray
 	// imd.Push(pixel.V ( screenWidth , basePositionX  ) )
 	imd.Push(pixel.V ( 0 , 0  ) )
 	imd.Push(pixel.V ( screenWidth , basePositionY ) )
@@ -26,7 +26,63 @@ func drawDebugScreen(imd *imdraw.IMDraw) {
 	imd.Push(pixel.V ( basePositionX , basePositionY ) )
 	imd.Push(pixel.V ( screenWidth , screenHeight  ) )
 	imd.Rectangle(0)
-	// ------------------------------- Draw Boxes ------------------------------- //
+
+	// Borders
+	imd.Color = colornames.Gray
+	// Up bar
+	// imd.Push(pixel.V ( 0 , basePositionY  ) )
+	// imd.Push(pixel.V ( screenWidth , basePositionY -2 ) )
+	imd.Push(pixel.V ( 0 , screenHeight  ) )
+	imd.Push(pixel.V ( screenWidth , screenHeight -2 ) )
+	imd.Rectangle(0)
+	// Down bar
+	imd.Push(pixel.V ( 0 , 0  ) )
+	imd.Push(pixel.V ( screenWidth , 2 ) )
+	imd.Rectangle(0)
+	// Left bar
+	imd.Push(pixel.V ( 0 , 0  ) )
+	imd.Push(pixel.V ( 2 , basePositionY ) )
+	imd.Rectangle(0)
+	// Right bar
+	imd.Push(pixel.V ( screenWidth , 0  ) )
+	imd.Push(pixel.V ( screenWidth -2 , basePositionY ) )
+	imd.Rectangle(0)
+
+	// ------------------------------- Memory ------------------------------- //
+
+	// cpuMessage = text.New(pixel.V(350, 740), atlas)
+
+
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 380 , 715 ) )
+	imd.Push(pixel.V ( 824 , 558 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 381 , 714 ) )
+	imd.Push(pixel.V ( 823 , 559 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.Gray
+
+	// imd.Push(pixel.V(100, 200), pixel.V(100, 500))
+	// Vertical Grade
+	var posX float64 = 405
+	for i:= 0 ; i < 15 ; i++ {
+		imd.Push(pixel.V ( posX, 715) )
+		imd.Push(pixel.V ( posX, 558) )
+		imd.Line(1)
+		posX+=28
+	}
+	// Horizontal Grade
+	var posY float64 = 698
+	for i:= 0 ; i < 7 ; i++ {
+		imd.Push(pixel.V ( 380, posY) )
+		imd.Push(pixel.V ( 823, posY) )
+		imd.Line(1)
+		posY-=20
+	}
+
+
+	// ----------------------------- Draw Boxes ----------------------------- //
 
 	// Frames
 	imd.Color = colornames.Black
@@ -94,73 +150,126 @@ func drawDebugScreen(imd *imdraw.IMDraw) {
 
 	// PC
 	imd.Color = colornames.Black
-	imd.Push(pixel.V ( 360 , 444 ) )
+	imd.Push(pixel.V ( 358 , 444 ) )
 	imd.Push(pixel.V ( 410 , 426 ) )
 	imd.Rectangle(0)
 	imd.Color = colornames.White
-	imd.Push(pixel.V ( 361 , 443 ) )
+	imd.Push(pixel.V ( 359 , 443 ) )
 	imd.Push(pixel.V ( 409 , 427 ) )
 	imd.Rectangle(0)
 
 	// SP
 	imd.Color = colornames.Black
-	imd.Push(pixel.V ( 360 , 424 ) )
+	imd.Push(pixel.V ( 358 , 424 ) )
 	imd.Push(pixel.V ( 410 , 406 ) )
 	imd.Rectangle(0)
 	imd.Color = colornames.White
-	imd.Push(pixel.V ( 361 , 423 ) )
+	imd.Push(pixel.V ( 359 , 423 ) )
 	imd.Push(pixel.V ( 409 , 407 ) )
 	imd.Rectangle(0)
 
 	// A
 	imd.Color = colornames.Black
-	imd.Push(pixel.V ( 360 , 404 ) )
+	imd.Push(pixel.V ( 358 , 404 ) )
 	imd.Push(pixel.V ( 410 , 386 ) )
 	imd.Rectangle(0)
 	imd.Color = colornames.White
-	imd.Push(pixel.V ( 361 , 403 ) )
+	imd.Push(pixel.V ( 359 , 403 ) )
 	imd.Push(pixel.V ( 409 , 387 ) )
 	imd.Rectangle(0)
 
 	// X
 	imd.Color = colornames.Black
-	imd.Push(pixel.V ( 360 , 384 ) )
+	imd.Push(pixel.V ( 358 , 384 ) )
 	imd.Push(pixel.V ( 410 , 366 ) )
 	imd.Rectangle(0)
 	imd.Color = colornames.White
-	imd.Push(pixel.V ( 361 , 383 ) )
+	imd.Push(pixel.V ( 359 , 383 ) )
 	imd.Push(pixel.V ( 409 , 367 ) )
 	imd.Rectangle(0)
 
 	// Y
 	imd.Color = colornames.Black
-	imd.Push(pixel.V ( 360 , 364 ) )
+	imd.Push(pixel.V ( 358 , 364 ) )
 	imd.Push(pixel.V ( 410 , 346 ) )
 	imd.Rectangle(0)
 	imd.Color = colornames.White
-	imd.Push(pixel.V ( 361 , 363 ) )
+	imd.Push(pixel.V ( 359 , 363 ) )
 	imd.Push(pixel.V ( 409 , 347 ) )
 	imd.Rectangle(0)
 
-	// ------------------------------ Debug Borders ----------------------------- //
-
+	// P
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 358 , 345 ) )
+	imd.Push(pixel.V ( 525 , 326 ) )
+	imd.Rectangle(0)
 	imd.Color = colornames.White
-	// Up bar
-	imd.Push(pixel.V ( 0 , basePositionY  ) )
-	imd.Push(pixel.V ( screenWidth , basePositionY -2 ) )
+	imd.Push(pixel.V ( 359 , 344 ) )
+	imd.Push(pixel.V ( 524 , 327 ) )
 	imd.Rectangle(0)
-	// Down bar
-	imd.Push(pixel.V ( 0 , 0  ) )
-	imd.Push(pixel.V ( screenWidth , 2 ) )
+	imd.Color = colornames.Gray
+	// Grade
+	// imd.Push(pixel.V(100, 200), pixel.V(100, 500))
+	posX = 379
+	for i:= 0 ; i < 7 ; i++ {
+		imd.Push(pixel.V ( posX, 345) )
+		imd.Push(pixel.V ( posX, 326) )
+		imd.Line(1)
+		posX+=21
+	}
+
+	// --------------------------- //
+
+	// PC #
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 475 , 444 ) )
+	imd.Push(pixel.V ( 525 , 426 ) )
 	imd.Rectangle(0)
-	// Left bar
-	imd.Push(pixel.V ( 0 , 0  ) )
-	imd.Push(pixel.V ( 2 , basePositionY ) )
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 476 , 443 ) )
+	imd.Push(pixel.V ( 524 , 427 ) )
 	imd.Rectangle(0)
-	// Right bar
-	imd.Push(pixel.V ( screenWidth , 0  ) )
-	imd.Push(pixel.V ( screenWidth -2 , basePositionY ) )
+
+	// SP #
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 475 , 424 ) )
+	imd.Push(pixel.V ( 525 , 406 ) )
 	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 476 , 423 ) )
+	imd.Push(pixel.V ( 524 , 407 ) )
+	imd.Rectangle(0)
+
+	// A #
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 475 , 404 ) )
+	imd.Push(pixel.V ( 525 , 386 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 476 , 403 ) )
+	imd.Push(pixel.V ( 524 , 387 ) )
+	imd.Rectangle(0)
+
+	// X #
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 475 , 384 ) )
+	imd.Push(pixel.V ( 525 , 366 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 476 , 383 ) )
+	imd.Push(pixel.V ( 524 , 367 ) )
+	imd.Rectangle(0)
+
+	// Y #
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( 475 , 364 ) )
+	imd.Push(pixel.V ( 525 , 346 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( 476 , 363 ) )
+	imd.Push(pixel.V ( 524 , 347 ) )
+	imd.Rectangle(0)
+
 
 	imd.Draw(win)
 }
@@ -171,6 +280,34 @@ func drawDebugInfo() {
 		fontSize		float64 = 1
 		txt			string
 	)
+
+	// ------------------------------- Memory ------------------------------- //
+
+	cpuMessage = text.New(pixel.V(350, 740), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
+
+	// Frame
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "RAM (0x0080 ~ 0x00FF)\n00xx  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	label := 8
+
+	for i := 0 ; i < 128 ; i++ {
+		if i % 16 == 0 {
+			txt += fmt.Sprintf("\n%X   ", label)
+			label++
+		}
+		txt += fmt.Sprintf(" %02X ", Memory[0x80+i])
+	}
+
+
+	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+
 
 	// -------------------------- Draw Text -------------------------- //
 
@@ -246,7 +383,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Pixel Pos:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n", int8( (beamIndex * 3) - 68) )
+	txt = fmt.Sprintf("%d  \n",  (int16(beamIndex) * 3) - 68)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -272,7 +409,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "PC:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%X  \n",PC)
+	txt = fmt.Sprintf("%X  \n", PC)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -281,7 +418,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "SP:          ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",SP)
+	txt = fmt.Sprintf("%X  \n", SP)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -290,7 +427,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "A:           ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",A)
+	txt = fmt.Sprintf("%X  \n", A)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -299,7 +436,7 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "X:           ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
-	txt = fmt.Sprintf("%d  \n",X)
+	txt = fmt.Sprintf("%X  \n", X)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
@@ -308,97 +445,110 @@ func drawDebugInfo() {
 	fmt.Fprintf(cpuMessage, "Y:           ")
 	// cpuMessage.Color = colornames.White
 	txt = ""
+	txt = fmt.Sprintf("%X  \n", Y)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	// P
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "P:                         ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	txt = fmt.Sprintf("%d  %d  -  %d  %d  %d  %d  %d\n", P[7], P[6], P[4], P[3], P[2], P[1], P[0] )
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+	fmt.Fprintf(cpuMessage, "     N  V  -  B  D  I  Z  C   ")
+
+
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+
+	// ----------------------- 4th Text Column ----------------------- //
+
+	cpuMessage = text.New(pixel.V(437, 430), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
+
+	// PC #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "PC#:          ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	txt = fmt.Sprintf("%d  \n",PC)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	// SP #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "SP#:          ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	txt = fmt.Sprintf("%d  \n",SP)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	// A #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "A #:          ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	txt = fmt.Sprintf("%d  \n",A)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	// X #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "X #:          ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
+	txt = fmt.Sprintf("%d  \n",X)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	// Y #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "Y #:          ")
+	// cpuMessage.Color = colornames.White
+	txt = ""
 	txt = fmt.Sprintf("%d  \n",Y)
 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
 
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 
+	// ----------------------- Opcode Info ----------------------- //
+	cpuMessage = text.New(pixel.V(200, 100), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
 
-	// // Opcode
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "Opcode:")
+	// PC #
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, "Opcode:                                         ")
 	// cpuMessage.Color = colornames.White
-	// text = fmt.Sprintf(" %04X  ",Opcode)
-	// fmt.Fprintf(cpuMessage, text)
-	// // PC
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "PC:               ")
-	// cpuMessage.Color = colornames.White
-	// text = fmt.Sprintf("%d(0x%04X)  ",PC, PC)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// fmt.Fprintf(cpuMessage, text)
-	// // I
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "I:       ")
-	// cpuMessage.Color = colornames.White
-	// // text = fmt.Sprintf("%d  ",I)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// fmt.Fprintf(cpuMessage, text)
-	// // DT
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "DT:      ")
-	// cpuMessage.Color = colornames.White
-	// // text = fmt.Sprintf("%d  ",DelayTimer)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// fmt.Fprintf(cpuMessage, text)
-	// // ST
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "ST:      ")
-	// cpuMessage.Color = colornames.White
-	// // text = fmt.Sprintf("%d  ",SoundTimer)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// fmt.Fprintf(cpuMessage, text)
-	// // SP
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "SP:     ")
-	// cpuMessage.Color = colornames.White
-	// text = fmt.Sprintf("%d",SP)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// fmt.Fprintf(cpuMessage, text)
-	// // Stack
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "\nStack: ")
-	// cpuMessage.Color = colornames.White
-	// fmt.Fprintf(cpuMessage, "[   ")
-	// // for i:=0 ; i  <len(Stack) ; i++ {
-	// 	// text = fmt.Sprintf("%d",Stack[i])
-	// // 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// // 	fmt.Fprintf(cpuMessage, text)
-	// // 	if i < 15 {
-	// // 		fmt.Fprintf(cpuMessage, "     ")
-	// // 	}
-	// // }
-	// fmt.Fprintf(cpuMessage, "]")
-	// // V
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "\nV:     ")
-	// cpuMessage.Color = colornames.White
-	// fmt.Fprintf(cpuMessage, "[   ")
-	// // for i:=0 ; i  <len(V) ; i++ {
-	// // 	text = fmt.Sprintf("%d",V[i])
-	// // 	cpuMessage.Dot.X -= cpuMessage.BoundsOf(text).W()
-	// // 	fmt.Fprintf(cpuMessage, text)
-	// // 	if i < 15 {
-	// // 		fmt.Fprintf(cpuMessage, "     ")
-	// // 	}
-	// // }
-	// fmt.Fprintf(cpuMessage, "]")
-	// // Keys
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "\nKeys: ")
-	// cpuMessage.Color = colornames.White
-	// // text = fmt.Sprintf(" %d  ",Key)
-	// fmt.Fprintf(cpuMessage, text)
-	// //Opcode Message
-	// cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage,"\nMsg:   ")
-	// cpuMessage.Color = colornames.White
-	// // text = fmt.Sprintf("%s ",OpcMessage)
-	// fmt.Fprintf(cpuMessage, text)
+	txt = ""
+	// txt = debug_opc_text
+	//
+	// dbg_opc_PC			uint16
+	// dbg_opc_mnm			string
+	// dbg_opc_bytes		uint16
+	// dbg_opc_opcode		byte
+	// dbg_opc_payload1	byte
+	// dbg_opc_payload2	byte
 
-	// Draw Text
-	// cpuMessage.Draw(Win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+	if dbg_opc_bytes == 1 {
+		txt += fmt.Sprintf("%04x     %s     %d     %x     %02x",dbg_opc_PC, dbg_opc_mnm, dbg_opc_bytes, dbg_opc_opcode, dbg_opc_payload1)
+	}
+	// } else if dbg_opc_bytes == 2 {
+	// 	txt += fmt.Sprintf("%s %X %X",mnm, opcode, payload_B1 )
+	// }  else if dbg_opc_bytes == 3 {
+	// 	txt += fmt.Sprintf("%s %X %X %X",mnm, opcode, payload_B1, payload_B2 )
+	// }
+
+	// txt += fmt.Sprintf(" %X %X", opcode, Memory[PC+1])
+	// txt = fmt.Sprintf("%02X  \n",opcode)
+	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	fmt.Fprintf(cpuMessage, txt)
+
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
 
 

@@ -18,6 +18,12 @@ func opc_SEI(bytes uint16, opc_cycles byte) {
 	// Show current opcode cycle
 	if Debug {
 		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", counter_F_Cycle, opc_cycle_count, opc_cycles)
+		// debug_opc_text = fmt.Sprintf("%04x\tSEI\t%d\t%02x", PC, bytes, opcode)
+		dbg_opc_PC			= PC
+		dbg_opc_mnm			= "SEI"
+		dbg_opc_bytes		= bytes
+		dbg_opc_opcode		= opcode
+		dbg_opc_payload1	= Memory[PC+1]
 	}
 
 	// Just increment the Opcode cycle Counter

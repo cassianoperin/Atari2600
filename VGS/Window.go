@@ -235,6 +235,11 @@ func RunInfiniteLoop() {
 		// os.Exit(2)
 		// ----------------------------------------------------------------------------------- //
 
+		// // Avoid high CPU usage for the loop
+		// if Pause {
+		// 	time.Sleep(50 * time.Millisecond)
+		// }
+
 	}
 
 }

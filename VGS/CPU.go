@@ -19,6 +19,7 @@ func Initialize() {
 	X				= 0
 	Y				= 0
 	A				= 0
+	P				= [8]byte{}
 
 	// Cycles
 	counter_F_Cycle	= 0
@@ -34,7 +35,7 @@ func Initialize() {
 
 	// Beamer
 	beamIndex		= 0
-	old_BeamIndex	= 0
+	old_beamIndex	= 0
 
 	// TIA
 	line			=   1
