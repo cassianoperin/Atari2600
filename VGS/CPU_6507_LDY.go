@@ -29,6 +29,14 @@ func opc_LDY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// Show current opcode cycle
 	if Debug {
 		fmt.Printf("\\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + %d extra cycles)\n", counter_F_Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra, opc_cycles, opc_cycle_extra)
+
+		// Collect data for debug interface just on first cycle
+		if opc_cycle_count == 1 {
+			debug_opc_text		= fmt.Sprintf("%04x     LDY      ;%d", PC, opc_cycles)
+			dbg_opc_bytes		= bytes
+			dbg_opc_opcode		= opcode
+			dbg_opc_payload1	= Memory[PC+1]
+		}
 	}
 
 	// Just increment the Opcode cycle Counter

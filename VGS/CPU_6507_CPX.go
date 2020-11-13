@@ -35,6 +35,15 @@ func opc_CPX(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			} else {
 				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPX  Compare Memory and Index X.\tX(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", opcode, Memory[PC+1], mode, X, PC+1, Memory[memAddr], tmp)
 			}
+
+
+			// Collect data for debug interface just on first cycle
+			if opc_cycle_count == 1 {
+				debug_opc_text		= fmt.Sprintf("%04x     CPX      ;%d", PC, opc_cycles)
+				dbg_opc_bytes		= bytes
+				dbg_opc_opcode		= opcode
+				dbg_opc_payload1	= Memory[PC+1]
+			}
 		}
 
 		flags_Z(tmp)

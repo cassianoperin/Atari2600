@@ -348,7 +348,7 @@ func CPU_Interpreter() {
 			}
 			opc_AND( memAddr, memMode, 2 , 2 )
 
-		//-------------------------------------------------- AND --------------------------------------------------//
+		//-------------------------------------------------- ORA --------------------------------------------------//
 
 		case 0x05:	// Instruction ORA (zeropage)
 			if opc_cycle_count == 1 {
@@ -438,11 +438,18 @@ func CPU_Interpreter() {
 
 		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
 		// FF (Filled ROM)
-		case 0xFF:
-			if Debug {
-				fmt.Printf("\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", opcode)
-			}
-			PC +=1
+		// case 0xFF:
+		// 	if Debug {
+		// 		fmt.Printf("\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", opcode)
+		//
+		// 		// Collect data for debug interface just on first cycle
+		// 		if opc_cycle_count == 1 {
+		// 			debug_opc_text		= fmt.Sprintf("%04x     ISB*     ;%d", PC, opc_cycles)
+		// 			dbg_opc_bytes		= bytes
+		// 			dbg_opc_opcode		= opcode
+		// 		}
+		// 	}
+		// 	PC +=1
 
 		//-------------------------------------------- No Opcode Found --------------------------------------------//
 

@@ -138,8 +138,9 @@ var (
 	monitorHeight	float64
 
 	// --------------------------- Debug Interface -------------------------- //
-	dbg_opc_PC			uint16
-	dbg_opc_mnm			string
+	debug_opc_text		string
+	// dbg_opc_PC			uint16
+	// dbg_opc_mnm			string
 	dbg_opc_bytes		uint16
 	dbg_opc_opcode		byte
 	dbg_opc_payload1	byte
