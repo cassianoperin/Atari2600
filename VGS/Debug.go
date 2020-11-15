@@ -30,7 +30,7 @@ var (
 	block_4_Y	float64 = 444
 	// Opcode
 	block_opcode_X	float64 = 20
-	block_opcode_Y	float64 = 260
+	block_opcode_Y	float64 = 290
 )
 
 func drawDebugScreen(imd *imdraw.IMDraw) {
@@ -581,11 +581,6 @@ func dbg_draw_text_block_4( x, y float64 ) {
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
 
-func dbg_draw_opcode(x, y float64) {
-
-}
-
-
 
 func dbg_draw_text_opcode(x, y float64) {
 	var (
@@ -599,48 +594,94 @@ func dbg_draw_text_opcode(x, y float64) {
 
 	// Opcode
 	cpuMessage.Color = colornames.Black
-	fmt.Fprintf(cpuMessage, "Opcode:                                         ")
-	// cpuMessage.Color = colornames.White
-	// txt = ""
-	txt = debug_opc_text
-
-	cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
-	fmt.Fprintf(cpuMessage, txt)
-
-	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
-
-	// Opcode details
-	cpuMessage = text.New(pixel.V( x+450, y), atlas)
-	cpuMessage.Clear()
-	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
-
-	// PC #
-	cpuMessage.Color = colornames.Black
 	// fmt.Fprintf(cpuMessage, "Opcode:                                         ")
-	// cpuMessage.Color = colornames.White
-	// txt = ""
-	// txt = debug_opc_text
-	//
-	// dbg_opc_PC			uint16
-	// dbg_opc_mnm			string
-	// dbg_opc_bytes		uint16
-	// dbg_opc_opcode		byte
-	// dbg_opc_payload1	byte
-	// dbg_opc_payload2	byte
+	fmt.Fprintf(cpuMessage, "Opcode:\n")
+	txt = ""
 
-	if dbg_opc_bytes == 1 {
-		// txt += fmt.Sprintf("| %02x %02x", dbg_opc_opcode, dbg_opc_payload1)
-		txt += fmt.Sprintf("| %02x", dbg_opc_opcode)
-	} else if dbg_opc_bytes == 2 {
-		txt += fmt.Sprintf("| %02x %02x", dbg_opc_opcode, dbg_opc_payload1)
-	} else if dbg_opc_bytes == 3 {
-		txt += fmt.Sprintf("| %02x %02x %02x", dbg_opc_opcode, dbg_opc_payload2, dbg_opc_payload1)
+	// Initialize the slice
+	if len(dbg_opc_messages) < 10 {
+		if debug_opc_text != "" {
+			dbg_opc_messages = append(dbg_opc_messages, debug_opc_text)
+		}
+	// Remove the first one and add the new last one
+	} else {
+		if debug_opc_text != "" {
+			copy(dbg_opc_messages[0:], dbg_opc_messages[1:]) // Shift a[i+1:] left one index.
+			dbg_opc_messages[9] = debug_opc_text
+		}
 	}
 
-	// txt += fmt.Sprintf(" %X %X", opcode, Memory[PC+1])
-	// txt = fmt.Sprintf("%02X  \n",opcode)
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
+	// Print Opcode Slice
+	for i := 0 ; i < len(dbg_opc_messages) ; i++ {
+		txt += dbg_opc_messages[i] + "\n"
+	}
+
 	fmt.Fprintf(cpuMessage, txt)
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+
+
+	// Opcode Detailed Message
+	cpuMessage = text.New(pixel.V(0, 40), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
+	cpuMessage.Color = colornames.Black
+	// fmt.Fprintf(cpuMessage, "Opcode:                                         ")
+	fmt.Fprintf(cpuMessage, dbg_show_message)
 
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+}
+
+func dbg_draw_opcode(x, y float64) {
+	var (
+		grade_pos_X float64
+		grade_pos_Y float64
+	)
+
+	x -= 8
+	y -= 6
+
+	grade_pos_X = x + 220
+	grade_pos_Y = y
+
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( x	    	, y + 2)       )
+	imd.Push(pixel.V ( x + 300	, y - 194 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.White
+	imd.Push(pixel.V ( x + 1 		    , y + 2- 1 )       )
+	imd.Push(pixel.V ( x + 300 - 1	, y - 194 + 1 ) )
+	imd.Rectangle(0)
+
+	// Current Opcode
+	imd.Color = colornames.Lightyellow
+	if len(dbg_opc_messages) >= 0 && len(dbg_opc_messages) <= 9 && counter_F_Cycle > 0 {
+		imd.Push(pixel.V ( x + 1 		    , y - float64(1.0 * (19.3 * float64(len(dbg_opc_messages))) + 19.3) )  )
+		imd.Push(pixel.V ( x + 300 - 1	, y - float64(19.6 * float64(len(dbg_opc_messages))) + 1.0) )
+		imd.Rectangle(0)
+	}
+	if len(dbg_opc_messages) == 10 {
+		imd.Push(pixel.V ( x + 1 		    , y - float64 (1.0 * (19.3 * float64(len(dbg_opc_messages)-1)) + 19.3) ) )
+		imd.Push(pixel.V ( x + 300 - 1	, y - float64(19.6 * float64(len(dbg_opc_messages)-1)) + 1.0) )
+		imd.Rectangle(0)
+	}
+	imd.Color = colornames.Gray
+
+	// imd.Push(pixel.V(100, 200), pixel.V(100, 500))
+	// Vertical Grade
+	imd.Push(pixel.V ( grade_pos_X , y - 193   ) )
+	imd.Push(pixel.V ( grade_pos_X , y + 1 ) )
+	imd.Line(1)
+
+	// Horizontal Grade
+	imd.Color = colornames.Gray
+
+	for i:= 0 ; i < 9 ; i++ {
+		grade_pos_Y -= 19.4
+
+		imd.Push(pixel.V ( x + 300, grade_pos_Y ) )
+		imd.Push(pixel.V ( x + 1	, grade_pos_Y ) )
+		imd.Line(1)
+
+	}
+
 }

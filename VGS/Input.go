@@ -64,6 +64,7 @@ func Keyboard() {
 			win.UpdateInputWait(time.Second)
 		} else {
 			Pause = true
+			dbg_running_opc = true
 			fmt.Printf("\t\tPAUSE mode Enabled\n")
 			win.UpdateInputWait(time.Second)
 		}
@@ -72,26 +73,33 @@ func Keyboard() {
 	// Step Forward
 	if win.Pressed(pixelgl.KeyI) {
 		if Pause {
-			fmt.Printf("\t\tStep Forward\n")
-
-			win.UpdateInput()
-			// Runs the interpreter
-			CPU_Interpreter()
-			// Update Debug Screen
 			if Debug {
-				updateDebug()
+				for dbg_running_opc == true {
+					fmt.Printf("\t\tStep Forward\n")
+
+					win.UpdateInput()
+					// Runs the interpreter
+					CPU_Interpreter()
+
+					// Update Debug Screen
+					if Debug {
+						updateDebug()
+					}
+
+					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+					TIA( TIA_Update )
+
+					// Reset Controllers Buttons to 1 (not pressed)
+					Memory[SWCHA] = 0xFF //1111 11111
+				}
+
+				// After being paused by the end of opcode, set again to start the new one
+				dbg_running_opc = true
+
+				// Control repetition
+				win.UpdateInputWait(time.Second)
 			}
 
-
-
-			// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
-			TIA( TIA_Update )
-
-			// Reset Controllers Buttons to 1 (not pressed)
-			Memory[SWCHA] = 0xFF //1111 11111
-
-			// Control repetition
-			win.UpdateInputWait(time.Second)
 		}
 
 	}

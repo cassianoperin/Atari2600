@@ -31,14 +31,6 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		// Show current opcode cycle
 		if Debug {
 			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + 1 cycle for branch + %d extra cycles for branch in different page)\n", counter_F_Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra + 1, opc_cycles, opc_cycle_extra)
-
-			// Collect data for debug interface just on first cycle
-			if opc_cycle_count == 1 {
-				debug_opc_text		= fmt.Sprintf("%04x     BPL      ;%d", PC, opc_cycles + opc_cycle_extra)
-				dbg_opc_bytes		= bytes
-				dbg_opc_opcode		= opcode
-				dbg_opc_payload1	= Memory[PC+1]
-			}
 		}
 
 		// Just increment the Opcode cycle Counter
@@ -48,7 +40,11 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBPL  Branch on Result POSITIVE.\tCarry EQUAL 1, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBPL  Branch on Result POSITIVE.\tNEGATIVE flag DISABLED, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
+				println(dbg_show_message)
+
+				// Collect data for debug interface after finished running the opcode
+				dbg_opcode_message("BPL", bytes, opc_cycle_count + opc_cycle_extra)
 			}
 
 			// PC + the number of bytes to jump on carry clear
@@ -71,14 +67,6 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		// Show current opcode cycle
 		if Debug {
 			fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", counter_F_Cycle, opc_cycle_count, opc_cycles)
-
-			// Collect data for debug interface just on first cycle
-			if opc_cycle_count == 1 {
-				debug_opc_text		= fmt.Sprintf("%04x     BPL      ;%d", PC, opc_cycles)
-				dbg_opc_bytes		= bytes
-				dbg_opc_opcode		= opcode
-				dbg_opc_payload1	= Memory[PC+1]
-			}
 		}
 
 		// Just increment the Opcode cycle Counter
@@ -88,7 +76,11 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				fmt.Printf("\tOpcode %02X%02X [2 bytes]\tBPL  Branch on Result POSITIVE.\t\tNEGATIVE Flag enabled, PC+=2\n", opcode, Memory[PC+1])
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBPL  Branch on Result POSITIVE.\t\tNEGATIVE flag enabled, PC+=2\n", opcode, Memory[PC+1])
+				println(dbg_show_message)
+
+				// Collect data for debug interface after finished running the opcode
+				dbg_opcode_message("BPL", bytes, opc_cycle_count + opc_cycle_extra)
 			}
 
 			// Increment PC

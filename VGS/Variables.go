@@ -138,14 +138,13 @@ var (
 	monitorHeight	float64
 
 	// --------------------------- Debug Interface -------------------------- //
-	debug_opc_text		string
-	// dbg_opc_PC			uint16
-	// dbg_opc_mnm			string
+	debug_opc_text	string
 	dbg_opc_bytes		uint16
-	dbg_opc_opcode		byte
-	dbg_opc_payload1	byte
-	dbg_opc_payload2	byte
-
+	dbg_show_message	string
+	// Opcode Message Block
+	dbg_opc_messages []string
+	// Running opcode flag - Used to advance entire opcode and not just a cycle
+	dbg_running_opc	bool
 
 	// Pause
 	Pause		bool = true

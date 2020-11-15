@@ -18,13 +18,6 @@ func opc_DEX(bytes uint16, opc_cycles byte) {
 	// Show current opcode cycle
 	if Debug {
 		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\n", counter_F_Cycle, opc_cycle_count, opc_cycles)
-
-		// Collect data for debug interface just on first cycle
-		if opc_cycle_count == 1 {
-			debug_opc_text		= fmt.Sprintf("%04x     DEX      ;%d", PC, opc_cycles)
-			dbg_opc_bytes		= bytes
-			dbg_opc_opcode		= opcode
-		}
 	}
 
 	// Just increment the Opcode cycle Counter
@@ -37,7 +30,11 @@ func opc_DEX(bytes uint16, opc_cycles byte) {
 		X --
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tDEX  Decrement Index X by One.\tX-- (%d)\n", opcode, X)
+			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tDEX  Decrement Index X by One.\tX-- (%d)\n", opcode, X)
+			println(dbg_show_message)
+
+			// Collect data for debug interface after finished running the opcode
+			dbg_opcode_message("DEX", bytes, opc_cycle_count + opc_cycle_extra)
 		}
 
 		flags_Z(X)

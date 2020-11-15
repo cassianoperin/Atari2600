@@ -54,6 +54,11 @@ func Initialize() {
 
 	// Reset Controllers Buttons to 1 (not pressed)
 	Memory[SWCHA] = 0xFF //1111 11111
+
+	// Debug screen opcode message Slice
+	dbg_opc_messages = dbg_opc_messages[:0]
+	debug_opc_text = ""
+	dbg_running_opc = true
 }
 
 func InitializeTimers() {
@@ -88,6 +93,10 @@ func CPU_Interpreter() {
 		if opc_cycle_count == 1 {
 			Show()
 		}
+
+		// Clean opcode message
+		debug_opc_text = ""
+
 	}
 
 	// Map Opcode
@@ -465,5 +474,24 @@ func CPU_Interpreter() {
 	// Pause = true
 	// Increment Instructions per second counter
 	counter_IPS ++
+
+}
+
+// Collect data for debug interface after finished running the opcode
+func dbg_opcode_message(mnm string, bytes uint16, opc_cycles_sum byte) {
+
+	if bytes == 1 {
+		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x", PC, mnm, opc_cycles_sum, opcode)
+		dbg_opc_bytes = bytes
+	} else if bytes == 2 {
+		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x %02x", PC, mnm, opc_cycles_sum, opcode, Memory[PC+1])
+		dbg_opc_bytes = bytes
+	} else if bytes == 3 {
+		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x %02x %02x", PC, mnm, opc_cycles_sum, opcode, Memory[PC+2], Memory[PC+1])
+		dbg_opc_bytes = bytes
+	}
+
+	// Reset running opcode flag
+	dbg_running_opc = false
 
 }

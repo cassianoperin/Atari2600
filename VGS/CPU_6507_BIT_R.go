@@ -34,19 +34,15 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			if bytes == 2 {
-				fmt.Printf("\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+				println(dbg_show_message)
 			} else if bytes == 3 {
-				fmt.Printf("\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+				println(dbg_show_message)
 			}
 
-			// Collect data for debug interface just on first cycle
-			if opc_cycle_count == 1 {
-				debug_opc_text		= fmt.Sprintf("%04x     BIT      ;%d", PC, opc_cycles)
-				dbg_opc_bytes		= bytes
-				dbg_opc_opcode		= opcode
-				dbg_opc_payload1	= Memory[PC+1]
-				dbg_opc_payload2	= Memory[PC+2]
-			}
+			// Collect data for debug interface after finished running the opcode
+			dbg_opcode_message("BIT", bytes, opc_cycle_count + opc_cycle_extra)
 		}
 
 		// Memory Address bit 7 (A) -> N (Negative)
@@ -73,8 +69,8 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			flags_Z(A & MemTIAWrite[memAddr])
 		// Read from regular registers
 		} else if memAddr < 280 {
-			os.Exit(2)
 			fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses")
+			os.Exit(2)
 		// Read from RIOT Memory Map (> 0x280)
 		} else {
 			flags_Z(A & Memory[memAddr])

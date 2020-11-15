@@ -168,6 +168,7 @@ func RunInfiniteLoop() {
 					if Debug {
 						updateDebug()
 					}
+
 				}
 
 				case <- second_timer: // Second

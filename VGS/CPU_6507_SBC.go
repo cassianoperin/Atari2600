@@ -32,14 +32,6 @@ func opc_SBC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// Show current opcode cycle
 	if Debug {
 		fmt.Printf("\tCPU Cycle: %d\t\tOpcode Cycle %d of %d\t(%d cycles + %d extra cycles)\n", counter_F_Cycle, opc_cycle_count, opc_cycles + opc_cycle_extra, opc_cycles, opc_cycle_extra)
-
-		// Collect data for debug interface just on first cycle
-		if opc_cycle_count == 1 {
-			debug_opc_text		= fmt.Sprintf("%04x     SBC      ;%d", PC, opc_cycles)
-			dbg_opc_bytes		= bytes
-			dbg_opc_opcode		= opcode
-			dbg_opc_payload1	= Memory[PC+1]
-		}
 	}
 
 	// Just increment the Opcode cycle Counter
@@ -52,7 +44,11 @@ func opc_SBC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		tmp := A
 
 		if Debug {
-			fmt.Printf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSBC  Subtract Memory from Accumulator with Borrow.\tA = A(%d) - Memory[%02X](%d) - Borrow(Inverted Carry)(%d) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[memAddr], borrow , A - Memory[memAddr] - borrow )
+			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSBC  Subtract Memory from Accumulator with Borrow.\tA = A(%d) - Memory[%02X](%d) - Borrow(Inverted Carry)(%d) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[memAddr], borrow , A - Memory[memAddr] - borrow )
+			println(dbg_show_message)
+
+			// Collect data for debug interface after finished running the opcode
+			dbg_opcode_message("SBC", bytes, opc_cycle_count + opc_cycle_extra)
 		}
 
 		// Result
