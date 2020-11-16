@@ -167,6 +167,12 @@ func RunInfiniteLoop() {
 					// Update Debug Screen
 					if Debug {
 						updateDebug()
+
+						if dbg_break {
+							if counter_F_Cycle == dbg_break_cycle {
+								Pause = true
+							}
+						}
 					}
 
 				}

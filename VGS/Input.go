@@ -104,7 +104,19 @@ func Keyboard() {
 
 	}
 
-
+	// Breakpoint
+	if win.Pressed(pixelgl.KeyO) {
+		if Debug {
+			if Pause {
+				Pause = false
+				dbg_break = true
+				dbg_break_cycle = counter_F_Cycle + 1000
+				fmt.Printf("\t\tBREAKPOINT set to cycle %d\n", counter_F_Cycle+1000)
+				// Control repetition
+				win.UpdateInputWait(time.Second)
+			}
+		}
+	}
 
 
 	// Change video resolution

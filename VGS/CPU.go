@@ -59,6 +59,7 @@ func Initialize() {
 	dbg_opc_messages = dbg_opc_messages[:0]
 	debug_opc_text = ""
 	dbg_running_opc = true
+	dbg_show_message = ""
 }
 
 func InitializeTimers() {
@@ -96,7 +97,6 @@ func CPU_Interpreter() {
 
 		// Clean opcode message
 		debug_opc_text = ""
-
 	}
 
 	// Map Opcode

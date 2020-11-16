@@ -31,18 +31,23 @@ var (
 	// Opcode
 	block_opcode_X	float64 = 20
 	block_opcode_Y	float64 = 290
+	// Opcode Details
+	block_opcode_details_X	float64 = 0
+	block_opcode_details_Y	float64 = 50
 )
 
 func drawDebugScreen(imd *imdraw.IMDraw) {
 
 	// Draw forms
 	dbg_draw_background()
-	dbg_draw_block_memory( block_memory_X , block_memory_Y)
-	dbg_draw_block_1( block_1_X , block_1_Y)
-	dbg_draw_block_2( block_2_X , block_2_Y)
-	dbg_draw_block_3( block_3_X , block_3_Y)
-	dbg_draw_block_4( block_4_X , block_4_Y)
-	dbg_draw_opcode( block_opcode_X , block_opcode_Y)
+	dbg_draw_block_memory( block_memory_X , block_memory_Y )
+	dbg_draw_block_1( block_1_X , block_1_Y )
+	dbg_draw_block_2( block_2_X , block_2_Y )
+	dbg_draw_block_3( block_3_X , block_3_Y )
+	dbg_draw_block_4( block_4_X , block_4_Y )
+	dbg_draw_opcode( block_opcode_X , block_opcode_Y )
+	dbg_draw_opcode_details( block_opcode_details_X , block_opcode_details_Y )
+
 	imd.Draw(win)
 }
 
@@ -54,9 +59,12 @@ func drawDebugInfo() {
 	dbg_draw_text_block_2 ( block_2_X , block_2_Y )
 	dbg_draw_text_block_3 ( block_3_X , block_3_Y )
 	dbg_draw_text_block_4 ( block_4_X , block_4_Y )
-	dbg_draw_text_opcode  ( block_opcode_X , block_opcode_Y)
+	dbg_draw_text_opcode  ( block_opcode_X , block_opcode_Y )
+	dbg_draw_text_opcode_details( block_opcode_details_X , block_opcode_details_Y )
+
 }
 
+// ---------------------- Debug Start, Stop and Update ---------------------- //
 
 func startDebug() {
 
@@ -120,20 +128,20 @@ func stopDebug() {
 	win.Update()
 }
 
+
 func updateDebug() {
 	drawDebugScreen(imd)	// Background
 	drawDebugInfo()			// Info
 }
 
 
-//------------------//
+// ------------------------------- Background ------------------------------- //
 
 // Draw the background of debug screen
 func dbg_draw_background() {
 	basePositionX := screenWidth  * sizeXused	// Value reserved for debug on screen
 	basePositionY := screenHeight * (1 - sizeYused)	// Value reserved for debug on screen
 
-	// ------------------------ Draw Debug Rectangles ----------------------- //
 	// Background
 	imd.Color = colornames.Lightgray
 	// imd.Push(pixel.V ( screenWidth , basePositionX  ) )
@@ -149,8 +157,6 @@ func dbg_draw_background() {
 	// Borders
 	imd.Color = colornames.Gray
 	// Up bar
-	// imd.Push(pixel.V ( 0 , basePositionY  ) )
-	// imd.Push(pixel.V ( screenWidth , basePositionY -2 ) )
 	imd.Push(pixel.V ( 0 , screenHeight  ) )
 	imd.Push(pixel.V ( screenWidth , screenHeight -2 ) )
 	imd.Rectangle(0)
@@ -168,6 +174,8 @@ func dbg_draw_background() {
 	imd.Rectangle(0)
 }
 
+
+// --------------------------------- Memory --------------------------------- //
 
 func dbg_draw_block_memory(x, y float64) {
 	var (
@@ -213,8 +221,6 @@ func dbg_draw_text_memory(x, y float64) {
 	x -= 30
 	y += 182
 
-	// ------------------------------- Memory ------------------------------- //
-
 	cpuMessage = text.New(pixel.V(x, y), atlas)
 	cpuMessage.Clear()
 	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
@@ -222,7 +228,6 @@ func dbg_draw_text_memory(x, y float64) {
 	// Frame
 	cpuMessage.Color = colornames.Black
 	fmt.Fprintf(cpuMessage, "RAM (0x0080 ~ 0x00FF)\n00xx  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F")
-	// cpuMessage.Color = colornames.White
 	txt = ""
 	label := 8
 
@@ -234,15 +239,12 @@ func dbg_draw_text_memory(x, y float64) {
 		txt += fmt.Sprintf(" %02X ", Memory[0x80+i])
 	}
 
-
-	// cpuMessage.Dot.X -= cpuMessage.BoundsOf(txt).W()
 	fmt.Fprintf(cpuMessage, txt)
-
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
 
 
-// Debug Text
+// ------------------------------- Debug Title ------------------------------ //
 func dbg_draw_text_title(x , y float64) {
 	var fontSize	float64 = 1
 
@@ -253,7 +255,8 @@ func dbg_draw_text_title(x , y float64) {
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize * 1.3))
 }
 
-// Shape Block 1
+
+// --------------------------------- Block 1 -------------------------------- //
 func dbg_draw_block_1(x , y float64) {
 
 	// Frames, Frame Cycle
@@ -314,6 +317,8 @@ func dbg_draw_text_block_1(x , y float64) {
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
 
+
+// --------------------------------- Block 2 -------------------------------- //
 
 func dbg_draw_block_2(x , y float64) {
 
@@ -385,6 +390,9 @@ func dbg_draw_text_block_2( x , y float64 ) {
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
 
+
+// --------------------------------- Block 3 -------------------------------- //
+
 func dbg_draw_block_3( x , y float64 ) {
 
 	var grade_pos_X float64 = x + 21
@@ -430,10 +438,6 @@ func dbg_draw_text_block_3(x, y float64) {
 		fontSize	float64 = 1
 		txt			string
 	)
-
-	// // PC, SP, X, Y, A, P
-	// block_3_X float64 = 358
-	// block_3_Y float64 = 444
 
 	x -= 28
 	y -= 14
@@ -500,6 +504,9 @@ func dbg_draw_text_block_3(x, y float64) {
 
 	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }
+
+
+// --------------------------------- Block 4 -------------------------------- //
 
 func dbg_draw_block_4( x, y float64) {
 
@@ -582,54 +589,7 @@ func dbg_draw_text_block_4( x, y float64 ) {
 }
 
 
-func dbg_draw_text_opcode(x, y float64) {
-	var (
-		fontSize	float64 = 1
-		txt			string
-	)
-
-	cpuMessage = text.New(pixel.V(x, y), atlas)
-	cpuMessage.Clear()
-	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
-
-	// Opcode
-	cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "Opcode:                                         ")
-	fmt.Fprintf(cpuMessage, "Opcode:\n")
-	txt = ""
-
-	// Initialize the slice
-	if len(dbg_opc_messages) < 10 {
-		if debug_opc_text != "" {
-			dbg_opc_messages = append(dbg_opc_messages, debug_opc_text)
-		}
-	// Remove the first one and add the new last one
-	} else {
-		if debug_opc_text != "" {
-			copy(dbg_opc_messages[0:], dbg_opc_messages[1:]) // Shift a[i+1:] left one index.
-			dbg_opc_messages[9] = debug_opc_text
-		}
-	}
-
-	// Print Opcode Slice
-	for i := 0 ; i < len(dbg_opc_messages) ; i++ {
-		txt += dbg_opc_messages[i] + "\n"
-	}
-
-	fmt.Fprintf(cpuMessage, txt)
-	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
-
-
-	// Opcode Detailed Message
-	cpuMessage = text.New(pixel.V(0, 40), atlas)
-	cpuMessage.Clear()
-	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
-	cpuMessage.Color = colornames.Black
-	// fmt.Fprintf(cpuMessage, "Opcode:                                         ")
-	fmt.Fprintf(cpuMessage, dbg_show_message)
-
-	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
-}
+// ---------------------------------- Opcode -------------------------------- //
 
 func dbg_draw_opcode(x, y float64) {
 	var (
@@ -681,7 +641,76 @@ func dbg_draw_opcode(x, y float64) {
 		imd.Push(pixel.V ( x + 300, grade_pos_Y ) )
 		imd.Push(pixel.V ( x + 1	, grade_pos_Y ) )
 		imd.Line(1)
-
 	}
 
+}
+
+
+func dbg_draw_text_opcode(x, y float64) {
+	var (
+		fontSize	float64 = 1
+		txt			string
+	)
+
+	cpuMessage = text.New(pixel.V(x, y), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
+
+	// Opcode
+	cpuMessage.Color = colornames.Black
+	// fmt.Fprintf(cpuMessage, "Opcode:                                         ")
+	fmt.Fprintf(cpuMessage, "Opcode:\n")
+	txt = ""
+
+	// Initialize the slice
+	if len(dbg_opc_messages) < 10 {
+		if debug_opc_text != "" {
+			dbg_opc_messages = append(dbg_opc_messages, debug_opc_text)
+		}
+	// Remove the first one and add the new last one
+	} else {
+		if debug_opc_text != "" {
+			copy(dbg_opc_messages[0:], dbg_opc_messages[1:]) // Shift a[i+1:] left one index.
+			dbg_opc_messages[9] = debug_opc_text
+		}
+	}
+
+	// Print Opcode Slice
+	for i := 0 ; i < len(dbg_opc_messages) ; i++ {
+		txt += dbg_opc_messages[i] + "\n"
+	}
+
+	fmt.Fprintf(cpuMessage, txt)
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
+}
+
+
+// ------------------------------ Opcode Details ---------------------------- //
+
+func dbg_draw_opcode_details(x, y float64) {
+
+	fmt.Println(x, y)
+
+	imd.Color = colornames.Black
+	imd.Push(pixel.V ( x + 12		, y )       )
+	imd.Push(pixel.V ( x + 830	, y + 20 ) )
+	imd.Rectangle(0)
+	imd.Color = colornames.Lightyellow
+	imd.Push(pixel.V ( x + 12 + 1 	, y + 1 )       )
+	imd.Push(pixel.V ( x + 830 - 1	, y + 20 - 1 ) )
+	imd.Rectangle(0)
+}
+
+
+func dbg_draw_text_opcode_details(x, y float64) {
+	var fontSize	float64 = 1
+
+	// Opcode Detailed Message
+	cpuMessage = text.New(pixel.V(x, y+25), atlas)
+	cpuMessage.Clear()
+	cpuMessage.LineHeight = atlas.LineHeight() * 1.5
+	cpuMessage.Color = colornames.Black
+	fmt.Fprintf(cpuMessage, dbg_show_message)
+
+	cpuMessage.Draw(win, pixel.IM.Scaled(cpuMessage.Orig, fontSize))
 }

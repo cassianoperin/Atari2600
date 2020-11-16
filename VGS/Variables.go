@@ -140,11 +140,14 @@ var (
 	// --------------------------- Debug Interface -------------------------- //
 	debug_opc_text	string
 	dbg_opc_bytes		uint16
-	dbg_show_message	string
+	dbg_show_message	string	// Debug opcode detail messages
 	// Opcode Message Block
 	dbg_opc_messages []string
 	// Running opcode flag - Used to advance entire opcode and not just a cycle
 	dbg_running_opc	bool
+	// Breakpoint
+	dbg_break		bool
+	dbg_break_cycle	uint16
 
 	// Pause
 	Pause		bool = true
