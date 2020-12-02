@@ -47,7 +47,6 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
-- Controller Input Diagonal: More than one key interpreted at the same time (Counter of keys pressed and do not update PC?)
 - Implement ISB "Opcode"
 - Correct TIA implementation (I'm drawing first the background, then playfield and then objects after wsync. Not following the beam. Generates some glitches.)
 - Improve TIA changed address detection (it's inside STA, STX and STY opcodes)

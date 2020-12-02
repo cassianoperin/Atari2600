@@ -279,4 +279,7 @@ func newFrame() {
 	counter_F_Cycle = 0
 	// Increment Frame Counter
 	counter_Frame ++
+
+	// Reset Controllers Buttons to 1 (not pressed)
+	Memory[SWCHA] = 0xFF //1111 11111
 }

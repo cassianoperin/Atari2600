@@ -89,8 +89,6 @@ func Keyboard() {
 					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 					TIA( TIA_Update )
 
-					// Reset Controllers Buttons to 1 (not pressed)
-					Memory[SWCHA] = 0xFF //1111 11111
 				}
 
 				// After being paused by the end of opcode, set again to start the new one
@@ -200,36 +198,36 @@ func Keyboard() {
 	// -------------- PLAYER 0 -------------- //
 	// P0 Right
 	if win.Pressed(pixelgl.KeyRight) {
-		Memory[SWCHA] = 0x7F // 0111 1111
+		Memory[SWCHA] &= 0x7F // 0111 1111
 	}
 	// P0 Left
 	if win.Pressed(pixelgl.KeyLeft) {
-		Memory[SWCHA] = 0xBF // 1011 1111
+		Memory[SWCHA] &= 0xBF // 1011 1111
 	}
 	// P0 Down
 	if win.Pressed(pixelgl.KeyDown) {
-		Memory[SWCHA] = 0xDF // 1101 1111
+		Memory[SWCHA] &= 0xDF // 1101 1111
 	}
 	// P0 Up
 	if win.Pressed(pixelgl.KeyUp) {
-		Memory[SWCHA] = 0xEF // 1110 1111
+		Memory[SWCHA] &= 0xEF // 1110 1111
 	}
 
 	// -------------- PLAYER 1 -------------- //
 	// P1 Right
 	if win.Pressed(pixelgl.KeyD) {
-		Memory[SWCHA] = 0xF7 // 1111 0111
+		Memory[SWCHA] &= 0xF7 // 1111 0111
 	}
 	// P1 Left
 	if win.Pressed(pixelgl.KeyA) {
-		Memory[SWCHA] = 0xFB // 1111 1011
+		Memory[SWCHA] &= 0xFB // 1111 1011
 	}
 	// P1 Down
 	if win.Pressed(pixelgl.KeyS) {
-		Memory[SWCHA] = 0xFD // 1111 1101
+		Memory[SWCHA] &= 0xFD // 1111 1101
 	}
 	// P1 Up
 	if win.Pressed(pixelgl.KeyW) {
-		Memory[SWCHA] = 0xFE // 1111 1110
+		Memory[SWCHA] &= 0xFE // 1111 1110
 	}
 }
