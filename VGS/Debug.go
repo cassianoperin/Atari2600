@@ -689,8 +689,6 @@ func dbg_draw_text_opcode(x, y float64) {
 
 func dbg_draw_opcode_details(x, y float64) {
 
-	fmt.Println(x, y)
-
 	imd.Color = colornames.Black
 	imd.Push(pixel.V ( x + 12		, y )       )
 	imd.Push(pixel.V ( x + 830	, y + 20 ) )

@@ -20,7 +20,7 @@ func TIA(action int8) {
 	// Just draw in visible Area
 	// if visibleArea {
 
-		drawBackground()
+		// drawBackground()
 
 		// if line ==40 {
 		// 	Pause = true
@@ -46,7 +46,7 @@ func TIA(action int8) {
 				// During Vertical Blank, if vsync is set
 				if  Memory[VSYNC] == 2  {
 					newFrame()
-					VSYNC_passed = true	// Used to control WSYNCS before VSYNC
+					// VSYNC_passed = true	// Used to control WSYNCS before VSYNC
 
 					// When VSYNC is set, CPU inform CRT to start a new frame
 					// 3 lines VSYNC
@@ -267,7 +267,7 @@ func newFrame() {
 	// Reset line counter
 	line = 1
 	// Workaround for WSYNC before VSYNC
-	VSYNC_passed = false
+	// VSYNC_passed = false
 
 	// Update Collision Detection Flags
 	CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again

@@ -41,7 +41,7 @@ func Initialize() {
 	line			=   1
 	line_max		= 262
 	TIA_Update		=  -1
-	VSYNC_passed	= false	// Workaround for WSYNC before VSYNC
+	// VSYNC_passed	= false	// Workaround for WSYNC before VSYNC
 
 	// Debug Timing
 	debugTiming_Limit = 0.00001
@@ -494,4 +494,14 @@ func dbg_opcode_message(mnm string, bytes uint16, opc_cycles_sum byte) {
 	// Reset running opcode flag
 	dbg_running_opc = false
 
+}
+
+// Memory Bus - Used to update memory and sinalize TIA about it
+func memUpdate(memAddr uint16, value byte) {
+
+	if memAddr < 128 {
+		TIA_Update = int8(memAddr)
+	}
+
+	Memory[ memAddr ] = value
 }

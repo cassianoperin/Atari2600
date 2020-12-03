@@ -30,12 +30,15 @@ func opc_STA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// After spending the cycles needed, execute the opcode
 	} else {
 
-		// Change variable to a positive number to TIA detect the change
-		if memAddr < 128 {
-			TIA_Update = int8(memAddr)
-		}
+		// // Change variable to a positive number to TIA detect the change
+		// if memAddr < 128 {
+		// 	TIA_Update = int8(memAddr)
+		// }
+		//
+		// Memory[ memAddr ] = A
 
-		Memory[ memAddr ] = A
+		// Update Memory[memAddr] with value of A and notify TIA about the update
+		memUpdate(memAddr, A)
 
 		if Debug {
 			if bytes == 2 {

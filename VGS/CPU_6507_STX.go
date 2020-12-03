@@ -27,12 +27,15 @@ func opc_STX(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// After spending the cycles needed, execute the opcode
 	} else {
 
-		// Change variable to a positive number to TIA detect the change
-		if memAddr < 128 {
-			TIA_Update = int8(memAddr)
-		}
+		// // Change variable to a positive number to TIA detect the change
+		// if memAddr < 128 {
+		// 	TIA_Update = int8(memAddr)
+		// }
+		//
+		// Memory[memAddr] = X
 
-		Memory[memAddr] = X
+		// Update Memory[memAddr] with value of X and notify TIA about the update
+		memUpdate(memAddr, X)
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTX  Store Index X in Memory.\tMemory[%02X] = X (%d)\n", opcode, Memory[PC+1], mode, memAddr, X)

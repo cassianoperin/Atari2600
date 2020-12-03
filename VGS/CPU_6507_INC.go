@@ -35,7 +35,10 @@ func opc_INC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			dbg_opcode_message("INC", bytes, opc_cycle_count + opc_cycle_extra)
 		}
 
-		Memory[ memAddr ] += 1
+		// Memory[ memAddr ] += 1
+
+		// Update Memory[memAddr] with value of Memory[memAddr]+1 and notify TIA about the update
+		memUpdate(memAddr, Memory[ memAddr ] + 1)
 
 		flags_Z(Memory[ memAddr ])
 		flags_N(Memory[ memAddr ])

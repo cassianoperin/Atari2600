@@ -72,7 +72,7 @@ var (
 	line_max	int			// Line draw control
 	TIA_Update	int8		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
 	visibleArea	bool		// Just draw in visible area
-	VSYNC_passed		bool = false	// Workaround to avoid  WSYNC before VSYNC
+	// VSYNC_passed		bool = false	// Workaround to avoid  WSYNC before VSYNC
 
 	// ---------------------- Debug Timing Measurement ---------------------- //
 	debugTiming 			bool
