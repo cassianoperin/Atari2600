@@ -35,10 +35,10 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		if Debug {
 			if bytes == 2 {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			} else if bytes == 3 {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			}
 
 			// Collect data for debug interface after finished running the opcode

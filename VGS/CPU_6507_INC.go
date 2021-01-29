@@ -29,7 +29,7 @@ func opc_INC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tINC  Increment Memory[%02X](%d) by One (%d)\n", opcode, Memory[PC+1], mode, memAddr, Memory[memAddr], Memory[memAddr] + 1)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("INC", bytes, opc_cycle_count + opc_cycle_extra)

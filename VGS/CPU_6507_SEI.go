@@ -31,7 +31,7 @@ func opc_SEI(bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEI  Set Interrupt Disable Status.\tP[2]=%d\n", opcode, P[2])
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("SEI", bytes, opc_cycle_count + opc_cycle_extra)

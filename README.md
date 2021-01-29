@@ -41,6 +41,9 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | 6507 CPU Opcodes | 44 / 56 |
 
 ## Missing:
+- I'm recreating background, playfield and players now following TIA hardware.
+
+
 - Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles

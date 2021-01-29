@@ -31,7 +31,7 @@ func opc_SEC(bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tSEC  Set Carry Flag.\tP[0]=1\n", opcode)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("SEC", bytes, opc_cycle_count + opc_cycle_extra)

@@ -37,7 +37,7 @@ func opc_RTS(bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tRTS  Return from Subroutine.\tPC = %04X.\n", opcode, PC)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("RTS", bytes, opc_cycle_count + opc_cycle_extra)

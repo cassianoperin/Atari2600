@@ -39,7 +39,7 @@ func opc_STY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSTY  Store Index Y in Memory.\tMemory[%02X] = Y (%d)\n", opcode, Memory[PC+1], mode, memAddr, Y)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("STY", bytes, opc_cycle_count + opc_cycle_extra)

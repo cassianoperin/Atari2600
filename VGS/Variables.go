@@ -16,6 +16,8 @@ type Setting struct {
 
 var (
 
+	ipressed bool = false
+
 	// ------------------------ Hardware Components ------------------------- //
 	Memory		[65536]byte	// Memory
 	MemTIAWrite	[14]byte	// TIA Read-Only additional Registers
@@ -48,9 +50,10 @@ var (
 	counter_F_Cycle		uint16		// Frame Cycles
 	opc_cycle_count		byte		// Opcode cycle counter
 	opc_cycle_extra		byte		// Opcode extra cycle
-	counter_IPS			uint16		// Instructions per second
+	counter_IPS			uint32		// Instructions per second
 	counter_FPS			uint16		// Frames per second
 	counter_DPS			uint16		// Draws per second
+	counter_VSYNC		byte			// Count the tree VSYNCs each frame
 
 	// -------------------------- Memory Variables -------------------------- //
 	memAddr			uint16		// Receive the memory address needed by the opcode
@@ -71,8 +74,6 @@ var (
 	line		int			// Line draw control
 	line_max	int			// Line draw control
 	TIA_Update	int8		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
-	visibleArea	bool		// Just draw in visible area
-	// VSYNC_passed		bool = false	// Workaround to avoid  WSYNC before VSYNC
 
 	// ---------------------- Debug Timing Measurement ---------------------- //
 	debugTiming 			bool
@@ -111,7 +112,6 @@ var (
 	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
 
 	// ------------------------------ Graphics ------------------------------ //
-	debugGraphics	bool	// Graphics Debug mode
 	// Screen Size
 	sizeX			float64	= 160.0 	// 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
 	sizeY			float64	= 192.0		// 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
@@ -125,7 +125,7 @@ var (
 	height			float64
 
 	// ------------------------------- Window ------------------------------- //
-	win					*pixelgl.Window
+	// win					*pixelgl.Window
 	imd					= imdraw.New(nil)
 	cfg					= pixelgl.WindowConfig{}
 	windowTitle			string = "Atari 2600"
@@ -149,11 +149,16 @@ var (
 	dbg_break		bool
 	dbg_break_cycle	uint16
 
+	// Enable or disable CPU during WSYNC
+	CPU_Enabled bool
+
 	// Pause
-	Pause		bool = true
+	Pause		bool = false
 
 	// Debug
-	Debug 		bool = true
+	Debug 		bool = false
+	debugGraphics	bool	= false // Graphics Debug mode
+
 )
 
 const (

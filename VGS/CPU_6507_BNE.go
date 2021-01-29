@@ -31,7 +31,7 @@ func opc_BNE(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [%d bytes] [Mode: Relative]\tBNE  Branch on Result not Zero.\t| Zero Flag(P1) = %d | PC += 2\n", opcode, Memory[PC+1], bytes, P[1])
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BNE", bytes, opc_cycle_count + opc_cycle_extra)
@@ -69,7 +69,7 @@ func opc_BNE(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [%d bytes]\tBNE  Branch on Result not Zero.\tZero Flag(P1) = %d, JUMP TO %04X\n", opcode, Memory[PC+1], bytes, P[1], PC+2+uint16(value) )
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BNE", bytes, opc_cycle_count + opc_cycle_extra)

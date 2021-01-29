@@ -41,7 +41,7 @@ func opc_BCS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCS  Branch on Carry Set.\tCarry EQUAL 1, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BCS", bytes, opc_cycle_count + opc_cycle_extra)
@@ -78,7 +78,7 @@ func opc_BCS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBCS  Branch on Carry Set.\tCarry NOT EQUAL 1, PC+2 \n", opcode, Memory[PC+1])
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BCS", bytes, opc_cycle_count + opc_cycle_extra)

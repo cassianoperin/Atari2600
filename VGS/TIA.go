@@ -3,30 +3,23 @@ package VGS
 import (
 	"os"
 	"fmt"
-	"time"
-	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 
-func TIA(action int8) {
+func TIA(action int8, janela *pixelgl.Window) {
 
-	// Time measurement - TIA Cycle
-	if debugTiming {
-		debugTiming_StartTIA = time.Now()
+	// Don't draw outside visible area
+	// if line > 40 && line <= 232 {
+	if line > 40 && line <= 150 {
+
+		// Don't draw in horizontal blank area
+		if beamIndex * 3 > 68 {
+			drawBackground()
+		}
+
 	}
-
-
-	// TODO
-	// Just draw in visible Area
-	// if visibleArea {
-
-		// drawBackground()
-
-		// if line ==40 {
-		// 	Pause = true
-		//
-		// }
-	// }
 
 
 	switch action {
@@ -35,103 +28,14 @@ func TIA(action int8) {
 		// Skip to the next scanline
 		case int8(WSYNC): //0x02
 			if debugGraphics {
-				fmt.Printf("\tCRT - WSYNC SET\n")
+				fmt.Printf("\tLine: %d\tWSYNC SET (Beam index: %d)\n", line, beamIndex)
 			}
 
-			// Test if in Vertical Blank (do not draw anything)
-			if Memory[VBLANK] == 2 {
-				// os.Exit(2)
+			// Disable CPU
+			CPU_Enabled = false
 
-
-				// During Vertical Blank, if vsync is set
-				if  Memory[VSYNC] == 2  {
-					newFrame()
-					// VSYNC_passed = true	// Used to control WSYNCS before VSYNC
-
-					// When VSYNC is set, CPU inform CRT to start a new frame
-					// 3 lines VSYNC
-
-					// ENABLE VSYNC
-					if Memory[VSYNC] == 0x02 {
-
-						if Memory[VBLANK] == 2 {
-							if debugGraphics {
-								fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
-							}
-						} else {
-							if debugGraphics {
-								fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
-							}
-						}
-
-					// DISABLE VSYNC
-					} else if Memory[VSYNC] == 0x00 {
-						if debugGraphics {
-							fmt.Printf("\tCRT - VSYNC DISABLED\n")
-						}
-
-					} else {
-						fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
-						os.Exit(2)
-					}
-
-				// 37 lines VBLANK
-				} else if Memory[VBLANK] == 2 {
-					if debugGraphics {
-						fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
-					}
-					visibleArea = false // Inform that finished visible lines
-
-				}
-
-			// VBLANK turned OFF, start drawing the 192 lines of visible Area
-			} else {
-				visibleArea = true // Inform that reached visible lines
-
-				// Finish drawing line (X=228) 76x3
-				beamIndex = 76
-				if debugGraphics {
-					// fmt.Printf("Old BeamIndex: %d\t New BeamIndex: %d\n", old_BeamIndex, Beam_index)
-				}
-				drawBackground()
-
-
-
-				if debugGraphics {
-					fmt.Printf("\tLine: %d\tVisible Area: %d\n\n", line, line-40)
-				}
-
-				// Draw the entire line of Playfield
-				draw_playfield()
-
-
-				// // DRAW PLAYER 0
-				if Memory[GRP0] != 0 {
-					// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
-					drawPlayer(0)
-				}
-
-				// // DRAW PLAYER 1
-				if Memory[GRP1] != 0 {
-					drawPlayer(1)
-				}
-
-				// COLLISION DETECTION
-				// P0 - P1
-				// CollisionDetectionP0_P1()
-			}
-
-			// Reset the beam index
-			beamIndex = 0
-			old_beamIndex = 0
-			// Reset Collision Detection Line Array
-			CD_P0_P1 = [160]byte{}
-			CD_P0_PF = [160]byte{}
-
-			// Increment Line
-			// Pause = true
-			line ++
-
+			// Increment beam index until the end of the line to re-enable CPU
+			beamIndex ++
 
 
 		// --------------------------------------- VBLANK --------------------------------------- //
@@ -159,7 +63,6 @@ func TIA(action int8) {
 			if Memory[VSYNC] == 0x02 {
 				if debugGraphics {
 					fmt.Printf("\tVSYNC Enabled\n")
-					newFrame()
 				}
 			} else if Memory[VSYNC] == 0x00 {
 				if debugGraphics {
@@ -192,15 +95,12 @@ func TIA(action int8) {
 				fmt.Printf("\tRESP0 SET - DRAW P0 SPRITE!\tBeam: %d\n", beamIndex)
 			}
 			XPositionP0 = beamIndex
-			// drawPlayer0()
-
 
 		case int8(RESP1): //0x1C
 			if debugGraphics {
 				fmt.Printf("\tRESP1 SET - DRAW P1 SPRITE!\tBeam: %d\n", beamIndex)
 			}
 			XPositionP1 = beamIndex
-			// drawPlayer1()
 
 		case int8(HMP0): //0x20
 			if debugGraphics {
@@ -227,59 +127,163 @@ func TIA(action int8) {
 
 	// When finished drawing the LINE, reset Beamer and start a new LINE
 	// Needed for colorbg demo
-	// DISABLED because its causing empty lines in the begin
 	if beamIndex > 76 {
-		if debugGraphics {
-			fmt.Printf("\nFinished the line, starting a new one.\n")
-		}
-		beamIndex = beamIndex - 76
-		old_beamIndex = 0
-		line ++
+		newLine(janela)
+		// Pause = true
 	}
-
-	// Reset to default value
-	TIA_Update = -1
-
-	// Time measurement - TIA Cycle
-	if debugTiming {
-		elapsedTIA := time.Since(debugTiming_StartTIA)
-		if elapsedTIA.Seconds() > debugTiming_Limit {
-			fmt.Printf("\tOpcode: %X\tEntire TIA Cycle took %f seconds\n", opcode, elapsedTIA.Seconds())
-			// Pause = true
-		}
-	}
-
-	// Draw messages into the screen
-	if ShowMessage {
-		textMessage.Clear()
-		fmt.Fprintf(textMessage, TextMessageStr)
-		textMessage.Draw(win, pixel.IM.Scaled(textMessage.Orig, 1))
-	}
+	//
+	// // Draw messages into the screen
+	// if ShowMessage {
+	// 	// textMessage.Clear()
+	// 	// fmt.Fprintf(textMessage, TextMessageStr)
+	// 	// textMessage.Draw(win, pixel.IM.Scaled(textMessage.Orig, 1))
+	// }
 
 
 }
 
+
+// Every end of line check vor VSYNC and VBLANK to sync with CRT
+func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
+
+	// Test if in Vertical Blank (do not draw anything)
+	if Memory[VBLANK] == 2 {
+
+		// During Vertical Blank, if vsync is set
+		if  Memory[VSYNC] == 2  {
+			newFrame()
+
+			// When VSYNC is set, CPU inform CRT to start a new frame
+			// 3 lines VSYNC
+
+			// ENABLE VSYNC
+			if Memory[VSYNC] == 0x02 {
+
+				if Memory[VBLANK] == 2 {
+					if debugGraphics {
+						fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
+					}
+				} else {
+					if debugGraphics {
+						fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
+					}
+				}
+
+			// DISABLE VSYNC
+			} else if Memory[VSYNC] == 0x00 {
+				if debugGraphics {
+					fmt.Printf("\tCRT - VSYNC DISABLED\n")
+				}
+
+			} else {
+				fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
+				os.Exit(2)
+			}
+
+		// 37 lines VBLANK
+		} else if Memory[VBLANK] == 2 {
+			if debugGraphics {
+				fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
+			}
+			// visibleArea = false // Inform that finished visible lines
+
+		}
+
+	// VBLANK turned OFF, start drawing the 192 lines of visible Area
+	} else {
+		// visibleArea = true // Inform that reached visible lines
+
+
+
+
+
+
+		// // DRAW PLAYER 0
+		if Memory[GRP0] != 0 {
+			// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
+			drawPlayer(0, janela_2nd_level)
+		}
+
+		// // DRAW PLAYER 1
+		if Memory[GRP1] != 0 {
+			drawPlayer(1, janela_2nd_level)
+		}
+
+	}
+
+	// Reset the beam index
+	// beamIndex = 0
+	// old_beamIndex = 0
+	// Reset Collision Detection Line Array
+	CD_P0_P1 = [160]byte{}
+	CD_P0_PF = [160]byte{}
+
+	// Increment Line
+	// line ++
+
+}
+
+
+func newLine(janela_2nd_level *pixelgl.Window) {
+	if debugGraphics {
+		fmt.Printf("Finished the line %d, starting a new one. Beam: %d\n", line, beamIndex)
+	}
+	beamIndex = beamIndex - 76
+	old_beamIndex = 0
+	line ++
+
+	CPU_Enabled = true
+	// Reset to default value
+	TIA_Update = -1
+	check_VSYNC_VBLANK(janela_2nd_level)
+}
+
+
+
+
+
+
 // When finished drawing the screen, reset and start a new frame
 func newFrame() {
-	if debugGraphics {
-		fmt.Printf("\nFinished the screen height, start a new frame.\n")
+
+	// Start a new frame on first VSYNC
+	if counter_VSYNC == 1 {
+
+		// Reset line counter
+		line = 1
+		// Workaround for WSYNC before VSYNC
+		// VSYNC_passed = false
+
+		// Update Collision Detection Flags
+		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
+		CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
+
+		// Increment frames
+		counter_FPS ++
+		// Reset Frame Cycle counter
+		counter_F_Cycle = 0
+		// Increment Frame Counter
+		counter_Frame ++
+
+		// Reset Controllers Buttons to 1 (not pressed)
+		Memory[SWCHA] = 0xFF //1111 11111
+
+		// Clean the current draws for next frame
+		imd	= imdraw.New(nil)
+
+		if debugGraphics {
+			fmt.Printf("\nFinished the screen height, start a new frame (%d).\n", counter_Frame)
+		}
+
+		counter_VSYNC ++
+
+
+	// Reset counter for next frame
+	} else if counter_VSYNC == 2 {
+		counter_VSYNC ++
+	} else if counter_VSYNC == 3 {
+		counter_VSYNC = 1
 	}
-	// Reset line counter
-	line = 1
-	// Workaround for WSYNC before VSYNC
-	// VSYNC_passed = false
 
-	// Update Collision Detection Flags
-	CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
-	CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
 
-	// Increment frames
-	counter_FPS ++
-	// Reset Frame Cycle counter
-	counter_F_Cycle = 0
-	// Increment Frame Counter
-	counter_Frame ++
-
-	// Reset Controllers Buttons to 1 (not pressed)
-	Memory[SWCHA] = 0xFF //1111 11111
 }

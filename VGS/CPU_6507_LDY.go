@@ -41,7 +41,7 @@ func opc_LDY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		Y = Memory[memAddr]
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDY  Load Index y with Memory.\tY = Memory[%02X] (%d)\n", opcode, Memory[PC+1], mode, PC+1, Y)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("LDY", bytes, opc_cycle_count + opc_cycle_extra)

@@ -42,7 +42,7 @@ func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("ADC", bytes, opc_cycle_count + opc_cycle_extra)

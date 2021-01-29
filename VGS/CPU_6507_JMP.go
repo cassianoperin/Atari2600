@@ -29,7 +29,7 @@ func opc_JMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tJMP  Jump to New Location.\t\tPC = 0x%04X\n", opcode, Memory[PC+2], Memory[PC+1], mode, memAddr)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("JMP", bytes, opc_cycle_count + opc_cycle_extra)

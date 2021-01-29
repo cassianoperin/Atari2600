@@ -3,6 +3,7 @@ package VGS
 import (
 	"image/color"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 
@@ -44,7 +45,7 @@ func PF_Reflect_Duplicate() {
 }
 
 
-func draw_playfield() {
+func draw_playfield(janela_2nd_level *pixelgl.Window) {
 	readPF0()
 	readPF1()
 	readPF2()
@@ -85,7 +86,7 @@ func draw_playfield() {
 			CD_P0_PF[ (i*4)+2 ] = 1
 			CD_P0_PF[ (i*4)+3 ] = 1
 
-			imd.Draw(win)
+			imd.Draw(janela_2nd_level)
 			counter_DPS ++
 
 		}

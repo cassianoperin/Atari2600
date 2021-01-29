@@ -29,8 +29,8 @@ func opc_DEC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tDEC  Decrement Memory by One.\tMemory[%02X] -= 1 (%d)\n", opcode, Memory[PC+1], mode, memAddr, Memory[memAddr] - 1 )
-			println(dbg_show_message)
-			
+			fmt.Println(dbg_show_message)
+
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("DEC", bytes, opc_cycle_count + opc_cycle_extra)
 		}

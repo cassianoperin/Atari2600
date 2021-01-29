@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 
@@ -77,7 +78,7 @@ func drawLineScroll(currentPosition int16) int16 {
 	return currentPosition
 }
 
-func drawPlayer(player byte) {
+func drawPlayer(player byte, janela_2nd_level *pixelgl.Window) {
 	var (
 		bit				byte = 0
 		inverted			byte = 0
@@ -685,7 +686,7 @@ func drawPlayer(player byte) {
 	// fmt.Println(CD_P0_P1)
 	// fmt.Println(CD_P0_PF)
 
-	imd.Draw(win)
+	imd.Draw(janela_2nd_level)
 	// Count draw operations number per second
 	counter_DPS ++
 }

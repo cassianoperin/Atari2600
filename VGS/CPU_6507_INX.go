@@ -31,7 +31,7 @@ func opc_INX(bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [%d byte] [Mode: Implied]\tINX  Increment Index X by One (%02X)\n", opcode, bytes, X)
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("INX", bytes, opc_cycle_count + opc_cycle_extra)

@@ -41,7 +41,7 @@ func opc_JSR(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tJSR  Jump to New Location Saving Return Address.\tPC = Memory[%02X]\t|\t Stack[%02X] = %02X\t Stack[%02X] = %02X\n", opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, SP+2, Memory[SP+2], SP+1, Memory[SP+1])
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("JSR", bytes, opc_cycle_count + opc_cycle_extra)

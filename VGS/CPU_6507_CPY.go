@@ -33,10 +33,10 @@ func opc_CPY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		if Debug {
 			if tmp == 0 {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) EQUAL\n", opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			} else {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tCPY  Compare Memory and Index Y.\tY(%d) - Memory[%02X](%d) = (%d) NOT EQUAL\n", opcode, Memory[PC+1], mode, Y, PC+1, Memory[memAddr], tmp)
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			}
 
 			// Collect data for debug interface after finished running the opcode

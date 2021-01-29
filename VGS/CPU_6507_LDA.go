@@ -48,10 +48,10 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		if Debug {
 			if bytes == 2 {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", opcode, Memory[PC+1], mode, memAddr, A)
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			} else if bytes == 3 {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tLDA  Load Accumulator with Memory.\tA = Memory[%02X] (%d)\n", opcode, Memory[PC+2], Memory[PC+1], mode, memAddr, A)
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 			}
 
 			// Collect data for debug interface after finished running the opcode

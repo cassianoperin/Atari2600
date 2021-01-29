@@ -41,7 +41,7 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBPL  Branch on Result POSITIVE.\tNEGATIVE flag DISABLED, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BPL", bytes, opc_cycle_count + opc_cycle_extra)
@@ -77,7 +77,7 @@ func opc_BPL(value int8, bytes uint16, opc_cycles byte) {
 		} else {
 			if Debug {
 				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBPL  Branch on Result POSITIVE.\t\tNEGATIVE flag enabled, PC+=2\n", opcode, Memory[PC+1])
-				println(dbg_show_message)
+				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
 				dbg_opcode_message("BPL", bytes, opc_cycle_count + opc_cycle_extra)

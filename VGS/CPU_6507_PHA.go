@@ -31,7 +31,7 @@ func opc_PHA(bytes uint16, opc_cycles byte) {
 
 		if Debug {
 			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X [1 byte] [Mode: Implied]\tPHA  Push Accumulator on Stack.\tMemory[%02X] = A (%d) | SP--\n", opcode, SP, Memory[SP])
-			println(dbg_show_message)
+			fmt.Println(dbg_show_message)
 
 			dbg_opcode_message("PHA", bytes, opc_cycle_count + opc_cycle_extra)
 		}

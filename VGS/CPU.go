@@ -32,6 +32,7 @@ func Initialize() {
 	counter_IPS		= 0
 	counter_FPS		= 0
 	counter_DPS		= 0
+	counter_VSYNC	= 1
 
 	// Beamer
 	beamIndex		= 0
@@ -60,6 +61,9 @@ func Initialize() {
 	debug_opc_text = ""
 	dbg_running_opc = true
 	dbg_show_message = ""
+
+	// Initialize CPU
+	CPU_Enabled = true
 }
 
 func InitializeTimers() {
@@ -78,7 +82,7 @@ func Reset() {
 
 func Show() {
 	// fmt.Printf("\n\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tStack: [%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d]\tRESPO0: %d\tGRP0: %08b\tCOLUP0: %02X\tCTRLPF: %08b", Cycle, Opcode, PC, PC, A, X, Y, P, SP, Memory[0xFF], Memory[0xFE], Memory[0xFD], Memory[0xFC], Memory[0xFB], Memory[0xFA], Memory[0xF9], Memory[0xF8], Memory[0xF7], Memory[0xF6], Memory[0xF5], Memory[0xF4], Memory[0xF3], Memory[0xF2], Memory[0xF1], Memory[0xF0], Memory[RESP0], Memory[GRP0], Memory[COLUP0], Memory[CTRLPF] )
-	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\tBeam_index: %d\n", counter_F_Cycle, opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], beamIndex )
+	fmt.Printf("\nCycle: %d\tOpcode: %02X\tPC: 0x%02X(%d)\tA: 0x%02X\tX: 0x%02X\tY: 0x%02X\tP: %d\tSP: %02X\tGRP0: %08b\tHMP0: %02X\t\tLine: %d\t\tBeam_index: %d\n", counter_F_Cycle, opcode, PC, PC, A, X, Y, P, SP, Memory[GRP0], Memory[HMP0], line, beamIndex )
 }
 
 
