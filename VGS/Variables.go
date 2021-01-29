@@ -68,7 +68,6 @@ var (
 
 	// ------------------------------- Beamer ------------------------------- //
 	beamIndex	byte 		// Beam index to control where to draw objects using cpu cycles
-	old_beamIndex	byte 	// Used to draw the beam updates every cycle on the CRT
 
 	// -------------------------------- TIA --------------------------------- //
 	line		int			// Line draw control

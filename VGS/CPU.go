@@ -36,7 +36,6 @@ func Initialize() {
 
 	// Beamer
 	beamIndex		= 0
-	old_beamIndex	= 0
 
 	// TIA
 	line			=   1

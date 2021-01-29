@@ -211,15 +211,9 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 
 	}
 
-	// Reset the beam index
-	// beamIndex = 0
-	// old_beamIndex = 0
 	// Reset Collision Detection Line Array
 	CD_P0_P1 = [160]byte{}
 	CD_P0_PF = [160]byte{}
-
-	// Increment Line
-	// line ++
 
 }
 
@@ -229,7 +223,6 @@ func newLine(janela_2nd_level *pixelgl.Window) {
 		fmt.Printf("Finished the line %d, starting a new one. Beam: %d\n", line, beamIndex)
 	}
 	beamIndex = beamIndex - 76
-	old_beamIndex = 0
 	line ++
 
 	CPU_Enabled = true
