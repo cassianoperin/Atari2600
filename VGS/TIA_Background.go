@@ -97,13 +97,13 @@ func drawBackground() {
 			}
 
 
-			// ---------------------------------- Reflect Playfield ---------------------------------- //
-			if (Memory[CTRLPF] & 0x01) == 1 {
+			// --------------------------------- Playfield Reflection -------------------------------- //
+			if pixel_position > 80 {
 
+Memory[CTRLPF] = 1
+				// --------------------------------- PF0 Reflected Normal -------------------------------- //
+				if (Memory[CTRLPF] & 0x01) == 0 {
 
-				if pixel_position > 80 {
-
-					// ------------------------------------ PF0 Reflected ------------------------------------ //
 					if pixel_position <= 96 {
 
 						// fmt.Printf("%d\tPF0: %b\t%b\tPF0_BIT: %d\n", pixel_position, Memory[PF0], ( Memory[PF0] >> byte(pf0_bit) ) & 0x01, pf0_bit)
@@ -125,7 +125,7 @@ func drawBackground() {
 							pf0_bit = 4
 						}
 
-					// ------------------------------------ PF1 Reflected ------------------------------------ //
+					// --------------------------------- PF1 Reflected Normal -------------------------------- //
 					} else if pixel_position <= 128 {
 
 						// Memory[PF1] = 161
@@ -149,49 +149,105 @@ func drawBackground() {
 							pf1_bit = 7
 						}
 
-					// ------------------------------------ PF2 Reflected ------------------------------------ //
+					// --------------------------------- PF2 Reflected Normal -------------------------------- //
 					} else if pixel_position <= 160 {
 
-					// Memory[PF2] = 161
+						// Memory[PF2] = 161
 
-					// fmt.Printf("%d\tPF2: %b\t%b\tPF2_BIT: %d\n", pixel_position, Memory[PF2], ( Memory[PF2] >> byte(pf2_bit) ) & 0x01, pf2_bit)
+						// fmt.Printf("%d\tPF2: %b\t%b\tPF2_BIT: %d\n", pixel_position, Memory[PF2], ( Memory[PF2] >> byte(pf2_bit) ) & 0x01, pf2_bit)
 
-					// If the bit is 1, set the color of the playfield
-					if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
-						R, G, B := NTSC(Memory[COLUPF])
-						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// If the bit is 1, set the color of the playfield
+						if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
+							R, G, B := NTSC(Memory[COLUPF])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Each 4 sprites increase the index (playfield bit)
+						if pixel_position % 4 == 0 {
+							// fmt.Println("ENTROU")
+							pf2_bit ++
+						}
+
+						// Reset PF1 bit index for the next line
+						if pixel_position == 160 {
+							pf2_bit = 0
+						}
 					}
 
-					// Each 4 sprites increase the index (playfield bit)
-					if pixel_position % 4 == 0 {
-						// fmt.Println("ENTROU")
-						pf2_bit ++
+				// -------------------------------- Mirrored Playfield -------------------------------- //
+
+				} else {
+
+					// ------------------------------------ PF2 Mirrored ------------------------------------ //
+					if pixel_position <= 112 {
+
+						// If the bit is 1, set the color of the playfield
+						if ( Memory[PF2] >> byte(pf2_mirror_bit) ) & 0x01 == 1 {
+							R, G, B := NTSC(Memory[COLUPF])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Each 4 sprites increase the index (playfield bit)
+						if pixel_position % 4 == 0 {
+							// fmt.Println("ENTROU")
+							pf2_mirror_bit --
+						}
+
+						// Reset PF1 bit index for the next line
+						if pixel_position == 112 {
+							pf2_mirror_bit = 7
+						}
+
+					// ------------------------------------ PF1 Mirrored ------------------------------------ //
+					} else if pixel_position <= 144 {
+
+						// If the bit is 1, set the color of the playfield
+						if ( Memory[PF1] >> byte(pf1_mirror_bit) ) & 0x01 == 1 {
+							R, G, B := NTSC(Memory[COLUPF])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Each 4 sprites increase the index (playfield bit)
+						if pixel_position % 4 == 0 {
+							// fmt.Println("ENTROU")
+							pf1_mirror_bit ++
+						}
+
+						// Reset PF1 bit index for the next line
+						if pixel_position == 144 {
+							pf1_mirror_bit = 0
+						}
+
+					// ------------------------------------ PF0 Mirrored ------------------------------------ //
+					} else if pixel_position <= 160 {
+
+
+						// If the bit is 1, set the color of the playfield
+						if ( Memory[PF0] >> byte(pf0_mirror_bit) ) & 0x01 == 1 {
+							R, G, B := NTSC(Memory[COLUPF])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Each 4 sprites increase the index (playfield bit)
+						if pixel_position % 4 == 0 {
+							// fmt.Println("ENTROU")
+							pf0_mirror_bit --
+						}
+
+						// Reset PF0 bit index for the next line
+						if pixel_position == 160 {
+							pf0_mirror_bit = 7
+						}
+
 					}
 
-					// Reset PF1 bit index for the next line
-					if pixel_position == 160 {
-						pf2_bit = 0
-					}
 				}
-
-				}
-
 
 			}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+			// ------------------------------------- DRAW SPRITE ------------------------------------ //
 
 			// TEMPORARY - Random background colors
 			// imd.Color = color.RGBA{uint8(rand.Intn(255)), uint8(rand.Intn(255)), uint8(rand.Intn(255)), 255}

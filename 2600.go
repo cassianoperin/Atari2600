@@ -124,6 +124,7 @@ func main() {
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/2colorbg.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/3rainbow.bin")
 	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/4playfieldborder.bin")
+	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/5playerscoreboard.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
 

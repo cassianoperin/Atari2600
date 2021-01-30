@@ -112,6 +112,9 @@ var (
 	pf0_bit				byte = 4				// PF0 bit index
 	pf1_bit				byte = 7				// PF1 bit index
 	pf2_bit				byte = 0				// PF2 bit index
+	pf0_mirror_bit	byte = 7				// PF2 bit index
+	pf1_mirror_bit	byte = 0				// PF2 bit index
+	pf2_mirror_bit	byte = 7				// PF2 bit index
 
 
 	// ------------------------------ Graphics ------------------------------ //
