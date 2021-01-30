@@ -1,7 +1,7 @@
 package VGS
 
 import (
-	// "fmt"
+	"fmt"
 	// "math/rand"
 	"image/color"
 	"github.com/faiface/pixel"
@@ -23,15 +23,15 @@ func drawBackground() {
 			R, G, B := NTSC(Memory[COLUBK])
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
+			// Memory[PF0] = 80
 
-
-			// PF 0
+			// PF0
 			if pixel_position <= 16 {
 
-				// fmt.Printf("%d\tPF0: %b\t%b\tPF_BIT: %d\n", pixel_position, Memory[PF0], Memory[PF0] >> byte(pf_bit) & 0x01, pf_bit)
+				// fmt.Printf("%d\tPF0: %b\t%b\tPF0_BIT: %d\n", pixel_position, Memory[PF0], ( Memory[PF0] >> byte(pf0_bit) ) & 0x01, pf0_bit)
 
 				// If the bit is 1, set the color of the playfield
-				if Memory[PF0] >> byte(pf_bit) & 0x01 == 1 {
+				if ( Memory[PF0] >> byte(pf0_bit) ) & 0x01 == 1 {
 					R, G, B := NTSC(Memory[COLUPF])
 					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 				}
@@ -39,13 +39,39 @@ func drawBackground() {
 				// Each 4 sprites increase the index (playfield bit)
 				if pixel_position % 4 == 0 {
 					// fmt.Println("ENTROU")
-					pf_bit ++
+					pf0_bit ++
 				}
 
-				// Reset pixel_position for PF0 for the next line
+				// Reset PF0 bit index for the next line
 				if pixel_position == 16 {
-					pf_bit = 4
+					pf0_bit = 4
 				}
+
+			// PF1
+			} else if pixel_position <= 48 {
+
+				// Memory[PF1] = 161
+
+				fmt.Printf("%d\tPF1: %b\t%b\tPF1_BIT: %d\n", pixel_position, Memory[PF1], ( Memory[PF1] >> byte(pf1_bit) ) & 0x01, pf1_bit)
+
+				// If the bit is 1, set the color of the playfield
+				if ( Memory[PF1] >> byte(pf1_bit) ) & 0x01 == 1 {
+					R, G, B := NTSC(Memory[COLUPF])
+					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+				}
+
+				// Each 4 sprites increase the index (playfield bit)
+				if pixel_position % 4 == 0 {
+					// fmt.Println("ENTROU")
+					pf1_bit --
+				}
+
+				// Reset PF1 bit index for the next line
+				if pixel_position == 48 {
+					pf1_bit = 7
+				}
+
+
 			}
 
 

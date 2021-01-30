@@ -109,7 +109,8 @@ var (
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
 	playfield			[40]byte			//Improve to binary
 	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
-	pf_bit				byte = 4				// PF0 bit index
+	pf0_bit				byte = 4				// PF0 bit index
+	pf1_bit				byte = 7				// PF1 bit index
 
 
 	// ------------------------------ Graphics ------------------------------ //
