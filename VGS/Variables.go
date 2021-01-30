@@ -111,6 +111,7 @@ var (
 	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
 	pf0_bit				byte = 4				// PF0 bit index
 	pf1_bit				byte = 7				// PF1 bit index
+	pf2_bit				byte = 0				// PF2 bit index
 
 
 	// ------------------------------ Graphics ------------------------------ //

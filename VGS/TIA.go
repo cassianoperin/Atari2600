@@ -11,8 +11,8 @@ import (
 func TIA(action int8, janela *pixelgl.Window) {
 
 	// Don't draw outside visible area
-	// if line > 40 && line <= 232 {
-	if line > 40 && line <= 150 {
+	if line > 40 && line <= 232 {
+	// if line > 40 && line <= 150 {
 
 		// Don't draw in horizontal blank area
 		if beamIndex * 3 > 68 {
