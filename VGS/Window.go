@@ -123,19 +123,16 @@ func Run() {
 						CPU_Interpreter()
 					}
 
+					// if TIA_Update > 0 && TIA_Update != 2 {
+					// 	fmt.Println(TIA_Update)
+					// }
+
 					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 					TIA( TIA_Update, win )
 					// fmt.Printf("Cycle: %d\t\tLine: %d\n", counter_F_Cycle, line)
 
 
-					// // Time measurement - CPU Cycle
-					// if debugTiming {
-					// 	elapsed := time.Since(debugTiming_StartCycle)
-					// 	if elapsed.Seconds() > debugTiming_Limit {
-					// 		fmt.Printf("\nTiming: Opcode: %X\tEntire CYCLE took %f seconds\n", opcode, elapsed.Seconds())
-					// 		// Pause = true
-					// 	}
-					// }
+
 
 					// // Update Debug Screen
 					// if Debug {

@@ -47,9 +47,10 @@ func Initialize() {
 	debugTiming_Limit = 0.00001
 
 	// Player Vertical Positioning
-	XPositionP0			= 0
+	// If a program doesn't use RESP0 or RESP1, set Initial Player Position
+	XPositionP0			= 23
 	XFinePositionP0		= 0
-	XPositionP1			= 0
+	XPositionP1			= 30
 	XFinePositionP1		= 0
 
 	// Reset Controllers Buttons to 1 (not pressed)

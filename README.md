@@ -40,6 +40,10 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | CPU Stack | OK |
 | 6507 CPU Opcodes | 44 / 56 |
 
+CTRLPF D0 (Reflect/Mirror)
+CTRLPF D1 (Score colors)
+
+
 ## Missing:
 - I'm recreating background, playfield and players now following TIA hardware.
 

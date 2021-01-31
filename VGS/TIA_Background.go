@@ -32,8 +32,18 @@ func drawBackground() {
 
 				// If the bit is 1, set the color of the playfield
 				if ( Memory[PF0] >> byte(pf0_bit) ) & 0x01 == 1 {
-					R, G, B := NTSC(Memory[COLUPF])
-					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					// Check D1 status to use color of players in the score
+					if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+						// Playfield color
+						R, G, B := NTSC(Memory[COLUPF])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					} else {
+						// Player 0 Color (Score)
+						R, G, B := NTSC(Memory[COLUP0])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+
 				}
 
 				// Each 4 sprites increase the index (playfield bit)
@@ -56,8 +66,18 @@ func drawBackground() {
 
 				// If the bit is 1, set the color of the playfield
 				if ( Memory[PF1] >> byte(pf1_bit) ) & 0x01 == 1 {
-					R, G, B := NTSC(Memory[COLUPF])
-					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					// Check D1 status to use color of players in the score
+					if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+						// Playfield color
+						R, G, B := NTSC(Memory[COLUPF])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					} else {
+						// Player 0 Color (Score)
+						R, G, B := NTSC(Memory[COLUP0])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+
 				}
 
 				// Each 4 sprites increase the index (playfield bit)
@@ -80,8 +100,18 @@ func drawBackground() {
 
 				// If the bit is 1, set the color of the playfield
 				if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
-					R, G, B := NTSC(Memory[COLUPF])
-					imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+					// Check D1 status to use color of players in the score
+					if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+						// Playfield color
+						R, G, B := NTSC(Memory[COLUPF])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					} else {
+						// Player 0 Color (Score)
+						R, G, B := NTSC(Memory[COLUP0])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+
 				}
 
 				// Each 4 sprites increase the index (playfield bit)
@@ -100,7 +130,6 @@ func drawBackground() {
 			// --------------------------------- Playfield Reflection -------------------------------- //
 			if pixel_position > 80 {
 
-Memory[CTRLPF] = 1
 				// --------------------------------- PF0 Reflected Normal -------------------------------- //
 				if (Memory[CTRLPF] & 0x01) == 0 {
 
@@ -110,8 +139,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF0] >> byte(pf0_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -134,8 +173,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF1] >> byte(pf1_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -158,8 +207,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -183,8 +242,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF2] >> byte(pf2_mirror_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -203,8 +272,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF1] >> byte(pf1_mirror_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -224,8 +303,18 @@ Memory[CTRLPF] = 1
 
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF0] >> byte(pf0_mirror_bit) ) & 0x01 == 1 {
-							R, G, B := NTSC(Memory[COLUPF])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Check D1 status to use color of players in the score
+							if (Memory[CTRLPF] & 0x02) >> 1 == 0  {
+								// Playfield color
+								R, G, B := NTSC(Memory[COLUPF])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							} else {
+								// Player 1 Color (Score)
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+							}
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -244,6 +333,52 @@ Memory[CTRLPF] = 1
 				}
 
 			}
+
+
+
+
+
+			// ---------------------------------- Draw Player 0 ----------------------------------- //
+
+			// Check if we are in the line where GRP0 was set
+			if line == P0_draw_line {
+				// fmt.Printf("Line: %d\t P0: %d\n",line, P0_draw_line)
+
+				// Check the initial draw position (set by RESP0)
+				if pixel_position == ( (int(XPositionP0) * 3) -68 ) + int(P0_bit) {
+					// fmt.Printf("Line correct and pixel po %d", pixel_position)
+
+
+
+					if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+						// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+						R, G, B := NTSC(Memory[COLUP0])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+
+					// Incremente the bit of the image
+					P0_bit ++
+
+					// When finished all sprites (0-7), reset P0 index
+					if P0_bit == 8 {
+						P0_bit = 0
+					}
+
+
+
+
+
+
+				}
+			}
+
+
+
+
+
+
+
+
 
 
 

@@ -95,6 +95,10 @@ var (
 	// -------------------- Players Vertical Positioning -------------------- //
 	XPositionP0			byte
 	XFinePositionP0			int8
+	P0_draw_line	int
+	P0_bit	byte = 0
+
+
 	XPositionP1			byte
 	XFinePositionP1			int8
 

@@ -27,6 +27,9 @@ func opc_BNE(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		if opc_cycle_count < opc_cycles {
 			opc_cycle_count ++
 
+			// Reset to default value
+			TIA_Update = -1
+
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {

@@ -81,8 +81,12 @@ func TIA(action int8, janela *pixelgl.Window) {
 			}
 
 		case int8(GRP0): //0x1B
+			// Set the line to draw P0
+			P0_draw_line = line
+
 			if debugGraphics {
-				fmt.Printf("\tGRP0 SET\n")
+			// P0_draw_line = 232 - line
+				fmt.Printf("\tCycle: %d\tGRP0 SET\t%b\tLine: %d\n", counter_F_Cycle, Memory[GRP0], P0_draw_line)
 			}
 
 		case int8(GRP1): //0x1C
@@ -92,7 +96,7 @@ func TIA(action int8, janela *pixelgl.Window) {
 
 		case int8(RESP0): //0x1B
 			if debugGraphics {
-				fmt.Printf("\tRESP0 SET - DRAW P0 SPRITE!\tBeam: %d\n", beamIndex)
+				fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tP0: %b\n", counter_F_Cycle, beamIndex, Memory[GRP0])
 			}
 			XPositionP0 = beamIndex
 
@@ -201,7 +205,10 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 		// // DRAW PLAYER 0
 		if Memory[GRP0] != 0 {
 			// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
-			drawPlayer(0, janela_2nd_level)
+			// drawPlayer(0, janela_2nd_level)
+			// P0_draw_line = 232 - line
+			// fmt.Println(P0_draw_line)
+
 		}
 
 		// // DRAW PLAYER 1
@@ -226,8 +233,8 @@ func newLine(janela_2nd_level *pixelgl.Window) {
 	line ++
 
 	CPU_Enabled = true
-	// Reset to default value
-	TIA_Update = -1
+	// // Reset to default value
+	// TIA_Update = -1
 	check_VSYNC_VBLANK(janela_2nd_level)
 }
 

@@ -25,6 +25,9 @@ func opc_CPY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	if opc_cycle_count < opc_cycles {
 		opc_cycle_count ++
 
+		// Reset to default value
+		TIA_Update = -1
+
 	// After spending the cycles needed, execute the opcode
 	} else {
 
