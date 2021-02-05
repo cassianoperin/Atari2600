@@ -340,15 +340,12 @@ func drawBackground() {
 
 			// ---------------------------------- Draw Player 0 ----------------------------------- //
 
-			// Check if we are in the line where GRP0 was set
-			if line == P0_draw_line {
-				// fmt.Printf("Line: %d\t P0: %d\n",line, P0_draw_line)
+			// Check if GRP0 was set and draw the sprite
+			if Memory[GRP0] != 0 {
 
 				// Check the initial draw position (set by RESP0)
-				if pixel_position == ( (int(XPositionP0) * 3) -68 ) + int(P0_bit) {
+				if pixel_position == ( (int(XPositionP0) * 3) -68 + int(XFinePositionP0)) + int(P0_bit) {
 					// fmt.Printf("Line correct and pixel po %d", pixel_position)
-
-
 
 					if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
 						// READ COLUPF (Memory[0x08]) - Set the Playfield Color
@@ -364,15 +361,37 @@ func drawBackground() {
 						P0_bit = 0
 					}
 
-
-
-
-
-
 				}
+
 			}
 
 
+			// ---------------------------------- Draw Player 1 ----------------------------------- //
+
+			// Check if GRP1 was set and draw the sprite
+			if Memory[GRP1] != 0 {
+
+				// Check the initial draw position (set by RESP1)
+				if pixel_position == ( (int(XPositionP1) * 3) -68 + int(XFinePositionP1)) + int(P1_bit) {
+					// fmt.Printf("Line correct and pixel po %d", pixel_position)
+
+					if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+						// READ COLUPF (Memory[0x08]) - Set the Playfield Color
+						R, G, B := NTSC(Memory[COLUP1])
+						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					}
+
+					// Incremente the bit of the image
+					P1_bit ++
+
+					// When finished all sprites (0-7), reset P0 index
+					if P1_bit == 8 {
+						P1_bit = 0
+					}
+
+				}
+
+			}
 
 
 

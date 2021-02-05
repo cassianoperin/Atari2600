@@ -127,8 +127,8 @@ func main() {
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/5playerscoreboard.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/6vertical.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/7horizontal-fixed.bin")
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
-	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
+	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
 
 	// Reset system
 	VGS.Reset()

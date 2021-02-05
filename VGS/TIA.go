@@ -81,17 +81,13 @@ func TIA(action int8, janela *pixelgl.Window) {
 			}
 
 		case int8(GRP0): //0x1B
-			// Set the line to draw P0
-			P0_draw_line = line
-
 			if debugGraphics {
-			// P0_draw_line = 232 - line
-				fmt.Printf("\tCycle: %d\tGRP0 SET\t%b\tLine: %d\n", counter_F_Cycle, Memory[GRP0], P0_draw_line)
+				fmt.Printf("\tCycle: %d\tGRP0 SET\t%b\n", counter_F_Cycle, Memory[GRP0])
 			}
 
 		case int8(GRP1): //0x1C
 			if debugGraphics {
-				fmt.Printf("\tGRP1 SET\n")
+				fmt.Printf("\tCycle: %d\tGRP1 SET\t%b\n", counter_F_Cycle, Memory[GRP1])
 			}
 
 		case int8(RESP0): //0x1B
@@ -213,7 +209,7 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 
 		// // DRAW PLAYER 1
 		if Memory[GRP1] != 0 {
-			drawPlayer(1, janela_2nd_level)
+			// drawPlayer(1, janela_2nd_level)
 		}
 
 	}
