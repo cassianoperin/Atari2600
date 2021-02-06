@@ -338,32 +338,217 @@ func drawBackground() {
 
 
 
+			// Memory[NUSIZ0] = 0x05
+
+
+
+
 			// ---------------------------------- Draw Player 0 ----------------------------------- //
 
 			// Check if GRP0 was set and draw the sprite
 			if Memory[GRP0] != 0 {
 
-				// Check the initial draw position (set by RESP0)
-				if pixel_position == ( (int(XPositionP0) * 3) -68 + int(XFinePositionP0)) + int(P0_bit) {
-					// fmt.Printf("Line correct and pixel po %d", pixel_position)
+				// ----------------------------------------------- NUSIZ0 = 0x00 ----------------------------------------------- //
+				if Memory[NUSIZ0] == 0x00 {
 
-					if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-						// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-						R, G, B := NTSC(Memory[COLUP0])
-						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
 					}
 
-					// Incremente the bit of the image
-					P0_bit ++
 
-					// When finished all sprites (0-7), reset P0 index
-					if P0_bit == 8 {
-						P0_bit = 0
+				// ----------------------------------------------- NUSIZ0 = 0x01 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x01 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 16 {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
 					}
 
+
+				// ----------------------------------------------- NUSIZ0 = 0x02 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x02 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 32 {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ0 = 0x03 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x03 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 16 || pixel_position == P0_base_position + int(P0_bit) + 32 {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ0 = 0x04 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x04 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 64 {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ0 = 0x05 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x05 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) {
+
+						if Memory[GRP0] >> (7 - (P0_bit/2) ) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 16 {
+							P0_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ0 = 0x06 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x06 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 32 || pixel_position == P0_base_position + int(P0_bit) + 64 {
+
+						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 8 {
+							P0_bit = 0
+						}
+					}
+				// ----------------------------------------------- NUSIZ0 = 0x07 ----------------------------------------------- //
+				} else if Memory[NUSIZ0] == 0x07 {
+
+					// Determine the initial position of the player on the line
+					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P0_base_position + int(P0_bit) {
+
+						if Memory[GRP0] >> (7 - (P0_bit/4) ) & 0x01 == 1 {
+							// READ COLUP0 - Set Player color
+							R, G, B := NTSC(Memory[COLUP0])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P0_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P0_bit == 32 {
+							P0_bit = 0
+						}
+					}
 				}
 
+
 			}
+
 
 
 			// ---------------------------------- Draw Player 1 ----------------------------------- //
@@ -371,25 +556,204 @@ func drawBackground() {
 			// Check if GRP1 was set and draw the sprite
 			if Memory[GRP1] != 0 {
 
-				// Check the initial draw position (set by RESP1)
-				if pixel_position == ( (int(XPositionP1) * 3) -68 + int(XFinePositionP1)) + int(P1_bit) {
-					// fmt.Printf("Line correct and pixel po %d", pixel_position)
+				// ----------------------------------------------- NUSIZ1 = 0x00 ----------------------------------------------- //
+				if Memory[NUSIZ1] == 0x00 {
 
-					if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-						// READ COLUPF (Memory[0x08]) - Set the Playfield Color
-						R, G, B := NTSC(Memory[COLUP1])
-						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
 					}
 
-					// Incremente the bit of the image
-					P1_bit ++
 
-					// When finished all sprites (0-7), reset P0 index
-					if P1_bit == 8 {
-						P1_bit = 0
+				// ----------------------------------------------- NUSIZ1 = 0x01 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x01 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 16 {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
 					}
 
+
+				// ----------------------------------------------- NUSIZ1 = 0x02 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x02 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 32 {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ1 = 0x03 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x03 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 16 || pixel_position == P1_base_position + int(P1_bit) + 32 {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ1 = 0x04 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x04 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 64 {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ1 = 0x05 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x05 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) {
+
+						if Memory[GRP1] >> (7 - (P1_bit/2) ) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 16 {
+							P1_bit = 0
+						}
+					}
+
+
+				// ----------------------------------------------- NUSIZ1 = 0x06 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x06 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 32 || pixel_position == P1_base_position + int(P1_bit) + 64 {
+
+						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 8 {
+							P1_bit = 0
+						}
+					}
+				// ----------------------------------------------- NUSIZ1 = 0x07 ----------------------------------------------- //
+				} else if Memory[NUSIZ1] == 0x07 {
+
+					// Determine the initial position of the player on the line
+					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
+					// Check the initial draw position (set by RESP1)
+					if pixel_position == P1_base_position + int(P1_bit) {
+
+						if Memory[GRP1] >> (7 - (P1_bit/4) ) & 0x01 == 1 {
+							// READ COLUP1 - Set Player color
+							R, G, B := NTSC(Memory[COLUP1])
+							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						}
+
+						// Incremente the bit of the image
+						P1_bit ++
+
+						// When finished all sprites (0-7), reset P0 index
+						if P1_bit == 32 {
+							P1_bit = 0
+						}
+					}
 				}
+
 
 			}
 
