@@ -3,6 +3,7 @@ package VGS
 import (
 	"os"
 	"fmt"
+	// "golang.org/x/image/colornames"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 )
@@ -146,82 +147,91 @@ func TIA(action int8, janela *pixelgl.Window) {
 // Every end of line check vor VSYNC and VBLANK to sync with CRT
 func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 
-	// Test if in Vertical Blank (do not draw anything)
-	if Memory[VBLANK] == 2 {
+	// Applications that doesn't handle correctly VSYNC, if line > 262, force newFrame
+	if line > 262 {
+		newFrame(janela_2nd_level)
 
-		// During Vertical Blank, if vsync is set
-		if  Memory[VSYNC] == 2  {
-			newFrame()
-
-			// When VSYNC is set, CPU inform CRT to start a new frame
-			// 3 lines VSYNC
-
-			// ENABLE VSYNC
-			if Memory[VSYNC] == 0x02 {
-
-				if Memory[VBLANK] == 2 {
-					if debugGraphics {
-						fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
-					}
-				} else {
-					if debugGraphics {
-						fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
-					}
-				}
-
-			// DISABLE VSYNC
-			} else if Memory[VSYNC] == 0x00 {
-				if debugGraphics {
-					fmt.Printf("\tCRT - VSYNC DISABLED\n")
-				}
-
-			} else {
-				fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
-				os.Exit(2)
-			}
-
-		// 37 lines VBLANK
-		} else if Memory[VBLANK] == 2 {
-			if debugGraphics {
-				fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
-			}
-			// visibleArea = false // Inform that finished visible lines
-
-		}
-
-	// VBLANK turned OFF, start drawing the 192 lines of visible Area
+	// If line <= 262, handle normally
 	} else {
-		// visibleArea = true // Inform that reached visible lines
+
+			// Test if in Vertical Blank (do not draw anything)
+			if Memory[VBLANK] == 2 {
+
+				// During Vertical Blank, if vsync is set
+				if  Memory[VSYNC] == 2  {
+					newFrame(janela_2nd_level)
+					// janela_2nd_level.Clear(colornames.Red)
+					// janela_2nd_level.Update()
+
+					// When VSYNC is set, CPU inform CRT to start a new frame
+					// 3 lines VSYNC
+
+					// ENABLE VSYNC
+					if Memory[VSYNC] == 0x02 {
+
+						if Memory[VBLANK] == 2 {
+							if debugGraphics {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
+							}
+						} else {
+							if debugGraphics {
+								fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
+							}
+						}
+
+					// DISABLE VSYNC
+					} else if Memory[VSYNC] == 0x00 {
+						if debugGraphics {
+							fmt.Printf("\tCRT - VSYNC DISABLED\n")
+						}
+
+					} else {
+						fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
+						os.Exit(2)
+					}
+
+				// 37 lines VBLANK
+				} else if Memory[VBLANK] == 2 {
+					if debugGraphics {
+						fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
+					}
+					// visibleArea = false // Inform that finished visible lines
+
+				}
+
+			// VBLANK turned OFF, start drawing the 192 lines of visible Area
+			} else {
+				// visibleArea = true // Inform that reached visible lines
 
 
 
 
 
 
-		// // DRAW PLAYER 0
-		if Memory[GRP0] != 0 {
-			// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
-			// drawPlayer(0, janela_2nd_level)
-			// P0_draw_line = 232 - line
-			// fmt.Println(P0_draw_line)
+				// // DRAW PLAYER 0
+				if Memory[GRP0] != 0 {
+					// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
+					// drawPlayer(0, janela_2nd_level)
+					// P0_draw_line = 232 - line
+					// fmt.Println(P0_draw_line)
+
+				}
+
+				// // DRAW PLAYER 1
+				if Memory[GRP1] != 0 {
+					// drawPlayer(1, janela_2nd_level)
+				}
+
+			}
 
 		}
 
-		// // DRAW PLAYER 1
-		if Memory[GRP1] != 0 {
-			// drawPlayer(1, janela_2nd_level)
-		}
-
-	}
-
-	// Reset Collision Detection Line Array
-	CD_P0_P1 = [160]byte{}
-	CD_P0_PF = [160]byte{}
 
 }
 
 
 func newLine(janela_2nd_level *pixelgl.Window) {
+
 	if debugGraphics {
 		fmt.Printf("Finished the line %d, starting a new one. Beam: %d\n", line, beamIndex)
 	}
@@ -232,6 +242,12 @@ func newLine(janela_2nd_level *pixelgl.Window) {
 	// // Reset to default value
 	// TIA_Update = -1
 	check_VSYNC_VBLANK(janela_2nd_level)
+
+	// Reset Collision Detection Line Array
+	// fmt.Println(collision_P0)
+	collision_PF = [161]byte{}
+	collision_P0 = [161]byte{}
+
 }
 
 
@@ -240,15 +256,13 @@ func newLine(janela_2nd_level *pixelgl.Window) {
 
 
 // When finished drawing the screen, reset and start a new frame
-func newFrame() {
+func newFrame(janela_3nd_level *pixelgl.Window) {
 
 	// Start a new frame on first VSYNC
 	if counter_VSYNC == 1 {
 
 		// Reset line counter
 		line = 1
-		// Workaround for WSYNC before VSYNC
-		// VSYNC_passed = false
 
 		// Update Collision Detection Flags
 		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
@@ -264,15 +278,21 @@ func newFrame() {
 		// Reset Controllers Buttons to 1 (not pressed)
 		Memory[SWCHA] = 0xFF //1111 11111
 
-		// Clean the current draws for next frame
-		imd	= imdraw.New(nil)
+
 
 		if debugGraphics {
 			fmt.Printf("\nFinished the screen height, start a new frame (%d).\n", counter_Frame)
 		}
 
+		// Update control to just do it on first occurence
 		counter_VSYNC ++
 
+		// After finishing a frame, draw it to screen and refresh
+		imd.Draw(janela_3nd_level)
+		janela_3nd_level.Update()
+
+		// Clean the current draws for next frame
+		imd	= imdraw.New(nil)
 
 	// Reset counter for next frame
 	} else if counter_VSYNC == 2 {

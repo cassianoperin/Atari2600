@@ -44,6 +44,9 @@ func drawBackground() {
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
 
+					// Update the slice with playfield pixel positions for collision detection
+					collision_PF[pixel_position] = 1
+
 				}
 
 				// Each 4 sprites increase the index (playfield bit)
@@ -60,10 +63,6 @@ func drawBackground() {
 			// ----------------------------------------- PF1 ----------------------------------------- //
 			} else if pixel_position <= 48 {
 
-				// Memory[PF1] = 161
-
-				// fmt.Printf("%d\tPF1: %b\t%b\tPF1_BIT: %d\n", pixel_position, Memory[PF1], ( Memory[PF1] >> byte(pf1_bit) ) & 0x01, pf1_bit)
-
 				// If the bit is 1, set the color of the playfield
 				if ( Memory[PF1] >> byte(pf1_bit) ) & 0x01 == 1 {
 
@@ -77,6 +76,9 @@ func drawBackground() {
 						R, G, B := NTSC(Memory[COLUP0])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
+
+					// Update the slice with playfield pixel positions for collision detection
+					collision_PF[pixel_position] = 1
 
 				}
 
@@ -94,10 +96,6 @@ func drawBackground() {
 			// ----------------------------------------- PF2 ----------------------------------------- //
 			} else if pixel_position <= 80 {
 
-				// Memory[PF2] = 161
-
-				// fmt.Printf("%d\tPF2: %b\t%b\tPF2_BIT: %d\n", pixel_position, Memory[PF2], ( Memory[PF2] >> byte(pf2_bit) ) & 0x01, pf2_bit)
-
 				// If the bit is 1, set the color of the playfield
 				if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
 
@@ -111,6 +109,9 @@ func drawBackground() {
 						R, G, B := NTSC(Memory[COLUP0])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
+
+					// Update the slice with playfield pixel positions for collision detection
+					collision_PF[pixel_position] = 1
 
 				}
 
@@ -135,8 +136,6 @@ func drawBackground() {
 
 					if pixel_position <= 96 {
 
-						// fmt.Printf("%d\tPF0: %b\t%b\tPF0_BIT: %d\n", pixel_position, Memory[PF0], ( Memory[PF0] >> byte(pf0_bit) ) & 0x01, pf0_bit)
-
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF0] >> byte(pf0_bit) ) & 0x01 == 1 {
 
@@ -150,6 +149,9 @@ func drawBackground() {
 								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
+
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
 
 						}
 
@@ -167,10 +169,6 @@ func drawBackground() {
 					// --------------------------------- PF1 Reflected Normal -------------------------------- //
 					} else if pixel_position <= 128 {
 
-						// Memory[PF1] = 161
-
-						// fmt.Printf("%d\tPF1: %b\t%b\tPF1_BIT: %d\n", pixel_position, Memory[PF1], ( Memory[PF1] >> byte(pf1_bit) ) & 0x01, pf1_bit)
-
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF1] >> byte(pf1_bit) ) & 0x01 == 1 {
 
@@ -184,6 +182,9 @@ func drawBackground() {
 								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
+
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
 
 						}
 
@@ -201,10 +202,6 @@ func drawBackground() {
 					// --------------------------------- PF2 Reflected Normal -------------------------------- //
 					} else if pixel_position <= 160 {
 
-						// Memory[PF2] = 161
-
-						// fmt.Printf("%d\tPF2: %b\t%b\tPF2_BIT: %d\n", pixel_position, Memory[PF2], ( Memory[PF2] >> byte(pf2_bit) ) & 0x01, pf2_bit)
-
 						// If the bit is 1, set the color of the playfield
 						if ( Memory[PF2] >> byte(pf2_bit) ) & 0x01 == 1 {
 
@@ -218,6 +215,9 @@ func drawBackground() {
 								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
+
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
 
 						}
 
@@ -254,6 +254,9 @@ func drawBackground() {
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
+
 						}
 
 						// Each 4 sprites increase the index (playfield bit)
@@ -283,6 +286,9 @@ func drawBackground() {
 								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
+
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
 
 						}
 
@@ -314,6 +320,9 @@ func drawBackground() {
 								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
+
+							// Update the slice with playfield pixel positions for collision detection
+							collision_PF[pixel_position] = 1
 
 						}
 
@@ -361,6 +370,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -386,6 +398,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -411,6 +426,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -436,6 +454,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -461,6 +482,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -486,6 +510,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -511,6 +538,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image
@@ -534,6 +564,9 @@ func drawBackground() {
 							// READ COLUP0 - Set Player color
 							R, G, B := NTSC(Memory[COLUP0])
 							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+							// Update the slice with Player0 pixel positions for collision detection
+							collision_P0[pixel_position] = 1
 						}
 
 						// Incremente the bit of the image

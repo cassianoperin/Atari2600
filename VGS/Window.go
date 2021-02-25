@@ -111,56 +111,41 @@ func Run() {
 
 
 
+				// select {
+				// case <- clock_timer.C:
 
-				if !Pause {
-					// Time measurement - CPU Cycle
-					if debugTiming {
-						debugTiming_StartCycle = time.Now()
-					}
+						if !Pause {
+							// Time measurement - CPU Cycle
+							if debugTiming {
+								debugTiming_StartCycle = time.Now()
+							}
 
-					// Runs the interpreter
-					if CPU_Enabled {
-						CPU_Interpreter()
-					}
+							// Runs the interpreter
+							if CPU_Enabled {
+								CPU_Interpreter()
+							}
 
-					// if TIA_Update > 0 && TIA_Update != 2 {
-					// 	fmt.Println(TIA_Update)
-					// }
+							// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
+							TIA( TIA_Update, win )
+							// fmt.Printf("Cycle: %d\t\tLine: %d\n", counter_F_Cycle, line)
 
-					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
-					TIA( TIA_Update, win )
-					// fmt.Printf("Cycle: %d\t\tLine: %d\n", counter_F_Cycle, line)
+							// // Update Debug Screen
+							// if Debug {
+							// 	updateDebug()
+							//
+							// 	if dbg_break {
+							// 		if counter_F_Cycle == dbg_break_cycle {
+							// 			Pause = true
+							// 		}
+							// 	}
+							// }
 
+						}
 
+			// 	default:
+			// 		// No timer to handle
+			// }
 
-
-					// // Update Debug Screen
-					// if Debug {
-					// 	updateDebug()
-					//
-					// 	if dbg_break {
-					// 		if counter_F_Cycle == dbg_break_cycle {
-					// 			Pause = true
-					// 		}
-					// 	}
-					// }
-
-				}
-
-
-
-
-
-
-
-				select {
-					case <- screenRefresh_timer.C:
-						imd.Draw(win)
-
-						win.Update()
-					default:
-						// No timer to handle
-				}
 
 				select {
 					case <- messagesClock_timer.C:
@@ -169,6 +154,7 @@ func Run() {
 					default:
 						// No timer to handle
 				}
+
 
 
 
