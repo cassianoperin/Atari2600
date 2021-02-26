@@ -1,7 +1,8 @@
 package VGS
 
 import (
-	// "fmt"
+	"os"
+	"fmt"
 	// "math/rand"
 	"image/color"
 	"github.com/faiface/pixel"
@@ -807,11 +808,6 @@ func drawBackground() {
 
 
 
-
-
-
-
-
 			// ------------------------------------- DRAW SPRITE ------------------------------------ //
 
 			// TEMPORARY - Random background colors
@@ -827,5 +823,52 @@ func drawBackground() {
 		}
 
 	}
+
+}
+
+
+func FinePositioning(HMPX byte) int8 {
+
+	var value int8
+
+	switch HMPX {
+		case 0x70:
+			value = -7
+		case 0x60:
+			value = -6
+		case 0x50:
+			value = -5
+		case 0x40:
+			value = -4
+		case 0x30:
+			value = -3
+		case 0x20:
+			value = -2
+		case 0x10:
+			value = -1
+		case 0x00:
+			value =  0
+		case 0xF0:
+			value =  1
+		case 0xE0:
+			value =  2
+		case 0xD0:
+			value =  3
+		case 0xC0:
+			value =  4
+		case 0xB0:
+			value =  5
+		case 0xA0:
+			value =  6
+		case 0x90:
+			value =  7
+		case 0x80:
+			value =  8
+		default:
+			fmt.Printf("\n\tInvalid HMP0 %02X!\n\n", HMP0)
+			os.Exit(0)
+	}
+
+	return value
 
 }

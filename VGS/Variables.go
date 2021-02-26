@@ -103,21 +103,12 @@ var (
 	XFinePositionP1			int8
 
 	// ------------------------ Collision Detection ------------------------- //
-	CD_debug			bool	= true
-	CD_P0_P1			[160]byte
-	CD_P0_P1_collision_detected			bool	= false	// Set when collision is detected
-	CD_P0_PF			[160]byte
-	CD_P0_PF_collision_detected			bool	= false	// Set when collision is detected
-
-
 	collision_PF	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
 	collision_P0	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
 	collision_P1	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
 
 	// ----------------------------- Playfield ------------------------------ //
-	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
-	playfield			[40]byte			//Improve to binary
-	pixelSize			float64 = 4.0		// 80 lines (half screen) / 20 PF0, PF1 and PF2 bits
+	// PF(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)
 	pf0_bit				byte = 4				// PF0 bit index
 	pf1_bit				byte = 7				// PF1 bit index
 	pf2_bit				byte = 0				// PF2 bit index

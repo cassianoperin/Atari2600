@@ -107,13 +107,13 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			if debugGraphics {
 				fmt.Printf("\tHMP0 SET - Define P0 Fine Positioning\n")
 			}
-			XFinePositionP0 = Fine(Memory[HMP0])
+			XFinePositionP0 = FinePositioning(Memory[HMP0])
 
 		case int8(HMP1): //0x21
 			if debugGraphics {
 				fmt.Printf("\tHMP1 SET - Define P1 Fine Positioning\n")
 			}
-			XFinePositionP1 = Fine(Memory[HMP1])
+			XFinePositionP1 = FinePositioning(Memory[HMP1])
 
 		case int8(CXCLR): //0x2C
 			if debugGraphics {
@@ -318,10 +318,6 @@ func newFrame(win_3nd_level *pixelgl.Window) {
 
 		// Reset line counter
 		line = 1
-
-		// Update Collision Detection Flags
-		CD_P0_P1_collision_detected = false		// Informm TIA to start looking for collisions again
-		CD_P0_PF_collision_detected = false		// Informm TIA to start looking for collisions again
 
 		// Increment frames
 		counter_FPS ++
