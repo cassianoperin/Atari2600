@@ -9,7 +9,7 @@ import (
 )
 
 
-func TIA(action int8, janela *pixelgl.Window) {
+func TIA(action int8, win_2nd_level *pixelgl.Window) {
 
 	// Don't draw outside visible area
 	if line > 40 && line <= 232 {
@@ -129,7 +129,7 @@ func TIA(action int8, janela *pixelgl.Window) {
 	// When finished drawing the LINE, reset Beamer and start a new LINE
 	// Needed for colorbg demo
 	if beamIndex > 76 {
-		newLine(janela)
+		newLine(win_2nd_level)
 		// Pause = true
 	}
 	//
@@ -145,11 +145,11 @@ func TIA(action int8, janela *pixelgl.Window) {
 
 
 // Every end of line check vor VSYNC and VBLANK to sync with CRT
-func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
+func check_VSYNC_VBLANK(win_2nd_level *pixelgl.Window) {
 
 	// Applications that doesn't handle correctly VSYNC, if line > 262, force newFrame
 	if line > 262 {
-		newFrame(janela_2nd_level)
+		newFrame(win_2nd_level)
 
 	// If line <= 262, handle normally
 	} else {
@@ -159,9 +159,9 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 
 				// During Vertical Blank, if vsync is set
 				if  Memory[VSYNC] == 2  {
-					newFrame(janela_2nd_level)
-					// janela_2nd_level.Clear(colornames.Red)
-					// janela_2nd_level.Update()
+					newFrame(win_2nd_level)
+					// win_2nd_level.Clear(colornames.Red)
+					// win_2nd_level.Update()
 
 					// When VSYNC is set, CPU inform CRT to start a new frame
 					// 3 lines VSYNC
@@ -211,7 +211,7 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 				// // DRAW PLAYER 0
 				if Memory[GRP0] != 0 {
 					// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
-					// drawPlayer(0, janela_2nd_level)
+					// drawPlayer(0, win_2nd_level)
 					// P0_draw_line = 232 - line
 					// fmt.Println(P0_draw_line)
 
@@ -219,7 +219,7 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 
 				// // DRAW PLAYER 1
 				if Memory[GRP1] != 0 {
-					// drawPlayer(1, janela_2nd_level)
+					// drawPlayer(1, win_2nd_level)
 				}
 
 			}
@@ -230,23 +230,78 @@ func check_VSYNC_VBLANK(janela_2nd_level *pixelgl.Window) {
 }
 
 
-func newLine(janela_2nd_level *pixelgl.Window) {
+func newLine(win_2nd_level *pixelgl.Window) {
 
 	if debugGraphics {
 		fmt.Printf("Finished the line %d, starting a new one. Beam: %d\n", line, beamIndex)
 	}
-	beamIndex = beamIndex - 76
+	// beamIndex = beamIndex - 76
+	beamIndex = 0
 	line ++
 
 	CPU_Enabled = true
 	// // Reset to default value
 	// TIA_Update = -1
-	check_VSYNC_VBLANK(janela_2nd_level)
+	check_VSYNC_VBLANK(win_2nd_level)
 
 	// Reset Collision Detection Line Array
-	// fmt.Println(collision_P0)
+
+
+	// // Print Player 0
+	// for i := 0 ; i < len(collision_P0) ; i++ {
+	// 	if collision_P0[i] == 1 {
+	// 		fmt.Printf("#")
+	// 	} else {
+	// 		fmt.Printf(" ")
+	// 	}
+	// }
+	// fmt.Printf("\n")
+
+	// // Print Playfield
+	// for i := 0 ; i < len(collision_PF) ; i++ {
+	// 	if collision_PF[i] == 1 {
+	// 		fmt.Printf("#")
+	// 	} else {
+	// 		fmt.Printf(" ")
+	// 	}
+	// }
+	// fmt.Printf("\n")
+
+
+	// COLLISION DETECTION
+	for i := 1 ; i <= 160 ; i++ {
+
+		// CXP0FB (D7) - P0-PF
+		if collision_P0[i] == 1 {
+			if collision_PF[i] == 1 {
+				MemTIAWrite[CXP0FB] = 0x80
+			}
+		}
+
+		// CXPPMM (D7) - P0-P1
+		if collision_P0[i] == 1 {
+			if collision_P1[i] == 1 {
+				MemTIAWrite[CXPPMM] = 0x80
+			}
+		}
+
+		// CXP1FB (D7) - P1-PF
+		if collision_P1[i] == 1 {
+			if collision_PF[i] == 1 {
+				MemTIAWrite[CXP1FB] = 0x80
+			}
+		}
+
+
+
+	}
+
+
+
+	// After processing, clean collision detection slices
 	collision_PF = [161]byte{}
 	collision_P0 = [161]byte{}
+	collision_P1 = [161]byte{}
 
 }
 
@@ -256,7 +311,7 @@ func newLine(janela_2nd_level *pixelgl.Window) {
 
 
 // When finished drawing the screen, reset and start a new frame
-func newFrame(janela_3nd_level *pixelgl.Window) {
+func newFrame(win_3nd_level *pixelgl.Window) {
 
 	// Start a new frame on first VSYNC
 	if counter_VSYNC == 1 {
@@ -288,8 +343,8 @@ func newFrame(janela_3nd_level *pixelgl.Window) {
 		counter_VSYNC ++
 
 		// After finishing a frame, draw it to screen and refresh
-		imd.Draw(janela_3nd_level)
-		janela_3nd_level.Update()
+		imd.Draw(win_3nd_level)
+		win_3nd_level.Update()
 
 		// Clean the current draws for next frame
 		imd	= imdraw.New(nil)

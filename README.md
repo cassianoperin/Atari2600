@@ -45,31 +45,28 @@ CTRLPF D1 (Score colors)
 
 
 ## Missing:
-- I'm recreating background, playfield and players now following TIA hardware.
-
-
-- Improve P0 and P1 scroll (X and Y)
+- Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles
 - Scoreboard value increment for both players
 - Scoreboard multi digit
 - Sound
 - Implement ISB "Opcode"
-- Correct TIA implementation (I'm drawing first the background, then playfield and then objects after wsync. Not following the beam. Generates some glitches.)
-- Improve TIA changed address detection (it's inside STA, STX and STY opcodes)
 - Implement TIA Collision Detection:
 	a) CXM0P - Not started
 	b) CXM1P - Not started
 	c) CXP0FB:
 		D6 - P0–BL: Not started
-		D7 - P0–PF: DONE!
-	d) CXP1FB - Not started
+		D7 - P0–PF: DONE
+	d) CXP1FB:
+		D6 - P1-BL: Not started
+		D7 - P1-PF: DONE
 	e) CXM0FB - Not started
 	f) CXM1FB - Not started
 	g) CXBLPF - Not started
 	h) CXPPMM:
 		D6 - M0–M1: Not started
-		D7 - P0-P1: DONE!
+		D7 - P0-P1: DONE
 
 ## Documentation:
 

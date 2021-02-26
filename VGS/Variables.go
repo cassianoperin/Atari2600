@@ -112,6 +112,7 @@ var (
 
 	collision_PF	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
 	collision_P0	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
+	collision_P1	[161]byte	// 161 because pixel_position starts with 1 and goes until 160 (Ignore the position 0 in this slice)
 
 	// ----------------------------- Playfield ------------------------------ //
 	// PF0(4,5,6,7) | PF1 (7,6,5,4,3,2,1,0) | PF2 (0,1,2,3,4,5,6,7)

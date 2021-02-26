@@ -475,7 +475,6 @@ func CPU_Interpreter() {
 	// Increment Cycle
 	counter_F_Cycle ++
 
-	// Pause = true
 	// Increment Instructions per second counter
 	counter_IPS ++
 
