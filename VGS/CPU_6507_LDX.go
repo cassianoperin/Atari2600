@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // LDX  Load Index X with Memory
@@ -10,7 +11,14 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      immediate     LDX #oper     A2    2     2
+//      zeropage	    LDX oper	    A6  	2	    3
 func opc_LDX(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+	if memAddr < 0x80 {
+		fmt.Printf("LDX - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+		os.Exit(2)
+	}
 
 	// Increment the beam
 	beamIndex ++

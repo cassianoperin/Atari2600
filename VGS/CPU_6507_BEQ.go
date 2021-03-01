@@ -2,27 +2,29 @@ package VGS
 
 import	"fmt"
 
-// BCC  Branch on Carry Clear
+// BEQ  Branch on Result Zero
 //
-//      branch on C = 0                  N Z C I D V
+//      branch on Z = 1                  N Z C I D V
 //                                       - - - - - -
 //
-//      addressing    assembler    opc  bytes  cyles
+//      addressing	assembler	   opc	bytes	 cyles
 //      --------------------------------------------
-//      relative      BCC oper      90    2     2**
-func opc_BCC(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
+//      relative	  BEQ oper	    F0  	2	     2**
+func opc_BEQ(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 	// Increment the beam
 	beamIndex ++
 
-	// If carry is clear
-	if P[0] == 0 {
+	// If zero flag is set
+	if P[1] == 1 {
 
 		// Check for extra cycles (*) in the first opcode cycle
 		if opc_cycle_count == 1 {
 			// Add 1 to cycles if page boundery is crossed
 			if MemPageBoundary(PC, PC + uint16(value) + 2 ) {
 				opc_cycle_extra = 1
+				fmt.Println("TEST BEQ COM PAGE BOUNDARY")
+				Pause = true
 			}
 		}
 
@@ -41,11 +43,12 @@ func opc_BCC(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBCC  Branch on Carry Clear.\tCarry EQUAL 0, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBEQ  Branch on Result Zero.\tZero flag EQUAL 1, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
 				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
-				dbg_opcode_message("BCC", bytes, opc_cycle_count + opc_cycle_extra)
+				dbg_opcode_message("BEQ", bytes, opc_cycle_count + opc_cycle_extra)
+
 			}
 
 			// PC + the number of bytes to jump on carry clear
@@ -61,7 +64,8 @@ func opc_BCC(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 			opc_cycle_extra = 0
 		}
 
-	// If carry is set
+
+	// If zero flag is clear
 	} else {
 
 		// Show current opcode cycle
@@ -76,11 +80,11 @@ func opc_BCC(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBCC  Branch on Carry Clear.\tCarry NOT EQUAL 0, PC+2\n", opcode, Memory[PC+1])
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBEQ  Branch on Result Zero.\tZero flag NOT EQUAL 1, PC+2 \n", opcode, Memory[PC+1])
 				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
-				dbg_opcode_message("BCC", bytes, opc_cycle_count + opc_cycle_extra)
+				dbg_opcode_message("BEQ", bytes, opc_cycle_count + opc_cycle_extra)
 			}
 
 			// Increment PC

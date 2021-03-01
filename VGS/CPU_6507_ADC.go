@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // ADC  Add Memory to Accumulator with Carry (zeropage)
@@ -10,20 +11,28 @@ import	"fmt"
 // 	addressing    assembler    opc  bytes  cyles
 // 	--------------------------------------------
 // 	zeropage      ADC oper      65    2     3
+//	absolute,X    ADC oper,X    7D	  3	    4*
+//  immidiate	    ADC #oper	    69	  2	    2
 func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+	if memAddr < 0x80 {
+		fmt.Printf("ADC - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+		os.Exit(2)
+	}
 
 	// Increment the beam
 	beamIndex ++
 
-	// // Check for extra cycles (*) in the first opcode cycle
-	// if opc_cycle_count == 1 {
-	// 	if Opcode == 0xB9 || Opcode == 0xBD || Opcode == 0xB1 {
-	// 		// Add 1 to cycles if page boundery is crossed
-	// 		if MemPageBoundary(memAddr, PC) {
-	// 			opc_cycle_extra = 1
-	// 		}
-	// 	}
-	// }
+	// Check for extra cycles (*) in the first opcode cycle
+	if opc_cycle_count == 1 {
+		if opcode == 0x7D {
+			// Add 1 to cycles if page boundery is crossed
+			if MemPageBoundary(memAddr, PC) {
+				opc_cycle_extra = 1
+			}
+		}
+	}
 
 	// Show current opcode cycle
 	if Debug {
@@ -44,8 +53,13 @@ func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		tmp := A
 
 		if Debug {
-			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
-			fmt.Println(dbg_show_message)
+			if bytes == 2 {
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+				fmt.Println(dbg_show_message)
+			} else if bytes == 3 {
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tADC  Add Memory to Accumulator with Carry (zeropage).\tA = A(%d) + Memory[Memory[%02X]](%d) + Carry (%d)) = %d\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, PC+1, Memory[Memory[PC+1]], P[0] , A + Memory[Memory[PC+1]] + P[0] )
+				fmt.Println(dbg_show_message)
+			}
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("ADC", bytes, opc_cycle_count + opc_cycle_extra)

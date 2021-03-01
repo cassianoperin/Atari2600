@@ -67,12 +67,11 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		}
 
 		// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
-		// Read from Memory (>280?)
 		if memAddr < 14 {
-			flags_Z(A & MemTIAWrite[memAddr])
-		// Read from regular registers
-		} else if memAddr < 280 {
-			fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses")
+			flags_Z(A & Memory_TIA_RO[memAddr])
+		// Read from other reserved TIA registers
+		} else if memAddr < 128 {
+			fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
 			os.Exit(2)
 		// Read from RIOT Memory Map (> 0x280)
 		} else {

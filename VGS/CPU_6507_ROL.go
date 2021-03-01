@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // ROL  Rotate One Bit Left (Memory or Accumulator)
@@ -11,6 +12,12 @@ import	"fmt"
 //      --------------------------------------------
 //      zeropage      ROL oper      26    2     5
 func opc_ROL(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+	if memAddr < 0x80 {
+		fmt.Printf("ROL - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+		os.Exit(2)
+	}
 
 	// Increment the beam
 	beamIndex ++

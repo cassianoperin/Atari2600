@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // CPY  Compare Memory and Index Y (immidiate)
@@ -12,6 +13,12 @@ import	"fmt"
 //      immidiate     CPY #oper     C0    2     2
 //      zeropage      CPY oper      C4    2     3
 func opc_CPY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+	if memAddr < 0x80 {
+		fmt.Printf("CPY - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+		os.Exit(2)
+	}
 
 	// Increment the beam
 	beamIndex ++

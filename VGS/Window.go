@@ -15,7 +15,7 @@ var (
 	// second_timer		= time.Tick(time.Nanosecond)			// 1 second to track FPS and draws
 	// second_timer		= time.Tick(time.Second / 30)			// 1 second to track FPS and draws
 	// second_timer		= time.NewTicker(time.Nanosecond)			// 1 second to track FPS and draws
- 	cycle int = 0
+ 	// cycle int = 0
 	)
 
 // func limpa(teste *pixelgl.Window) {
@@ -123,6 +123,9 @@ func Run() {
 							// Runs the interpreter
 							if CPU_Enabled {
 								CPU_Interpreter()
+							} else {
+								// Increment Cycle
+								counter_F_Cycle ++
 							}
 
 							// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
@@ -140,6 +143,9 @@ func Run() {
 							// 	}
 							// }
 
+						// Refresh screen if in Pause mode
+						} else {
+							win.Update()
 						}
 
 			// 	default:

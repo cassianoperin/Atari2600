@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // EOR  Exclusive-OR Memory with Accumulator (immidiate)
@@ -12,6 +13,12 @@ import	"fmt"
 //      immidiate     EOR #oper     49    2     2
 //      zeropage      EOR oper      45    2     3
 func opc_EOR(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+	if memAddr < 0x80 {
+		fmt.Printf("EOR - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+		os.Exit(2)
+	}
 
 	// Increment the beam
 	beamIndex ++

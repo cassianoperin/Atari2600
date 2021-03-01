@@ -45,6 +45,7 @@ CTRLPF D1 (Score colors)
 
 
 ## Missing:
+- Timers
 - Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles
@@ -113,6 +114,9 @@ http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
 ### BRK/IRQ/NMI/RESET:
 https://www.pagetable.com/?p=410
 
+### Memory Map:
+https://atariage.com/forums/topic/192418-mirrored-memory/?tab=comments#comment-2439795
+https://problemkaputt.de/2k6specs.htm#videohttps://problemkaputt.de/2k6specs.htm#memoryandiomap
 
 ### General:
 

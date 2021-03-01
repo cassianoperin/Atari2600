@@ -12,7 +12,7 @@ func Initialize() {
 
 	// Clean Memory Array
 	Memory					= [65536]byte{}
-	MemTIAWrite				= [14]byte{}
+	Memory_TIA_RO		= [14]byte{}
 	// Clean CPU Variables
 	PC				= 0
 	opcode			= 0
@@ -114,6 +114,9 @@ func CPU_Interpreter() {
 		case 0x38:	// Instruction SEC
 			opc_SEC( 1, 2 )
 
+		case 0xF8:	// Instruction SED
+			opc_SED( 1, 2 )
+
 		case 0x18:	// Instruction CLC
 			opc_CLC( 1, 2 )
 
@@ -122,6 +125,9 @@ func CPU_Interpreter() {
 
 		case 0x8A:	// Instruction TXA
 			opc_TXA( 1, 2 )
+
+		case 0x98:	// Instruction TYA
+			opc_TYA( 1, 2 )
 
 		case 0xAA:	// Instruction TAX
 			opc_TAX( 1, 2 )
@@ -199,6 +205,12 @@ func CPU_Interpreter() {
 			}
 			opc_BPL( memValue, 2, 2 )
 
+		case 0xF0:	// Instruction BEQ (relative)
+			if opc_cycle_count == 1 {
+				memValue = addr_mode_Relative(PC+1)
+			}
+			opc_BEQ( memValue, 2, 2 )
+
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
 		case 0xA2:	// Instruction LDX (immediate)
@@ -206,6 +218,13 @@ func CPU_Interpreter() {
 				memAddr, memMode = addr_mode_Immediate(PC+1)
 			}
 			opc_LDX( memAddr, memMode, 2, 2 )
+
+		case 0xA6:	// Instruction LDX (zeropage)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_Zeropage(PC+1)
+			}
+			opc_LDX( memAddr, memMode, 2, 3 )
+
 
 		//-------------------------------------------------- STX --------------------------------------------------//
 
@@ -331,6 +350,12 @@ func CPU_Interpreter() {
 			}
 			opc_CPX( memAddr, memMode, 2, 2 )
 
+		case 0xE4:	// Instruction CPX (zeropage)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_Zeropage(PC+1)
+			}
+			opc_CPX( memAddr, memMode, 2, 3 )
+
 		//-------------------------------------------------- SBC --------------------------------------------------//
 
 		case 0xE5:	// Instruction STY (zeropage)
@@ -360,6 +385,12 @@ func CPU_Interpreter() {
 				memAddr, memMode = addr_mode_Immediate(PC+1)
 			}
 			opc_AND( memAddr, memMode, 2 , 2 )
+
+		case 0x25:	// Instruction AND (zeropage)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_Zeropage(PC+1)
+			}
+			opc_AND( memAddr, memMode, 2 , 3 )
 
 		//-------------------------------------------------- ORA --------------------------------------------------//
 
@@ -439,6 +470,19 @@ func CPU_Interpreter() {
 			}
 			opc_ADC( memAddr, memMode, 2, 3 )
 
+
+		case 0x7D:	// Instruction ADC (absolute,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_AbsoluteX(PC+1)
+			}
+			opc_ADC( memAddr, memMode, 3, 4 )
+
+		case 0x69:	// Instruction ADC (immediate)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_Immediate(PC+1)
+			}
+			opc_ADC( memAddr, memMode, 2, 2 )
+
 		//-------------------------------------------------- ROL --------------------------------------------------//
 
 		case 0x26:	// Instruction ROL (zeropage)
@@ -477,6 +521,11 @@ func CPU_Interpreter() {
 
 	// Increment Instructions per second counter
 	counter_IPS ++
+
+	// if Memory[GRP0] != 0 {
+	// 	fmt.Println(Memory[GRP0])
+	// }
+
 
 }
 

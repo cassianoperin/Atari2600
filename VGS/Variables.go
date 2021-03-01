@@ -16,11 +16,9 @@ type Setting struct {
 
 var (
 
-	ipressed bool = false
-
 	// ------------------------ Hardware Components ------------------------- //
 	Memory		[65536]byte	// Memory
-	MemTIAWrite	[14]byte	// TIA Read-Only additional Registers
+	Memory_TIA_RO	[14]byte	// TIA Read-Only additional Registers (0x30 - 0x3D), requested as READ addresses 0x00 - 0x13
 	PC			uint16		// Program Counter
 	A			byte			// Accumulator
 	X			byte			// Index Register X
@@ -65,6 +63,11 @@ var (
 	screenRefresh_timer	*time.Ticker	// Screen Refresh
 	second_timer		= time.Tick(time.Second)			// 1 second to track FPS and draws
 	messagesClock_timer	*time.Ticker		// Clock used to display messages on screen
+
+	// ----------------------------- RIOT Timer ----------------------------- //
+
+
+
 
 	// ------------------------------- Beamer ------------------------------- //
 	beamIndex	byte 		// Beam index to control where to draw objects using cpu cycles
@@ -162,7 +165,7 @@ var (
 	Pause		bool = false
 
 	// Debug
-	Debug 		bool = false
+	Debug 		bool = true
 	debugGraphics	bool	= false // Graphics Debug mode
 
 )

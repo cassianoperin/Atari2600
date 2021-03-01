@@ -69,11 +69,14 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 				if debugGraphics {
 					fmt.Printf("\tVSYNC Disabled\n")
 				}
-			} else {
+			// NOT MAPPED WHY 42 (2A) YET!!! surroundings game
+			} else if Memory[VSYNC] == 0x2A {
 				if debugGraphics {
-					fmt.Printf("\tVSYNC VALUE !=0 !=2 exiting\t%d\n",Memory[VSYNC] )
+					fmt.Printf("\tVSYNC Enabled (VSYNC = 42) !!!!\n")
 				}
-				os.Exit(0)
+			} else {
+				fmt.Printf("\tVSYNC VALUE !=0 !=2 !=42 exiting\t%d\n",Memory[VSYNC] )
+				os.Exit(2)
 			}
 
 		case int8(COLUBK): //0x09
@@ -83,23 +86,23 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 
 		case int8(GRP0): //0x1B
 			if debugGraphics {
-				fmt.Printf("\tCycle: %d\tGRP0 SET\t%b\n", counter_F_Cycle, Memory[GRP0])
+				fmt.Printf("\tCycle: %d\tGRP0 SET\tGRP0: %b\n", counter_F_Cycle, Memory[GRP0])
 			}
 
 		case int8(GRP1): //0x1C
 			if debugGraphics {
-				fmt.Printf("\tCycle: %d\tGRP1 SET\t%b\n", counter_F_Cycle, Memory[GRP1])
+				fmt.Printf("\tCycle: %d\tGRP1 SET\tGRP1: %b\n", counter_F_Cycle, Memory[GRP1])
 			}
 
 		case int8(RESP0): //0x1B
 			if debugGraphics {
-				fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tP0: %b\n", counter_F_Cycle, beamIndex, Memory[GRP0])
+				fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tGRP0: %b\n", counter_F_Cycle, beamIndex, Memory[GRP0])
 			}
 			XPositionP0 = beamIndex
 
 		case int8(RESP1): //0x1C
 			if debugGraphics {
-				fmt.Printf("\tRESP1 SET - DRAW P1 SPRITE!\tBeam: %d\n", beamIndex)
+				fmt.Printf("\t%d - RESP1 SET - DRAW P1 SPRITE!\tBeam: %d\tGRP1: %b\n", counter_F_Cycle, beamIndex, Memory[GRP1])
 			}
 			XPositionP1 = beamIndex
 
@@ -119,8 +122,8 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			if debugGraphics {
 				fmt.Printf("\tCXCLR SET - Clear Collision Latches\n")
 			}
-			MemTIAWrite[CXPPMM] = 0x00
-			MemTIAWrite[CXP0FB] = 0x00
+			Memory_TIA_RO[CXPPMM] = 0x00
+			Memory_TIA_RO[CXP0FB] = 0x00
 
 		default:
 
@@ -274,21 +277,21 @@ func newLine(win_2nd_level *pixelgl.Window) {
 		// CXP0FB (D7) - P0-PF
 		if collision_P0[i] == 1 {
 			if collision_PF[i] == 1 {
-				MemTIAWrite[CXP0FB] = 0x80
+				Memory_TIA_RO[CXP0FB] = 0x80
 			}
 		}
 
 		// CXPPMM (D7) - P0-P1
 		if collision_P0[i] == 1 {
 			if collision_P1[i] == 1 {
-				MemTIAWrite[CXPPMM] = 0x80
+				Memory_TIA_RO[CXPPMM] = 0x80
 			}
 		}
 
 		// CXP1FB (D7) - P1-PF
 		if collision_P1[i] == 1 {
 			if collision_PF[i] == 1 {
-				MemTIAWrite[CXP1FB] = 0x80
+				Memory_TIA_RO[CXP1FB] = 0x80
 			}
 		}
 
@@ -351,6 +354,5 @@ func newFrame(win_3nd_level *pixelgl.Window) {
 	} else if counter_VSYNC == 3 {
 		counter_VSYNC = 1
 	}
-
 
 }
