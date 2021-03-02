@@ -165,7 +165,7 @@ var (
 	Pause		bool = false
 
 	// Debug
-	Debug 		bool = true
+	Debug 		bool = false
 	debugGraphics	bool	= false // Graphics Debug mode
 
 )

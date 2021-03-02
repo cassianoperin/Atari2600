@@ -99,6 +99,9 @@ func Keyboard(target *pixelgl.Window) {
 
 					// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 					TIA( TIA_Update, target )
+
+					// Draw and update every time for debug
+					imd.Draw(target)
 					target.Update()
 
 				}

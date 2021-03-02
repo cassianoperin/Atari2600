@@ -13,11 +13,10 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 
 	// Don't draw outside visible area
 	if line > 40 && line <= 232 {
-	// if line > 40 && line <= 150 {
 
 		// Don't draw in horizontal blank area
 		if beamIndex * 3 > 68 {
-			drawBackground()
+			TIA_draw()
 		}
 
 	}

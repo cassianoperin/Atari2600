@@ -40,12 +40,11 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | CPU Stack | OK |
 | 6507 CPU Opcodes | 44 / 56 |
 
-CTRLPF D0 (Reflect/Mirror)
-CTRLPF D1 (Score colors)
-
-
 ## Missing:
+- P1 - PF Collision not working (set Memory[NUSIZ1] = 0x04)
+- Player are not well centralized (horizontal movement)
 - Timers
+- BCD
 - Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles
@@ -54,17 +53,27 @@ CTRLPF D1 (Score colors)
 - Sound
 - Implement ISB "Opcode"
 - Implement TIA Collision Detection:
-	a) CXM0P - Not started
-	b) CXM1P - Not started
+	a) CXM0P:
+		D6 - M0-P0: Not started
+		D7 - M0-P1: Not started
+	b) CXM1P:
+		D6 - M1-P1: Not started
+		D7 - M1-P0: Not started
 	c) CXP0FB:
 		D6 - P0–BL: Not started
 		D7 - P0–PF: DONE
 	d) CXP1FB:
 		D6 - P1-BL: Not started
 		D7 - P1-PF: DONE
-	e) CXM0FB - Not started
-	f) CXM1FB - Not started
-	g) CXBLPF - Not started
+	e) CXM0FB:
+		D6 - M0-BL: Not started
+		D7 - M0-PF: Not started
+	f) CXM1FB:
+		D6 - M1-BL: Not started
+		D7 - M1-PF: Not started
+	g) CXBLPF:
+		D6 - -----
+		D7 - BL-PF: Not started
 	h) CXPPMM:
 		D6 - M0–M1: Not started
 		D7 - P0-P1: DONE

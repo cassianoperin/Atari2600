@@ -9,7 +9,7 @@ import (
 )
 
 
-func drawBackground() {
+func TIA_draw() {
 
 	// --------------------------- Draw the 3 sprites of CPU cycle --------------------------- //
 	for i := 0 ; i < 3 ; i ++ {
@@ -336,9 +336,9 @@ func drawBackground() {
 
 
 
-
-			// Memory[NUSIZ0] = 0x00
-			// Memory[NUSIZ1] = 0x00
+			// Memory[NUSIZ0] = 0x07
+			// Memory[NUSIZ1] = 0x07
+			// Memory[REFP1] = 1
 
 
 
@@ -348,22 +348,35 @@ func drawBackground() {
 			// Check if GRP0 was set and draw the sprite
 			if Memory[GRP0] != 0 {
 
+				// Determine the initial position of the player on the line
+				P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
+
 				// ----------------------------------------------- NUSIZ0 = 0x00 ----------------------------------------------- //
 				if Memory[NUSIZ0] == 0x00 {
-
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -379,19 +392,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x01 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x01 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 16 {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -407,19 +430,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x02 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x02 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 32 {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -435,19 +468,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x03 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x03 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 16 || pixel_position == P0_base_position + int(P0_bit) + 32 {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -463,19 +506,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x04 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x04 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 64 {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -491,19 +544,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x05 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x05 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) {
 
-						if Memory[GRP0] >> (7 - (P0_bit/2) ) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - (P0_bit/2) ) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit/2) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -519,19 +582,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x06 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x06 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) || pixel_position == P0_base_position + int(P0_bit) + 32 || pixel_position == P0_base_position + int(P0_bit) + 64 {
 
-						if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -545,19 +618,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ0 = 0x07 ----------------------------------------------- //
 				} else if Memory[NUSIZ0] == 0x07 {
 
-					// Determine the initial position of the player on the line
-					P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position + int(P0_bit) {
 
-						if Memory[GRP0] >> (7 - (P0_bit/4) ) & 0x01 == 1 {
-							// READ COLUP0 - Set Player color
-							R, G, B := NTSC(Memory[COLUP0])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0] >> (7 - (P0_bit/4) ) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player0 pixel positions for collision detection
-							collision_P0[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP0] >> (P0_bit/4) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP0])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P0[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -580,22 +663,35 @@ func drawBackground() {
 			// Check if GRP1 was set and draw the sprite
 			if Memory[GRP1] != 0 {
 
+				// Determine the initial position of the player on the line
+				P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
+
 				// ----------------------------------------------- NUSIZ1 = 0x00 ----------------------------------------------- //
 				if Memory[NUSIZ1] == 0x00 {
-
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -611,19 +707,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x01 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x01 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 16 {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -639,19 +745,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x02 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x02 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 32 {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -667,19 +783,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x03 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x03 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 16 || pixel_position == P1_base_position + int(P1_bit) + 32 {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -695,19 +821,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x04 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x04 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 64 {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -723,19 +859,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x05 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x05 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) {
 
-						if Memory[GRP1] >> (7 - (P1_bit/2) ) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit/2) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit/2) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -751,19 +897,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x06 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x06 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) || pixel_position == P1_base_position + int(P1_bit) + 32 || pixel_position == P1_base_position + int(P1_bit) + 64 {
 
-						if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -777,19 +933,29 @@ func drawBackground() {
 				// ----------------------------------------------- NUSIZ1 = 0x07 ----------------------------------------------- //
 				} else if Memory[NUSIZ1] == 0x07 {
 
-					// Determine the initial position of the player on the line
-					P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
-
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position + int(P1_bit) {
 
-						if Memory[GRP1] >> (7 - (P1_bit/4) ) & 0x01 == 1 {
-							// READ COLUP1 - Set Player color
-							R, G, B := NTSC(Memory[COLUP1])
-							imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+						// handle the order of the bits (normal or inverted)
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1] >> (7 - P1_bit/4) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-							// Update the slice with Player1 pixel positions for collision detection
-							collision_P1[pixel_position] = 1
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
+						// If Reflect Player Enabled (REFP1), invert the order of GRPn
+						} else {
+							if Memory[GRP1] >> (P1_bit/4) & 0x01 == 1 {
+								// READ COLUP0 - Set Player color
+								R, G, B := NTSC(Memory[COLUP1])
+								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
+
+								// Update the slice with Player0 pixel positions for collision detection
+								collision_P1[pixel_position] = 1
+							}
 						}
 
 						// Incremente the bit of the image
@@ -872,3 +1038,14 @@ func FinePositioning(HMPX byte) int8 {
 	return value
 
 }
+
+
+// func invert_bits(value byte) byte {
+// 	// fmt.Printf("\n\n%08b", value)
+// 	value = (value & 0xF0) >> 4 | (value & 0x0F) << 4;
+// 	value = (value & 0xCC) >> 2 | (value & 0x33) << 2;
+// 	value = (value & 0xAA) >> 1 | (value & 0x55) << 1;
+// 	// fmt.Printf("\n\n%08b", value)
+//
+// 	return value;
+// }
