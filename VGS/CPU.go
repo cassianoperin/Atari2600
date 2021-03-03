@@ -211,6 +211,12 @@ func CPU_Interpreter() {
 			}
 			opc_BEQ( memValue, 2, 2 )
 
+		case 0x70:	// Instruction BVS (relative)
+			if opc_cycle_count == 1 {
+				memValue = addr_mode_Relative(PC+1)
+			}
+			opc_BVS( memValue, 2, 2 )
+
 		//-------------------------------------------------- LDX --------------------------------------------------//
 
 		case 0xA2:	// Instruction LDX (immediate)
@@ -228,7 +234,7 @@ func CPU_Interpreter() {
 
 		//-------------------------------------------------- STX --------------------------------------------------//
 
-		case 0x86: // Instruction STX (zeropage)
+		case 0x86:	// Instruction STX (zeropage)
 			if opc_cycle_count == 1 {
 				memAddr, memMode = addr_mode_Zeropage(PC+1)
 			}
@@ -508,6 +514,11 @@ func CPU_Interpreter() {
 		// 	}
 		// 	PC +=1
 
+		case 0xFF:
+			Show()
+			os.Exit(0)
+
+
 		//-------------------------------------------- No Opcode Found --------------------------------------------//
 
 		default:
@@ -521,11 +532,6 @@ func CPU_Interpreter() {
 
 	// Increment Instructions per second counter
 	counter_IPS ++
-
-	// if Memory[GRP0] != 0 {
-	// 	fmt.Println(Memory[GRP0])
-	// }
-
 
 }
 

@@ -24,8 +24,7 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 
 	switch action {
 		// --------------------------------------- WSYNC --------------------------------------- //
-		// Halt CPU until next scanline starts
-		// Skip to the next scanline
+		// Halt CPU until next scanline starts and skip to the next scanline
 		case int8(WSYNC): //0x02
 			if debugGraphics {
 				fmt.Printf("\tLine: %d\tWSYNC SET (Beam index: %d)\n", line, beamIndex)
@@ -99,7 +98,7 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			}
 			XPositionP0 = beamIndex
 
-		case int8(RESP1): //0x1C
+		case int8(RESP1): //0x11
 			if debugGraphics {
 				fmt.Printf("\t%d - RESP1 SET - DRAW P1 SPRITE!\tBeam: %d\tGRP1: %b\n", counter_F_Cycle, beamIndex, Memory[GRP1])
 			}
@@ -123,18 +122,17 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			}
 			Memory_TIA_RO[CXPPMM] = 0x00
 			Memory_TIA_RO[CXP0FB] = 0x00
+			Memory_TIA_RO[CXP1FB] = 0x00
 
 		default:
 
 	}
 
 	// When finished drawing the LINE, reset Beamer and start a new LINE
-	// Needed for colorbg demo
 	if beamIndex > 76 {
 		newLine(win_2nd_level)
-		// Pause = true
 	}
-	//
+
 	// // Draw messages into the screen
 	// if ShowMessage {
 	// 	// textMessage.Clear()
@@ -156,78 +154,50 @@ func check_VSYNC_VBLANK(win_2nd_level *pixelgl.Window) {
 	// If line <= 262, handle normally
 	} else {
 
-			// Test if in Vertical Blank (do not draw anything)
-			if Memory[VBLANK] == 2 {
+		// Test if in Vertical Blank (do not draw anything)
+		if Memory[VBLANK] == 2 {
 
-				// During Vertical Blank, if vsync is set
-				if  Memory[VSYNC] == 2  {
-					newFrame(win_2nd_level)
-					// win_2nd_level.Clear(colornames.Red)
-					// win_2nd_level.Update()
+			// During Vertical Blank, if vsync is set
+			if  Memory[VSYNC] == 2  {
+				newFrame(win_2nd_level)
+				// win_2nd_level.Clear(colornames.Black)
+				// win_2nd_level.Update()
 
-					// When VSYNC is set, CPU inform CRT to start a new frame
-					// 3 lines VSYNC
+				// ENABLE VSYNC
+				if Memory[VSYNC] == 0x02 {
 
-					// ENABLE VSYNC
-					if Memory[VSYNC] == 0x02 {
-
-						if Memory[VBLANK] == 2 {
-							if debugGraphics {
-								fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
-							}
-						} else {
-							if debugGraphics {
-								fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
-							}
-						}
-
-					// DISABLE VSYNC
-					} else if Memory[VSYNC] == 0x00 {
+					if Memory[VBLANK] == 2 {
 						if debugGraphics {
-							fmt.Printf("\tCRT - VSYNC DISABLED\n")
+							fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
 						}
-
 					} else {
-						fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
-						os.Exit(2)
+						if debugGraphics {
+							fmt.Printf("\tLine: %d\tCRT - VSYNC without VBLANK - Not correct!!!\n\n", line)
+						}
 					}
 
-				// 37 lines VBLANK
-				} else if Memory[VBLANK] == 2 {
+				// DISABLE VSYNC
+				} else if Memory[VSYNC] == 0x00 {
 					if debugGraphics {
-						fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
+						fmt.Printf("\tCRT - VSYNC DISABLED\n")
 					}
-					// visibleArea = false // Inform that finished visible lines
 
+				} else {
+					fmt.Printf("\tCRT - VSYNC VALUE NOT 0 or 2! Exiting!\n")
+					os.Exit(2)
 				}
 
-			// VBLANK turned OFF, start drawing the 192 lines of visible Area
-			} else {
-				// visibleArea = true // Inform that reached visible lines
-
-
-
-
-
-
-				// // DRAW PLAYER 0
-				if Memory[GRP0] != 0 {
-					// fmt.Printf("Cycle: %d - DRAW P0\n", Cycle)
-					// drawPlayer(0, win_2nd_level)
-					// P0_draw_line = 232 - line
-					// fmt.Println(P0_draw_line)
-
+			// 37 lines VBLANK
+			} else if Memory[VBLANK] == 2 {
+				if debugGraphics {
+					fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line,Memory[VBLANK], Memory[VSYNC])
 				}
-
-				// // DRAW PLAYER 1
-				if Memory[GRP1] != 0 {
-					// drawPlayer(1, win_2nd_level)
-				}
-
 			}
 
+		// VBLANK turned OFF, start drawing the 192 lines of visible Area
 		}
 
+	}
 
 }
 
@@ -249,7 +219,7 @@ func newLine(win_2nd_level *pixelgl.Window) {
 	// Reset Collision Detection Line Array
 
 
-	// // Print Player 0
+	// // Print Collision Player 0 Slice
 	// for i := 0 ; i < len(collision_P0) ; i++ {
 	// 	if collision_P0[i] == 1 {
 	// 		fmt.Printf("#")
@@ -259,7 +229,17 @@ func newLine(win_2nd_level *pixelgl.Window) {
 	// }
 	// fmt.Printf("\n")
 
-	// // Print Playfield
+	// // Print Collision Player 1 Slice
+	// for i := 0 ; i < len(collision_P1) ; i++ {
+	// 	if collision_P1[i] == 1 {
+	// 		fmt.Printf("#")
+	// 	} else {
+	// 		fmt.Printf(" ")
+	// 	}
+	// }
+	// fmt.Printf("\n")
+
+	// // Print Collision Playfield Slice
 	// for i := 0 ; i < len(collision_PF) ; i++ {
 	// 	if collision_PF[i] == 1 {
 	// 		fmt.Printf("#")
@@ -295,9 +275,7 @@ func newLine(win_2nd_level *pixelgl.Window) {
 		}
 
 
-
 	}
-
 
 
 	// After processing, clean collision detection slices
@@ -306,8 +284,6 @@ func newLine(win_2nd_level *pixelgl.Window) {
 	collision_P1 = [161]byte{}
 
 }
-
-
 
 
 

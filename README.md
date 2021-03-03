@@ -38,10 +38,10 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
-| 6507 CPU Opcodes | 44 / 56 |
+| 6507 CPU Opcodes | 46 / 56 |
+
 
 ## Missing:
-- P1 - PF Collision not working (set Memory[NUSIZ1] = 0x04)
 - Player are not well centralized (horizontal movement)
 - Timers
 - BCD

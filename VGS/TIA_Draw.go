@@ -24,8 +24,6 @@ func TIA_draw() {
 			R, G, B := NTSC(Memory[COLUBK])
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
-			// Memory[PF0] = 80
-
 			// ----------------------------------------- PF0 ----------------------------------------- //
 			if pixel_position <= 16 {
 
@@ -335,12 +333,11 @@ func TIA_draw() {
 
 
 
-
+			// // NUSIZ and REFP Player draw tests
 			// Memory[NUSIZ0] = 0x07
-			// Memory[NUSIZ1] = 0x07
+			// Memory[NUSIZ1] = 0x04
 			// Memory[REFP1] = 1
-
-
+			// Memory[GRP1] = 8
 
 
 			// ---------------------------------- Draw Player 0 ----------------------------------- //
