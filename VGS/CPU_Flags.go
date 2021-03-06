@@ -1,6 +1,5 @@
 package VGS
 
-import	"os"
 import	"fmt"
 
 //-------------------------------------------------- Processor Flags --------------------------------------------------//
@@ -73,123 +72,44 @@ func flags_C_Subtraction(value1, value2 byte) {
 }
 
 // oVerflow Flag for ADC
-// value1 = Accumulator, value2 = memory, value3 = carry flag
-func Flags_V_ADC(value1, value2, value3 byte) {
+// value1 = Accumulator, value2 = memory
+func Flags_V_ADC(value1, value2 byte) {
 	var (
-		carry_OUT 		byte = 0	// Keep the value of the Carry OUT
-		carry_6	 		byte = 0	// Keep the value of the Carry of bit 6 [address7 in the array]
-
-		// First SUM
-		sum_v1_v2			[8]byte	// Keep the result of the sum of value1 and value2
-		carry_v1_v2		[8]byte	// Keep the carry array of sum of value1 and value2
-
-		// Second SUM
-		sum_1stsum_v3		[8]byte	// Keep the result of the first sum + value 3
-		carry_1stsum_v3	[8]byte	// Keep the carry array of the first sum and value 3
+		carry_bit		[8]byte
+		carry_OUT 	byte = 0
 	)
+	// fmt.Printf("\n  %08b\t%d",value1,value1)
+	// fmt.Printf("\n  %08b\t%d",value2,value2)
 
 	if Debug {
 		fmt.Printf("\tFlag V: %d ->", P[6])
 	}
 
+	// Set the carry flag on bit 0 of carry_bit Array to bring the carry if exists
+	carry_bit[0] = P[0]
+
 	// Make the magic
-	for i:=0 ; i <= 7 ; i++ 	{
+	for i:=0 ; i <= 7 ; i++{
 		// sum the bit from value one + bit from value 2 + carry value
-		tmp := (value1 >> byte(i) & 0x01) + (value2 >> byte(i) & 0x01) + carry_v1_v2[i]
+		tmp := (value1 >> byte(i) & 0x01) + (value2 >> byte(i) & 0x01) + carry_bit[i]
 		if tmp >= 2 {
 			// set the carry out
 			if i == 7 {
 				carry_OUT = 1
 			} else {
-				carry_v1_v2[i+1] = 1
+				carry_bit[i+1] = 1
 			}
-			// Sum
-			if tmp == 2 {
-				sum_v1_v2[i]=0
-			} else if tmp == 3 {
-				sum_v1_v2[i]=1
-			} else {
-				fmt.Printf("Flags_V_ADC unexpected result.\n")
-				os.Exit(2)
-			}
-		} else {
-			sum_v1_v2[i]=tmp
 		}
-	}
-	
-	// fmt.Printf("\n\n  ")
-	//
-	// for i := 7 ; i >= 0 ; i-- {
-	// 	fmt.Printf("%d",carry_v1_v2[i])
-	// }
-	// fmt.Printf("\n")
-	// fmt.Printf("\n  %08b\t%d",value1,value1)
-	// fmt.Printf("\n  %08b\t%d",value2,value2)
-	// fmt.Printf("\n  ---------\n  ")
-	// for i := 7 ; i >= 0 ; i-- {
-	// 	fmt.Printf("%d",sum_v1_v2[i])
-	// }
-	// fmt.Printf("\n")
-
-
-	// Sum the first result with accumulator
-	// Make the magic
-	for i:=0 ; i <= 7 ; i++ 	{
-		// sum the bit from value one + bit from value 2 + carry value
-		tmp := (sum_v1_v2[i]) + (value3 >> byte(i) & 0x01) + carry_1stsum_v3[i]
-		if tmp >= 2 {
-			// set the carry out
-			if i == 7 {
-				carry_OUT = 1
-			} else {
-				carry_1stsum_v3[i+1] = 1
-			}
-			// Sum
-			if tmp == 2 {
-				sum_1stsum_v3[i]=0
-			} else if tmp == 3 {
-				sum_1stsum_v3[i]=1
-			} else {
-				fmt.Printf("Flags_V_ADC unexpected result.\n")
-				os.Exit(2)
-			}
-		} else {
-			sum_1stsum_v3[i]=tmp
-		}
-	}
-
-	// fmt.Printf("\n\n  ")
-	//
-	// for i := 7 ; i >= 0 ; i-- {
-	// 	fmt.Printf("%d",carry_1stsum_v3[i])
-	// }
-	// fmt.Printf("\n\n  ")
-	// for i := 7 ; i >= 0 ; i-- {
-	// 	fmt.Printf("%d",sum_v1_v2[i])
-	// }
-	// // fmt.Printf("\n")
-	// fmt.Printf("\n  %08b\t%d",value3,value3)
-	// fmt.Printf("\n  ---------\n  ")
-	// for i := 7 ; i >= 0 ; i-- {
-	// 	fmt.Printf("%d",sum_1stsum_v3[i])
-	// }
-	// fmt.Printf("\n\n\n")
-
-
-	// Calculate the last bit of carry based on two sums
-	if carry_v1_v2[7] == 1 || carry_1stsum_v3[7] == 1 {
-		carry_6 = 1
 	}
 
 	// Formula to calculate: V = C6 xor C7
-	P[6] = carry_6 ^ carry_OUT
+	P[6] = carry_bit[7] ^ carry_OUT
 	// fmt.Printf("\nV: %d", P[6])
 
 	if Debug {
 		fmt.Printf(" %d\n", P[6])
 	}
 }
-
 
 // func Flags_V_ADC(value1, value2 byte) {
 // 	var (

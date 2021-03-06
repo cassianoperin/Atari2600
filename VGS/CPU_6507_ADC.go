@@ -102,7 +102,7 @@ func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			// Immediate memory mode
 			// if opcode == 0x69 {
 				// First V because it need the original carry flag value
-				Flags_V_ADC(original_A, Memory[memAddr], P[0])
+				Flags_V_ADC(original_A, Memory[memAddr])
 			// All other modes
 			// } else {
 			// 	// First V because it need the original carry flag value
@@ -151,7 +151,7 @@ func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			// Immediate memory mode
 			// if opcode == 0x69 {
 				// First V because it need the original carry flag value
-				Flags_V_ADC(original_A, Memory[memAddr], P[0])
+				Flags_V_ADC(original_A, Memory[memAddr])
 			// All other modes
 			// } else {
 			// 	// First V because it need the original carry flag value
