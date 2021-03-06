@@ -117,7 +117,6 @@ func opc_ADC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		// ----------------------------------- Decimal Mode ----------------------------------- //
 
-		// Decimal flag ON (Decimal Mode)
 		} else {
 			var bcd_Mem int64
 

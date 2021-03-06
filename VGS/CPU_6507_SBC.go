@@ -51,48 +51,61 @@ func opc_SBC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		// Reset to default value
 		TIA_Update = -1
 
+
+
 	// After spending the cycles needed, execute the opcode
 	} else {
 
 		original_A := A
 
-		if Debug {
-			dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSBC  Subtract Memory from Accumulator with Borrow.\tA = A(%d) - Memory[%02X](%d) - Borrow(Inverted Carry)(%d) = %d\n", opcode, Memory[PC+1], mode, A, PC+1, Memory[memAddr], borrow , A - Memory[memAddr] - borrow )
-			fmt.Println(dbg_show_message)
+		// --------------------------------- Binary / Hex Mode -------------------------------- //
 
-			// Collect data for debug interface after finished running the opcode
-			dbg_opcode_message("SBC", bytes, opc_cycle_count + opc_cycle_extra)
+		if P[3] == 0 {
+
+			if Debug {
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: %s]\tSBC  Subtract Memory from Accumulator with Borrow.\tA = A(%d) - Memory[%02X](%d) - Borrow(Inverted Carry)(%d) = %d\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], borrow , A - Memory[memAddr] - borrow )
+				fmt.Println(dbg_show_message)
+
+				// Collect data for debug interface after finished running the opcode
+				dbg_opcode_message("SBC", bytes, opc_cycle_count + opc_cycle_extra)
+			}
+
+			// Result
+			A = A - Memory[memAddr] - borrow
+
+			// For the flags:
+			// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
+			// value2 := Memory[PC+1] - borrow
+
+			// First V because it need the original carry flag value
+			Flags_V_SBC(original_A, Memory[memAddr])
+			// After, update the carry flag value
+			flags_C_Subtraction(original_A, A)
+
+			// // Clear Carry if overflow in bit 7 // NOT NECESSARY
+			// if P[6] == 1 {
+			// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
+			// 	P[0] = 0
+			// }
+
+			flags_Z(A)
+			flags_N(A)
+
+			// Increment PC
+			PC += bytes
+
+			// Reset Opcode Cycle counter
+			opc_cycle_count = 1
+
+			// Reset Opcode Extra Cycle counter
+			opc_cycle_extra = 0
+
+		// ----------------------------------- Decimal Mode ----------------------------------- //
+
+		} else {
+			fmt.Println("SBC DECIMAL NOT INPLEMENTED YET! EXITING")
+			os.Exit(2)
 		}
-
-		// Result
-		A = A - Memory[memAddr] - borrow
-
-		// For the flags:
-		// The subtraction is VALUE1 (A) - VALUE2 (Memory[PC+1] - (P[0] ^ 1)
-		value2 := Memory[PC+1] - borrow
-
-		// First V because it need the original carry flag value
-		Flags_V_SBC(original_A, value2)
-		// After, update the carry flag value
-		flags_C_Subtraction(original_A, value2)
-
-		// // Clear Carry if overflow in bit 7 // NOT NECESSARY
-		// if P[6] == 1 {
-		// 	fmt.Printf("\n\tCarry cleared due to an overflow!")
-		// 	P[0] = 0
-		// }
-
-		flags_Z(A)
-		flags_N(A)
-
-		// Increment PC
-		PC += bytes
-
-		// Reset Opcode Cycle counter
-		opc_cycle_count = 1
-
-		// Reset Opcode Extra Cycle counter
-		opc_cycle_extra = 0
 	}
 
 }

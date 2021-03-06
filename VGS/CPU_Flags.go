@@ -131,6 +131,9 @@ func Flags_V_SBC(value1, value2 byte) {
 		fmt.Printf("\tFlag V: %d ->", P[6])
 	}
 
+	// Set the carry flag on bit 0 of carry_bit Array to bring the carry if exists
+	carry_bit[0] = P[0]
+
 	// Make the magic
 	for i:=0 ; i <= 7 ; i++{
 		// sum the bit from value one + bit from value 2 + carry value
@@ -145,15 +148,7 @@ func Flags_V_SBC(value1, value2 byte) {
 		}
 	}
 
-	// fmt.Printf("\n  %08b\tDecimal: %d\t(SUM)",value1+value2+carry_bit[0],value1+value2+carry_bit[0])
-	//
-	// fmt.Printf("\n\n%d ",carry_OUT)
-	// for i:=7 ; i >=0 ; i--{
-	// 	fmt.Printf("%d",carry_bit[i])
-	// }
-	// fmt.Printf("\t(carry OUT | carry array)")
-
-	// Formula to calculate: V = C6 xor C7 (if they are different is a overflow)
+	// Formula to calculate: V = C6 xor C7
 	P[6] = carry_bit[7] ^ carry_OUT
 	// fmt.Printf("\nV: %d", P[6])
 
