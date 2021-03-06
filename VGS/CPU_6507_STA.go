@@ -2,7 +2,7 @@ package VGS
 
 import	"fmt"
 
-// STA  Store Accumulator in Memory (zeropage,X)
+// STA  Store Accumulator in Memory
 //
 //      A -> M                           N Z C I D V
 //                                       - - - - - -

@@ -42,9 +42,9 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 
 
 ## Missing:
+- REVIEW SBC and Overflow
 - Player are not well centralized (horizontal movement)
 - Timers
-- BCD
 - Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles

@@ -16,6 +16,8 @@ type Setting struct {
 
 var (
 
+	CPU_MODE	byte = 0	// 0 for Atari, 1 for pure 6502
+
 	// ------------------------ Hardware Components ------------------------- //
 	Memory		[65536]byte	// Memory
 	Memory_TIA_RO	[14]byte	// TIA Read-Only additional Registers (0x30 - 0x3D), requested as READ addresses 0x00 - 0x13

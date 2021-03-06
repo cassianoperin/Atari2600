@@ -59,6 +59,7 @@ func addr_mode_Immediate(offset uint16) (uint16, string) {
 	}
 
 	return memAddr, mode
+
 }
 
 
@@ -116,6 +117,20 @@ func addr_mode_IndirectY	(offset uint16) (uint16, string) {
 	return memAddr, mode
 }
 
+// Indirect,X
+func addr_mode_IndirectX	(offset uint16) (uint16, string) {
+
+	memAddr  := ( uint16(Memory[Memory[offset+1]])<<8 | uint16(Memory[Memory[offset]]) ) + uint16(X)
+	value := Memory[memAddr]
+	mode		:= "Indirect,X"
+
+	if Debug {
+		fmt.Printf("\t%s addressing mode.\tMemory[%04X]\t\tValue obtained: %02X\n", mode, memAddr, value)
+	}
+	return memAddr, mode
+}
+
+
 // ---------------------------- Library Function ---------------------------- //
 
 // Memory Page Boundary cross detection
@@ -153,4 +168,22 @@ func DecodeTwoComplement(num byte) int8 {
 	}
 
 	return sum
+}
+
+// BCD - Binary Coded Decimal
+func BCD(number byte) byte {
+
+	var tmp_hundreds, tmp_tens, tmp_ones, bcd	byte
+
+	// Split the Decimal Value
+	tmp_hundreds = number / 100		// Hundreds
+	tmp_tens = (number / 10)  % 10	// Tens
+	tmp_ones = (number % 100) % 10	// Ones
+
+	fmt.Printf("H: %d\tT: %d\tO: %d\n", tmp_hundreds, tmp_tens, tmp_ones)
+
+	// Combine in one decimal number
+	bcd = (tmp_hundreds * 100) + (tmp_tens * 10) + tmp_ones
+
+	return bcd
 }

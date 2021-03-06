@@ -11,15 +11,15 @@ import (
 func Initialize() {
 
 	// Clean Memory Array
-	Memory					= [65536]byte{}
+	Memory			= [65536]byte{}
 	Memory_TIA_RO		= [14]byte{}
 	// Clean CPU Variables
-	PC				= 0
+	PC			= 0
 	opcode			= 0
-	X				= 0
-	Y				= 0
-	A				= 0
-	P				= [8]byte{}
+	X			= 0
+	Y			= 0
+	A			= 0
+	P			= [8]byte{}
 
 	// Cycles
 	counter_F_Cycle	= 0
@@ -165,6 +165,9 @@ func CPU_Interpreter() {
 		case 0xEA:	// Instruction NOP
 			opc_NOP( 1, 2 )
 
+		case 0xBA:	// Instruction TSX
+			opc_TSX( 1, 2 )
+
 		//-------------------------------------------------- Just zeropage --------------------------------------------------//
 
 		case 0xE6:	// Instruction INC (zeropage)
@@ -186,6 +189,12 @@ func CPU_Interpreter() {
 				memValue = addr_mode_Relative(PC+1)
 			}
 			opc_BCC( memValue, 2, 2 )
+
+		case 0x50:	// Instruction BVC (relative)
+			if opc_cycle_count == 1 {
+				memValue = addr_mode_Relative(PC+1)
+			}
+			opc_BVC( memValue, 2, 2 )
 
 		case 0xB0:	// Instruction BCS (relative)
 			if opc_cycle_count == 1 {
@@ -406,6 +415,13 @@ func CPU_Interpreter() {
 			}
 			opc_ORA( memAddr, memMode, 2, 3 )
 
+
+		case 0x01:	// Instruction ORA (indirect,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_IndirectX(PC+1)
+			}
+			opc_ORA( memAddr, memMode, 2, 6 )
+
 		//-------------------------------------------------- EOR --------------------------------------------------//
 
 		case 0x49:	// Instruction EOR (immediate)
@@ -476,7 +492,6 @@ func CPU_Interpreter() {
 			}
 			opc_ADC( memAddr, memMode, 2, 3 )
 
-
 		case 0x7D:	// Instruction ADC (absolute,X)
 			if opc_cycle_count == 1 {
 				memAddr, memMode = addr_mode_AbsoluteX(PC+1)
@@ -501,22 +516,28 @@ func CPU_Interpreter() {
 
 		// ISB (INC FOLLOWED BY SBC - IMPLEMENT IT!!!!!!)
 		// FF (Filled ROM)
-		// case 0xFF:
-		// 	if Debug {
-		// 		fmt.Printf("\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", opcode)
-		//
-		// 		// Collect data for debug interface just on first cycle
-		// 		if opc_cycle_count == 1 {
-		// 			debug_opc_text		= fmt.Sprintf("%04x     ISB*     ;%d", PC, opc_cycles)
-		// 			dbg_opc_bytes		= bytes
-		// 			dbg_opc_opcode		= opcode
-		// 		}
-		// 	}
-		// 	PC +=1
-
 		case 0xFF:
-			Show()
-			os.Exit(0)
+			// Atari 2600 interpreter mode
+			if CPU_MODE == 0 {
+				// 	if Debug {
+				// 		fmt.Printf("\tOpcode %02X [1 byte]\tFilled ROM.\tPC incremented.\n", opcode)
+				//
+				// 		// Collect data for debug interface just on first cycle
+				// 		if opc_cycle_count == 1 {
+				// 			debug_opc_text		= fmt.Sprintf("%04x     ISB*     ;%d", PC, opc_cycles)
+				// 			dbg_opc_bytes		= bytes
+				// 			dbg_opc_opcode		= opcode
+				// 		}
+				// 	}
+				// 	PC +=1
+				fmt.Printf("\tOpcode 0xFF NOT IMPLEMENTED YET!! Exiting.\n")
+				os.Exit(0)
+
+			// 6507 interpreter mode
+			} else {
+				// fmt.Println(Memory[0x20], Memory[0x21], Memory[0x22])
+				os.Exit(0)
+			}
 
 
 		//-------------------------------------------- No Opcode Found --------------------------------------------//

@@ -17,6 +17,7 @@ func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// Increment the beam
 	beamIndex ++
 
+
 	// // Check for extra cycles (*) in the first opcode cycle
 	// if opc_cycle_count == 1 {
 	// 	if Opcode == 0xB9 || Opcode == 0xBD || Opcode == 0xB1 {
@@ -26,6 +27,7 @@ func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// 		}
 	// 	}
 	// }
+
 
 	// Show current opcode cycle
 	if Debug {
@@ -44,19 +46,23 @@ func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		var tmp byte
 
-		// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
-		if memAddr < 14 {
-			tmp = A - Memory_TIA_RO[memAddr]
-		// Read from other reserved TIA registers
-		} else if memAddr < 128 {
-			fmt.Printf("CMP - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
-			os.Exit(2)
-		// Read from RIOT Memory Map (> 0x280)
+		// Atari 2600 interpreter mode
+		if CPU_MODE == 0 {
+			// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
+			if memAddr < 14 {
+				tmp = A - Memory_TIA_RO[memAddr]
+			// Read from other reserved TIA registers
+			} else if memAddr < 128 {
+				fmt.Printf("CMP - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
+				os.Exit(2)
+			// Read from RIOT Memory Map (> 0x280)
+			} else {
+				tmp = A - Memory[memAddr]
+			}
+		// 6507 interpreter mode
 		} else {
 			tmp = A - Memory[memAddr]
 		}
-
-		// tmp = A - Memory[memAddr]
 
 		if Debug {
 			// Access to TIA RO Memory
@@ -101,9 +107,5 @@ func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		// Reset Opcode Extra Cycle counter
 		opc_cycle_extra = 0
 	}
-
-	// if opcode == 0xc5 {
-	// 	Pause = true
-	// }
 
 }

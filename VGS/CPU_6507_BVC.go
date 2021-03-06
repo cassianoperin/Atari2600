@@ -1,31 +1,28 @@
 package VGS
 
-import	"os"
 import	"fmt"
 
-// BVS  Branch on Overflow Set
+// BVC  Branch on Overflow Clear
 //
-//      branch on V = 1                  N Z C I D V
+//      branch on V = 0                  N Z C I D V
 //                                       - - - - - -
 //
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
-//      relative      BVC oper      70    2     2**
-func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
+//      relative      BVC oper      50    2     2**
+func opc_BVC(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 	// Increment the beam
 	beamIndex ++
 
-	// If overflow is set
-	if P[6] == 1 {
+	// If Overflow is clear
+	if P[6] == 0 {
 
 		// Check for extra cycles (*) in the first opcode cycle
 		if opc_cycle_count == 1 {
 			// Add 1 to cycles if page boundery is crossed
 			if MemPageBoundary(PC, PC + uint16(value) + 2 ) {
 				opc_cycle_extra = 1
-				fmt.Println("PAUSA PARA VALIDAR BVS COM PAGE BOUNDARY")
-				Pause = true
 			}
 		}
 
@@ -44,15 +41,14 @@ func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBVS  Branch on Overflow Set.\tOverflow EQUAL 1, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes] [Mode: Relative]\tBVC  Branch on Overflow Clear.\tOverflow EQUAL 0, JUMP TO %04X\n", opcode, Memory[PC+1], PC+2+uint16(value) )
 				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
-				dbg_opcode_message("BVS", bytes, opc_cycle_count + opc_cycle_extra)
-
+				dbg_opcode_message("BVC", bytes, opc_cycle_count + opc_cycle_extra)
 			}
 
-			// PC + the number of bytes to jump on overflow clear
+			// PC + the number of bytes to jump on Overflow clear
 			PC += uint16(value)
 
 			// Increment PC
@@ -63,13 +59,9 @@ func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 			// Reset Opcode Extra Cycle counter
 			opc_cycle_extra = 0
-
-			fmt.Println("Controlled exit to validate the branch when overflow is detected. Exiting.")
-			os.Exit(2)
 		}
 
-
-		// If overflow is clear
+	// If Overflow is set
 	} else {
 
 		// Show current opcode cycle
@@ -84,11 +76,11 @@ func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 		// After spending the cycles needed, execute the opcode
 		} else {
 			if Debug {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBVS  Branch on Overflow Set.\tOverflow NOT EQUAL 1, PC+2 \n", opcode, Memory[PC+1])
+				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X%02X [2 bytes]\tBVC  Branch on Overflow Clear.\tOverflow NOT EQUAL 0, PC+2\n", opcode, Memory[PC+1])
 				fmt.Println(dbg_show_message)
 
 				// Collect data for debug interface after finished running the opcode
-				dbg_opcode_message("BVS", bytes, opc_cycle_count + opc_cycle_extra)
+				dbg_opcode_message("BVC", bytes, opc_cycle_count + opc_cycle_extra)
 			}
 
 			// Increment PC
