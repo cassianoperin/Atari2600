@@ -20,7 +20,7 @@ var (
 
 	// ------------------------ Hardware Components ------------------------- //
 	Memory		[65536]byte	// Memory
-	Memory_TIA_RO	[14]byte	// TIA Read-Only additional Registers (0x30 - 0x3D), requested as READ addresses 0x00 - 0x13
+	Memory_TIA_RO	[64]byte	// TIA Read-Only additional Registers (0x30 - 0x3D), requested as READ addresses 0x00 - 0x13
 	PC			uint16		// Program Counter
 	A			byte			// Accumulator
 	X			byte			// Index Register X
@@ -167,7 +167,7 @@ var (
 	Pause		bool = false
 
 	// Debug
-	Debug 		bool = true
+	Debug 		bool = false
 	debugGraphics	bool	= false // Graphics Debug mode
 
 )

@@ -38,13 +38,16 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
+| Decimal Mode (BCD) - ADC opcode | OK |
+| TIA RO Memory Mirrors (64 bytes) | OK |
 | 6507 CPU Opcodes | 46 / 56 |
 
 
 ## Missing:
-- REVIEW SBC and Overflow
-- Player are not well centralized (horizontal movement)
+- Understand HMCLR HMOVE
 - Timers
+- BCD Mode SBC
+- Player are not well centralized (horizontal movement)
 - Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball
 - Graphics: Missiles
@@ -83,13 +86,19 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 
 ### Opcodes:
 
-https://www.atariarchives.org/alp/appendix_1.php
+https://www.masswerk.at/6502/6502_instruction_set.html
 
-https://www.masswerk.at/6502/6502_instruction_set.html#CLD
+http://www.obelisk.me.uk/6502/reference.html
+
+https://sites.google.com/site/6502asembly/6502-instruction-set/ror
+
+https://www.atariarchives.org/alp/appendix_1.php
 
 https://problemkaputt.de/2k6specs.htm
 
 https://dwheeler.com/6502/oneelkruns/asm1step.html
+
+
 
 
 ### Addressing:

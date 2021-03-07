@@ -1,0 +1,164 @@
+package VGS
+
+import	"os"
+import	"fmt"
+
+// ---------------------------- Library Function ---------------------------- //
+
+// Memory Page Boundary cross detection
+func MemPageBoundary(Address1, Address2 uint16) bool {
+
+	var cross bool = false
+
+	// Get the High byte only to compare
+	// Page Boundary Cross detected
+	if Address1 >> 8 != Address2 >> 8 {
+		cross = true
+
+		if Debug {
+			fmt.Printf("\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+		}
+	// NO Page Boundary Cross detected
+	} else {
+		if Debug {
+			fmt.Printf("\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+		}
+	}
+
+	return cross
+}
+
+
+// Decode Two's Complement
+func DecodeTwoComplement(num byte) int8 {
+
+	var sum int8 = 0
+
+	for i := 0 ; i < 8 ; i++ {
+		// Sum each bit and sum the value of the bit power of i (<<i)
+		sum += (int8(num) >> i & 0x01) << i
+	}
+
+	return sum
+}
+
+// BCD - Binary Coded Decimal
+func BCD(number byte) byte {
+
+	var tmp_hundreds, tmp_tens, tmp_ones, bcd	byte
+
+	// Split the Decimal Value
+	tmp_hundreds = number / 100		// Hundreds
+	tmp_tens = (number / 10)  % 10	// Tens
+	tmp_ones = (number % 100) % 10	// Ones
+
+	fmt.Printf("H: %d\tT: %d\tO: %d\n", tmp_hundreds, tmp_tens, tmp_ones)
+
+	// Combine in one decimal number
+	bcd = (tmp_hundreds * 100) + (tmp_tens * 10) + tmp_ones
+
+	return bcd
+}
+
+
+// Just TIA can update the Read-only memory space
+func update_Memory_TIA_RO(TIAmemAddress, value byte) {
+
+	// TIA will write to first 16 bits and after mirror the values
+	if TIAmemAddress >= 16 {
+		fmt.Println("TIA - Attempt to write an address >= 16. Exiting.")
+		os.Exit(2)
+	}
+
+	// TIA RO Memory has 4 mirror in its 64 bits
+	for i := 0 ; i < 4 ; i++ {
+		Memory_TIA_RO[TIAmemAddress + (byte(i) * 16)] = value
+	}
+
+	// // Print TIA Read Only Memory values
+	// for i := 0 ; i < len(Memory_TIA_RO) ; i++ {
+	// 	fmt.Printf("%d: %02X\n", i, Memory_TIA_RO[i])
+	// }
+
+	// *********************
+	// * TIA Documentation *
+	// *********************
+	//
+	// --------------------------------------
+	// TIA Addressing Notes for the Atari VCS
+	// --------------------------------------
+	// A12 is connected to /CS0 (Chip Select 0 - active low)
+	// A7 is connected to /CS3  (Chip Select 3 - active low)
+	// A[11:8] and A6 are not connected to the TIA
+	//
+	// VCC is connected to CS1  (Chip Select 1 - active high)
+	// GND is connected to /CS2 (Chip Select 2 - active low)
+	//
+	// --------------------------------------------
+	// $0000 - $003F = TIA.......(write)......(read)
+	// --------------------------------------------
+	// $0000 = TIA Address $00 - (VSYNC)......(CXM0P)
+	// $0001 = TIA Address $01 - (VBLANK).....(CXM1P)
+	// $0002 = TIA Address $02 - (WSYNC)......(CXP0FB)
+	// $0003 = TIA Address $03 - (RSYNC)......(CXP1FB)
+	// $0004 = TIA Address $04 - (NUSIZ0).....(CXM0FB)
+	// $0005 = TIA Address $05 - (NUSIZ1).....(CXM1FB)
+	// $0006 = TIA Address $06 - (COLUP0).....(CXBLPF)
+	// $0007 = TIA Address $07 - (COLUP1).....(CXPPMM)
+	// $0008 = TIA Address $08 - (COLUPF).....(INPT0)
+	// $0009 = TIA Address $09 - (COLUBK).....(INPT1)
+	// $000A = TIA Address $0A - (CTRLPF).....(INPT2)
+	// $000B = TIA Address $0B - (REFP0)......(INPT3)
+	// $000C = TIA Address $0C - (REFP1)......(INPT4)
+	// $000D = TIA Address $0D - (PF0)........(INPT5)
+	// $000E = TIA Address $0E - (PF1)........(UNDEFINED)
+	// $000F = TIA Address $0F - (PF2)........(UNDEFINED)
+	// $0010 = TIA Address $10 - (RESP0)......(CXM0P)
+	// $0011 = TIA Address $11 - (RESP1)......(CXM1P)
+	// $0012 = TIA Address $12 - (RESM0)......(CXP0FB)
+	// $0013 = TIA Address $13 - (RESM1)......(CXP1FB)
+	// $0014 = TIA Address $14 - (RESBL)......(CXM0FB)
+	// $0015 = TIA Address $15 - (AUDC0)......(CXM1FB)
+	// $0016 = TIA Address $16 - (AUDC1)......(CXBLPF)
+	// $0017 = TIA Address $17 - (AUDF0)......(CXPPMM)
+	// $0018 = TIA Address $18 - (AUDF1)......(INPT0)
+	// $0019 = TIA Address $19 - (AUDV0)......(INPT1)
+	// $001A = TIA Address $1A - (AUDV1)......(INPT2)
+	// $001B = TIA Address $1B - (GRP0).......(INPT3)
+	// $001C = TIA Address $1C - (GRP1).......(INPT4)
+	// $001D = TIA Address $1D - (ENAM0)......(INPT5)
+	// $001E = TIA Address $1E - (ENAM1)......(UNDEFINED)
+	// $001F = TIA Address $1F - (ENABL)......(UNDEFINED)
+	// $0020 = TIA Address $20 - (HMP0).......(CXM0P)
+	// $0021 = TIA Address $21 - (HMP1).......(CXM1P)
+	// $0022 = TIA Address $22 - (HMM0).......(CXP0FB)
+	// $0023 = TIA Address $23 - (HMM1).......(CXP1FB)
+	// $0024 = TIA Address $24 - (HMBL).......(CXM0FB)
+	// $0025 = TIA Address $25 - (VDELP0).....(CXM1FB)
+	// $0026 = TIA Address $26 - (VDELP1).....(CXBLPF)
+	// $0027 = TIA Address $27 - (VDELBL).....(CXPPMM)
+	// $0028 = TIA Address $28 - (RESMP0).....(INPT0)
+	// $0029 = TIA Address $29 - (RESMP1).....(INPT1)
+	// $002A = TIA Address $2A - (HMOVE)......(INPT2)
+	// $002B = TIA Address $2B - (HMCLR)......(INPT3)
+	// $002C = TIA Address $2C - (CXCLR)......(INPT4)
+	// $002D = TIA Address $2D - (UNDEFINED)..(INPT5)
+	// $002E = TIA Address $2E - (UNDEFINED)..(UNDEFINED)
+	// $002F = TIA Address $2F - (UNDEFINED)..(UNDEFINED)
+	// $0030 = TIA Address $30 - (UNDEFINED)..(CXM0P)
+	// $0031 = TIA Address $31 - (UNDEFINED)..(CXM1P)
+	// $0032 = TIA Address $32 - (UNDEFINED)..(CXP0FB)
+	// $0033 = TIA Address $33 - (UNDEFINED)..(CXP1FB)
+	// $0034 = TIA Address $34 - (UNDEFINED)..(CXM0FB)
+	// $0035 = TIA Address $35 - (UNDEFINED)..(CXM1FB)
+	// $0036 = TIA Address $36 - (UNDEFINED)..(CXBLPF)
+	// $0037 = TIA Address $37 - (UNDEFINED)..(CXPPMM)
+	// $0038 = TIA Address $38 - (UNDEFINED)..(INPT0)
+	// $0039 = TIA Address $39 - (UNDEFINED)..(INPT1)
+	// $003A = TIA Address $3A - (UNDEFINED)..(INPT2)
+	// $003B = TIA Address $3B - (UNDEFINED)..(INPT3)
+	// $003C = TIA Address $3C - (UNDEFINED)..(INPT4)
+	// $003D = TIA Address $3D - (UNDEFINED)..(INPT5)
+	// $003E = TIA Address $3E - (UNDEFINED)..(UNDEFINED)
+	// $003F = TIA Address $3F - (UNDEFINED)..(UNDEFINED)
+}

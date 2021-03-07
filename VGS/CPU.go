@@ -12,7 +12,7 @@ func Initialize() {
 
 	// Clean Memory Array
 	Memory			= [65536]byte{}
-	Memory_TIA_RO		= [14]byte{}
+	Memory_TIA_RO		= [64]byte{}
 	// Clean CPU Variables
 	PC			= 0
 	opcode			= 0
@@ -511,6 +511,11 @@ func CPU_Interpreter() {
 				memAddr, memMode = addr_mode_Zeropage(PC+1)
 			}
 			opc_ROL( memAddr, memMode, 2, 5 )
+
+		//-------------------------------------------------- ROR --------------------------------------------------//
+
+		case 0x6A:	// Instruction ROR (Accumulator)
+			opc_ROR_A( 1, 2 )
 
 		//-------------------------------------------------- ISB? FF --------------------------------------------------//
 

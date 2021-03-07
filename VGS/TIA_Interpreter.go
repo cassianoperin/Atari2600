@@ -256,21 +256,24 @@ func newLine(win_2nd_level *pixelgl.Window) {
 		// CXP0FB (D7) - P0-PF
 		if collision_P0[i] == 1 {
 			if collision_PF[i] == 1 {
-				Memory_TIA_RO[CXP0FB] = 0x80
+				// Memory_TIA_RO[CXP0FB] = 0x80
+				update_Memory_TIA_RO(CXP0FB, 0x80)
 			}
 		}
 
 		// CXPPMM (D7) - P0-P1
 		if collision_P0[i] == 1 {
 			if collision_P1[i] == 1 {
-				Memory_TIA_RO[CXPPMM] = 0x80
+				// Memory_TIA_RO[CXPPMM] = 0x80
+				update_Memory_TIA_RO(CXPPMM, 0x80)
 			}
 		}
 
 		// CXP1FB (D7) - P1-PF
 		if collision_P1[i] == 1 {
 			if collision_PF[i] == 1 {
-				Memory_TIA_RO[CXP1FB] = 0x80
+				// Memory_TIA_RO[CXP1FB] = 0x80
+				update_Memory_TIA_RO(CXP1FB, 0x80)
 			}
 		}
 

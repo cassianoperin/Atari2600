@@ -22,7 +22,8 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// Atari 2600 interpreter mode
 	if CPU_MODE == 0 {
 		// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
-		if memAddr < 0x80 {
+		// Bigger than 63 (READ ONLY TIA) is allowed
+		if memAddr > 0x3F && memAddr < 0x80 {
 			fmt.Printf("LDA - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
 			os.Exit(2)
 		}
@@ -56,7 +57,24 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	// After spending the cycles needed, execute the opcode
 	} else {
 
-		A = Memory[memAddr]
+		// Atari 2600 interpreter mode
+		if CPU_MODE == 0 {
+			// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
+			if memAddr < 64 {
+				A = Memory_TIA_RO[memAddr]
+			// Read from other reserved TIA registers
+			} else if memAddr < 128 {
+				fmt.Printf("LDA - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
+				os.Exit(2)
+			// Read from RIOT Memory Map (> 0x280)
+			} else {
+				A = Memory[memAddr]
+			}
+		// 6507 interpreter mode
+		} else {
+			A = Memory[memAddr]
+		}
+
 
 		if Debug {
 			if bytes == 2 {
