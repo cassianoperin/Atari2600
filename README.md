@@ -44,7 +44,6 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 
 
 ## Missing:
-- Understand HMCLR HMOVE
 - Timers
 - BCD Mode SBC
 - Player are not well centralized (horizontal movement)
@@ -100,7 +99,6 @@ https://dwheeler.com/6502/oneelkruns/asm1step.html
 
 
 
-
 ### Addressing:
 
 http://www.obelisk.me.uk/6502/addressing.html#ABY
@@ -132,9 +130,15 @@ http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
 ### BRK/IRQ/NMI/RESET:
 https://www.pagetable.com/?p=410
 
+
 ### Memory Map:
 https://atariage.com/forums/topic/192418-mirrored-memory/?tab=comments#comment-2439795
 https://problemkaputt.de/2k6specs.htm#videohttps://problemkaputt.de/2k6specs.htm#memoryandiomap
+
+
+### Timer
+https://atariage.com/forums/topic/133686-please-explain-riot-timmers/
+
 
 ### General:
 

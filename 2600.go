@@ -129,8 +129,8 @@ func main() {
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/7horizontal-fixed.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
-	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Surround.bin")
-	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Pac-Man.bin")
+	readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Surround.bin")
+	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Pac-Man.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/cart.bin")
 
 	// Reset system

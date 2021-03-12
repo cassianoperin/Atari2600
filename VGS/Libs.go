@@ -61,6 +61,41 @@ func BCD(number byte) byte {
 }
 
 
+// Memory Bus - Used by INC, STA, STY and STX to update memory and sinalize TIA about the actions
+func memUpdate(memAddr uint16, value byte) {
+
+	// TIA and RIOT
+	if memAddr < 128 || memAddr > 0x280 && memAddr <= 0x29F {
+		TIA_Update = int16(memAddr)
+	}
+
+	// RIOT WRITE ADDRESS
+	if memAddr > 0x280 && memAddr <= 0x29F {
+
+		// fmt.Printf("RIOT addr: %02X\n", memAddr)
+
+		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
+		// Update RIOT RW
+		Memory_RIOT_RW[ memAddr - 0x280] = value
+		// Update RIOT RW Mirror
+		Memory_RIOT_RW[ memAddr - 0x280 + 8] = value
+
+		// Print RIOT RW Memory values
+		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
+		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
+		// }
+
+		// Update the Timer
+		riot_update_timer(memAddr)
+
+	// All other addresses uses regular Memory array
+	} else {
+		Memory[ memAddr ] = value
+	}
+
+}
+
+
 // Just TIA can update the Read-only memory space
 func update_Memory_TIA_RO(TIAmemAddress, value byte) {
 
@@ -161,4 +196,59 @@ func update_Memory_TIA_RO(TIAmemAddress, value byte) {
 	// $003D = TIA Address $3D - (UNDEFINED)..(INPT5)
 	// $003E = TIA Address $3E - (UNDEFINED)..(UNDEFINED)
 	// $003F = TIA Address $3F - (UNDEFINED)..(UNDEFINED)
+}
+
+
+// Update RIOT
+func update_Memory_RIOT_RO(TIAmemAddress, value byte) {
+
+	// // TIA will write to first 16 bits and after mirror the values
+	// if TIAmemAddress >= 16 {
+	// 	fmt.Println("TIA - Attempt to write an address >= 16. Exiting.")
+	// 	os.Exit(2)
+	// }
+	//
+	// // TIA RO Memory has 4 mirror in its 64 bits
+	// for i := 0 ; i < 4 ; i++ {
+	// 	Memory_TIA_RO[TIAmemAddress + (byte(i) * 16)] = value
+	// }
+
+
+	// --------------------------------
+	// RIOT Addresses: names taken from
+	// Atari VCS Stella Documentation
+	// --------------------------------
+	// $0280 = (RIOT $00) - SWCHA  (read/write)
+	// $0281 = (RIOT $01) - SWACNT (read/write)
+	// $0282 = (RIOT $02) - SWCHB  (read/write) (*)
+	// $0283 = (RIOT $03) - SWBCNT (read/write) (*)
+	// $0284 = (RIOT $04) - INTIM (read), edge detect control (write)
+	// $0285 = (RIOT $05) - read interrupt flag (read), edge detect control (write)
+	// $0286 = (RIOT $06) - INTIM (read), edge detect control (write)
+	// $0287 = (RIOT $07) - read interrupt flag (read), edge detect control (write)
+	// $0288 = (RIOT $08) - SWCHA  (read/write)
+	// $0289 = (RIOT $09) - SWACNT (read/write)
+	// $028A = (RIOT $0A) - SWCHB  (read/write) (*)
+	// $028B = (RIOT $0B) - SWBCNT (read/write) (*)
+	// $028C = (RIOT $0C) - INTIM (read) , edge detect control (write)
+	// $028D = (RIOT $0D) - read interrupt flag (read), edge detect control (write)
+	// $028E = (RIOT $0E) - INTIM (read) , edge detect control (write)
+	// $028F = (RIOT $0F) - read interrupt flag (read), edge detect control (write)
+	// $0290 = (RIOT $10) - SWCHA  (read/write)
+	// $0291 = (RIOT $11) - SWACNT (read/write)
+	// $0292 = (RIOT $12) - SWCHB  (read/write) (*)
+	// $0293 = (RIOT $13) - SWBCNT (read/write) (*)
+	// $0294 = (RIOT $14) - INTIM (read), TIM1T (write)
+	// $0295 = (RIOT $15) - read interrupt flag (read), TIM8T (write)
+	// $0296 = (RIOT $16) - INTIM (read), TIM64T (write)
+	// $0297 = (RIOT $17) - read interrupt flag (read), TIM1024T (write)
+	// $0298 = (RIOT $18) - SWCHA  (read/write)
+	// $0299 = (RIOT $19) - SWACNT (read/write)
+	// $029A = (RIOT $1A) - SWCHB  (read/write) (*)
+	// $029B = (RIOT $1B) - SWBCNT (read/write) (*)
+	// $029C = (RIOT $1C) - INTIM (read), TIM1T (write)
+	// $029D = (RIOT $1D) - read interrupt flag (read), TIM8T (write)
+	// $029E = (RIOT $1E) - INTIM (read), TIM64T (write)
+	// $029F = (RIOT $1F) - read interrupt flag (read), TIM1024T (write)
+
 }

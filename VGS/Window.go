@@ -104,6 +104,25 @@ func Run() {
 						// No timer to handle
 				}
 
+				// Handle RIOT Timer
+				riot_timer_counter ++
+
+				if riot_timer_counter == riot_timer_mult {
+					old_timer = riot_timer // used to know if returned to 255
+					riot_timer --
+					riot_timer_counter = 0
+
+					if riot_timer > old_timer {
+						// fmt.Println("Zerou!")
+						Memory[TIMINT] = 128
+						riot_timer_mult = 1
+					}
+					Memory[INTIM] = riot_timer
+				}
+				// fmt.Println(riot_timer)
+
+				// fmt.Printf("riot_timer_counter: %d\t\told_timer: %d\triot_timer: %d\tMemory[INTIM] : %d\n", riot_timer_counter, old_timer, riot_timer, Memory[INTIM])
+
 
 
 				// Handle Input

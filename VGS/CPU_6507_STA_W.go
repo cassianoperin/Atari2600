@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // STA  Store Accumulator in Memory
@@ -14,6 +15,14 @@ import	"fmt"
 //      absolute,Y    STA oper,Y    99    3     5
 //      absolute      STA oper      8D    3     4
 func opc_STA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)
+	if memAddr > 0x280 && memAddr <= 0x29F {
+		if memAddr != 0x294 &&  memAddr != 0x295 && memAddr != 0x296 && memAddr != 0x297 {
+			fmt.Printf("STA - Tryed to WRITE on RIOT RW ADDRESS not mapped yet!! Memory[%X]\tEXIT\n", memAddr)
+			os.Exit(2)
+		}
+	}
 
 	// Increment the beam
 	beamIndex ++

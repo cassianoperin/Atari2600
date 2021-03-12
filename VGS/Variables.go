@@ -21,6 +21,7 @@ var (
 	// ------------------------ Hardware Components ------------------------- //
 	Memory		[65536]byte	// Memory
 	Memory_TIA_RO	[64]byte	// TIA Read-Only additional Registers (0x30 - 0x3D), requested as READ addresses 0x00 - 0x13
+	Memory_RIOT_RW	[32]byte	// RIOT Write Addresses and its mirrors
 	PC			uint16		// Program Counter
 	A			byte			// Accumulator
 	X			byte			// Index Register X
@@ -67,9 +68,10 @@ var (
 	messagesClock_timer	*time.Ticker		// Clock used to display messages on screen
 
 	// ----------------------------- RIOT Timer ----------------------------- //
-
-
-
+	riot_timer		byte
+	riot_timer_counter	uint16
+	riot_timer_mult	uint16
+	old_timer			byte
 
 	// ------------------------------- Beamer ------------------------------- //
 	beamIndex	byte 		// Beam index to control where to draw objects using cpu cycles
@@ -77,7 +79,7 @@ var (
 	// -------------------------------- TIA --------------------------------- //
 	line		int			// Line draw control
 	line_max	int			// Line draw control
-	TIA_Update	int8		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
+	TIA_Update	int16		// Tells Graphics that a TIA register was changed (values >= 0 (addresses) will be detected)
 
 	// ---------------------- Debug Timing Measurement ---------------------- //
 	debugTiming 			bool
@@ -169,6 +171,7 @@ var (
 	// Debug
 	Debug 		bool = false
 	debugGraphics	bool	= false // Graphics Debug mode
+	debugRIOT		bool	= false // RIOT Debug mode
 
 )
 
@@ -192,8 +195,6 @@ const (
 	COLUP1			byte = 0x07		//xxxx xxx0   Color-Luminance Player 1
 	COLUPF			byte	= 0x08		//xxxx xxx0   Color-Luminance Playfield
 	COLUBK			byte	= 0x09		//xxxx xxx0   Color-Luminance Background
-	CXCLR			byte =	0x2C	//---- ----   Clear Collision Latches
-
 	// CTRLPLF (8 bits register)
 	// D0 = 0 Repeat the PF, D0 = 1 = Reflect the PF
 	// D1 = Score == Color of the score will be the same as player
@@ -205,12 +206,18 @@ const (
 	PF0 				byte	= 0x0D		//xxxx 0000   Playfield Register Byte 0
 	PF1 				byte	= 0x0E		//xxxx 0000   Playfield Register Byte 1
 	PF2 				byte	= 0x0F		//xxxx 0000   Playfield Register Byte 2
-	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
-	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
 	RESP0 			byte	= 0x10		//---- ----   Reset Player 0
 	RESP1 			byte	= 0x11		//---- ----   Reset Player 1
+	GRP0				byte = 0x1B		//xxxx xxxx   Graphics Register Player 0
+	GRP1				byte = 0x1C		//xxxx xxxx   Graphics Register Player 1
 	HMP0				byte = 0x20		// xxxx 0000   Horizontal Motion Player 0
 	HMP1				byte = 0x21		// xxxx 0000   Horizontal Motion Player 1
+	HMM0				byte = 0x22		// xxxx 0000   Horizontal Motion Missle 0
+	HMM1				byte = 0x23		// xxxx 0000   Horizontal Motion Missle 1
+	HMBL				byte = 0x24		// xxxx 0000   Horizontal Motion Ball
+	HMOVE			byte = 0x2A		// ---- ----   Apply Horizontal Motion
+	HMCLR			byte = 0x2B		// ---- ----   Clear Horizontal Move Registers
+	CXCLR			byte = 0x2C		// ---- ----   Clear Collision Latches
 
 	// ;-------------------------------------------------------------------------------
 	//
@@ -229,4 +236,17 @@ const (
 
 	//------------------- 0280-0297 - RIOT (I/O, Timer)
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
+	//SWACNT      ds 1    ; $281      Port A data direction register (DDR)
+	//SWCHB       ds 1    ; $282		Port B data (console switches)
+	//SWBCNT      ds 1    ; $283      Port B DDR
+	INTIM			uint16 = 0x284		// Timer output
+	TIMINT			uint16 = 0x285		// Timer interrupt flag, which is 0 if the timer hasn't passed 0 yet, and is set to 128 (bit 7 on)
+									// once the timer has passed 0. (Actually, the TIMINT register contains another flag in bit 6,
+									// but it isn't used by the Atari 2600, so TIMINT will either be 0 or 128.
+									// That way, you can set the timer to a value greater than 127, and you won't have to worry about INTIM starting out with a "negative" value.
+	TIM1T			uint16 = 0x294		// Set 1 clock interval
+	TIM8T			uint16 = 0x295		// Set 8 clock interval
+	TIM64T			uint16 = 0x296		// Set 64 clock interval
+	T1024T			uint16 = 0x297		// Set 1024 clock interval
+
 )

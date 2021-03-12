@@ -64,6 +64,10 @@ func Initialize() {
 
 	// Initialize CPU
 	CPU_Enabled = true
+
+	// RIOT Timer
+	riot_timer = 0
+	riot_timer_counter = 0
 }
 
 func InitializeTimers() {
@@ -559,33 +563,4 @@ func CPU_Interpreter() {
 	// Increment Instructions per second counter
 	counter_IPS ++
 
-}
-
-// Collect data for debug interface after finished running the opcode
-func dbg_opcode_message(mnm string, bytes uint16, opc_cycles_sum byte) {
-
-	if bytes == 1 {
-		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x", PC, mnm, opc_cycles_sum, opcode)
-		dbg_opc_bytes = bytes
-	} else if bytes == 2 {
-		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x %02x", PC, mnm, opc_cycles_sum, opcode, Memory[PC+1])
-		dbg_opc_bytes = bytes
-	} else if bytes == 3 {
-		debug_opc_text = fmt.Sprintf("%04x\t\t%s\t\t;%d\t\t\t%02x %02x %02x", PC, mnm, opc_cycles_sum, opcode, Memory[PC+2], Memory[PC+1])
-		dbg_opc_bytes = bytes
-	}
-
-	// Reset running opcode flag
-	dbg_running_opc = false
-
-}
-
-// Memory Bus - Used to update memory and sinalize TIA about it
-func memUpdate(memAddr uint16, value byte) {
-
-	if memAddr < 128 {
-		TIA_Update = int8(memAddr)
-	}
-
-	Memory[ memAddr ] = value
 }

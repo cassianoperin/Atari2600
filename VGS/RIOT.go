@@ -1,6 +1,7 @@
 package VGS
 
 import (
+	"os"
 	"fmt"
 	"time"
 	"github.com/faiface/pixel"
@@ -9,6 +10,8 @@ import (
 	// "github.com/faiface/pixel/imdraw"
 
 )
+
+// ----------------------------------- Keyboard ----------------------------------- //
 
 func Keyboard(target *pixelgl.Window) {
 
@@ -245,4 +248,99 @@ func Keyboard(target *pixelgl.Window) {
 	if target.Pressed(pixelgl.KeyW) {
 		Memory[SWCHA] &= 0xFE // 1111 1110
 	}
+}
+
+// ------------------------------------- Timer ------------------------------------ //
+
+
+func riot_update_timer(addr uint16) {
+
+	// ------------ Update the Timer ------------ //
+
+	// TIM1T
+	if addr == 0x294 {
+		// Set Timer
+		riot_timer = Memory_RIOT_RW[ addr - 0x280]
+		// Set Multiplier
+		riot_timer_mult = 1
+		// Clear TIMINT (interrupt flag)
+		for i := 0 ; i < 4 ; i++ {
+			// Address and Mirrors
+			Memory[ ( TIMINT - 0x280 ) + uint16(i) * 8 ] = 0
+			// Address + 2 and Mirrors
+			Memory[ ( TIMINT - 0x280 + 2) + uint16(i) * 8 ] = 0
+			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
+		}
+		// Reset the internal cycle counter
+		riot_timer_counter = 0
+		// Update Timer Output
+		Memory[INTIM] = riot_timer
+
+	// TIM8T
+	} else if addr == 0x295 {
+		// Set Timer
+		riot_timer = Memory_RIOT_RW[ addr - 0x280]
+		// Set Multiplier
+		riot_timer_mult = 8
+		// Clear TIMINT (interrupt flag)
+		for i := 0 ; i < 4 ; i++ {
+			// Address and Mirrors
+			Memory[ ( TIM8T - 0x280 ) + uint16(i) * 8 ] = 0
+			// Address + 2 and Mirrors
+			Memory[ ( TIM8T - 0x280 + 2) + uint16(i) * 8 ] = 0
+			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
+		}
+		// Reset the internal cycle counter
+		riot_timer_counter = 0
+		// Update Timer Output
+		Memory[INTIM] = riot_timer
+
+	// TIM64T
+	} else if addr == 0x296 {
+		// Set Timer
+		riot_timer = Memory_RIOT_RW[ addr - 0x280]
+		// Set Multiplier
+		riot_timer_mult = 64
+		// Clear TIMINT (interrupt flag)
+		for i := 0 ; i < 4 ; i++ {
+			// Address and Mirrors
+			Memory[ ( TIM64T - 0x280 ) + uint16(i) * 8 ] = 0
+			// Address + 2 and Mirrors
+			Memory[ ( TIM64T - 0x280 + 2) + uint16(i) * 8 ] = 0
+			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
+		}
+		// Reset the internal cycle counter
+		riot_timer_counter = 0
+		// Update Timer Output
+		Memory[INTIM] = riot_timer
+
+	// T1024T
+	} else if addr == 0x297 {
+		// Set Timer
+		riot_timer = Memory_RIOT_RW[ addr - 0x280]
+		// Set Multiplier
+		riot_timer_mult = 1024
+		// Clear TIMINT (interrupt flag)
+		for i := 0 ; i < 4 ; i++ {
+			// Address and Mirrors
+			Memory[ ( T1024T - 0x280 ) + uint16(i) * 8 ] = 0
+			// Address + 2 and Mirrors
+			Memory[ ( T1024T - 0x280 + 2) + uint16(i) * 8 ] = 0
+		}
+		// Reset the internal cycle counter
+		riot_timer_counter = 0
+		// Update Timer Output
+		Memory[INTIM] = riot_timer
+
+	} else {
+		fmt.Printf("\nriot_update_timer() - Memory address not mapped: %02X! Exiting!\n", addr)
+		os.Exit(2)
+	}
+
+	// fmt.Printf("Timer Set to: %d\t Multiplier: %d\n", riot_timer, riot_timer_mult)
+	// os.Exit(2)
+
+
+	// &&  memAddr != 0x295 && memAddr != 0x296 && memAddr != 0x297
+
 }

@@ -20,6 +20,12 @@ func opc_INC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			fmt.Printf("INC - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
 			os.Exit(2)
 		}
+
+		// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)
+		if memAddr > 0x280 &&  memAddr <= 0x29F {
+			fmt.Printf("INC - Tryed to read from RIOT ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+			os.Exit(2)
+		}
 	}
 
 	// Increment the beam

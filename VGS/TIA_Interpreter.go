@@ -9,7 +9,7 @@ import (
 )
 
 
-func TIA(action int8, win_2nd_level *pixelgl.Window) {
+func TIA(action int16, win_2nd_level *pixelgl.Window) {
 
 	// Don't draw outside visible area
 	if line > 40 && line <= 232 {
@@ -25,7 +25,7 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 	switch action {
 		// --------------------------------------- WSYNC --------------------------------------- //
 		// Halt CPU until next scanline starts and skip to the next scanline
-		case int8(WSYNC): //0x02
+		case int16(WSYNC): //0x02
 			if debugGraphics {
 				fmt.Printf("\tLine: %d\tWSYNC SET (Beam index: %d)\n", line, beamIndex)
 			}
@@ -38,7 +38,7 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 
 
 		// --------------------------------------- VBLANK --------------------------------------- //
-		case int8(VBLANK): //0x01
+		case int16(VBLANK): //0x01
 
 			// Enable VBLANK
 			if Memory[VBLANK] == 0x02 {
@@ -56,7 +56,7 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			}
 
 		// --------------------------------------- VSYNC --------------------------------------- //
-		case int8(VSYNC): //0x00
+		case int16(VSYNC): //0x00
 
 			// Enable VSYNC
 			if Memory[VSYNC] == 0x02 {
@@ -77,46 +77,64 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 				os.Exit(2)
 			}
 
-		case int8(COLUBK): //0x09
+		case int16(COLUBK): //0x09
 			if debugGraphics {
 				fmt.Printf("\tCOLUBK SET! Beam index: %d\n", beamIndex)
 			}
 
-		case int8(GRP0): //0x1B
+		case int16(GRP0): //0x1B
 			if debugGraphics {
 				fmt.Printf("\tCycle: %d\tGRP0 SET\tGRP0: %b\n", counter_F_Cycle, Memory[GRP0])
 			}
 
-		case int8(GRP1): //0x1C
+		case int16(GRP1): //0x1C
 			if debugGraphics {
 				fmt.Printf("\tCycle: %d\tGRP1 SET\tGRP1: %b\n", counter_F_Cycle, Memory[GRP1])
 			}
 
-		case int8(RESP0): //0x1B
+		case int16(RESP0): //0x1B
 			if debugGraphics {
 				fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tGRP0: %b\n", counter_F_Cycle, beamIndex, Memory[GRP0])
 			}
 			XPositionP0 = beamIndex
 
-		case int8(RESP1): //0x11
+		case int16(RESP1): //0x11
 			if debugGraphics {
 				fmt.Printf("\t%d - RESP1 SET - DRAW P1 SPRITE!\tBeam: %d\tGRP1: %b\n", counter_F_Cycle, beamIndex, Memory[GRP1])
 			}
 			XPositionP1 = beamIndex
 
-		case int8(HMP0): //0x20
+		case int16(HMP0): //0x20
 			if debugGraphics {
 				fmt.Printf("\tHMP0 SET - Define P0 Fine Positioning\n")
 			}
-			XFinePositionP0 = FinePositioning(Memory[HMP0])
+			// XFinePositionP0 = FinePositioning(Memory[HMP0])
 
-		case int8(HMP1): //0x21
+		case int16(HMP1): //0x21
 			if debugGraphics {
 				fmt.Printf("\tHMP1 SET - Define P1 Fine Positioning\n")
 			}
+			// XFinePositionP1 = FinePositioning(Memory[HMP1])
+
+		case int16(HMCLR): //0x2B
+			if debugGraphics {
+				fmt.Printf("\tHMCLR SET - Clear Horizontal Move Registers\n")
+			}
+			Memory[HMP0] = 0x00
+			Memory[HMP1] = 0x00
+			Memory[HMM0] = 0x00
+			Memory[HMM1] = 0x00
+			Memory[HMBL] = 0x00
+
+		case int16(HMOVE): //0x2A
+			if debugGraphics {
+				fmt.Printf("\tHMOVE SET - Apply Horizontal Motion\n")
+			}
+			// Check if will be necessary to keep the HMP values in some cache
+			XFinePositionP0 = FinePositioning(Memory[HMP0])
 			XFinePositionP1 = FinePositioning(Memory[HMP1])
 
-		case int8(CXCLR): //0x2C
+		case int16(CXCLR): //0x2C
 			if debugGraphics {
 				fmt.Printf("\tCXCLR SET - Clear Collision Latches\n")
 			}
@@ -124,6 +142,34 @@ func TIA(action int8, win_2nd_level *pixelgl.Window) {
 			Memory_TIA_RO[CXP0FB] = 0x00
 			Memory_TIA_RO[CXP1FB] = 0x00
 
+
+		// --------------------------- RIOT --------------------------- //
+
+		case int16(TIM1T): //0x294
+			if debugRIOT {
+				fmt.Printf("\tTIM1T (Write) - Set 1 Cycle Timer\n")
+			}
+			fmt.Printf("\tTIM1T (Write) - Proposital Exit to map usage!\n")
+			os.Exit(2)
+
+		case int16(TIM8T): //0x295
+			if debugRIOT {
+				fmt.Printf("\tTIM8T (Write) - Set 8 Cycle Timer\n")
+			}
+			// os.Exit(2)
+
+		case int16(TIM64T): //0x296
+			if debugRIOT {
+				fmt.Printf("\tTIM64T (Write) - Set 64 Cycle Timer\n")
+			}
+			// os.Exit(2)
+
+		case int16(T1024T): //0x297
+			if debugRIOT {
+				fmt.Printf("\tT1024T (Write) - Set 1024 Cycle Timer\n")
+			}
+			fmt.Printf("\tTIM1T (Write) - Proposital Exit to map usage!\n")
+			os.Exit(2)
 		default:
 
 	}

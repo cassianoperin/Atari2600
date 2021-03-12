@@ -27,6 +27,7 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			fmt.Printf("LDA - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
 			os.Exit(2)
 		}
+		// Read from RIOT RO addresses are allowed (0x280(640) - 0x297(663))
 	}
 
 	// Increment the beam

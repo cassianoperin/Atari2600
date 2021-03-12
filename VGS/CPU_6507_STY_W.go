@@ -1,5 +1,6 @@
 package VGS
 
+import	"os"
 import	"fmt"
 
 // STY  Store Index Y in Memory (zeropage)
@@ -11,6 +12,14 @@ import	"fmt"
 //      --------------------------------------------
 //      zeropage      STY oper      84    2     3
 func opc_STY(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
+
+	// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)
+	if memAddr > 0x280 && memAddr <= 0x29F {
+		if memAddr != 0x294 &&  memAddr != 0x295 && memAddr != 0x296 && memAddr != 0x297 {
+			fmt.Printf("STA - Tryed to WRITE on RIOT RW ADDRESS not mapped yet!! Memory[%X]\tEXIT\n", memAddr)
+			os.Exit(2)
+		}
+	}
 
 	// Increment the beam
 	beamIndex ++
