@@ -15,6 +15,41 @@ import (
 
 func Keyboard(target *pixelgl.Window) {
 
+
+	// Console switches - Reset
+	if target.Pressed(pixelgl.Key8) {
+
+		// Set Reset switch (put 0 on position 0 of SWCHB)
+		Memory[SWCHB] &^= (1 << 0)
+		fmt.Printf("\tReset - Console Switch\n")
+	}
+
+	// Console switches - Game Select
+	if target.Pressed(pixelgl.Key7) {
+
+		// Set Game Select switch (put 0 on position 1 of SWCHB)
+		Memory[SWCHB] &^= (1 << 1)
+		fmt.Printf("\tGame Select - Console Switch\n")
+	}
+
+	// Console switches - Game Select
+	if target.JustPressed(pixelgl.Key6) {
+
+		// Test if bit 3 is set or not (val = 0 no, val = 1 yes)
+		bit := Memory[SWCHB] & (1 << 3)
+
+		if bit > 0 {
+			// Set Game Select switch (put 0 on position 3 of SWCHB)
+			Memory[SWCHB] &^= (1 << 3)
+			fmt.Printf("\tColor mode - Console Switch\n")
+		} else {
+			// Disable Game Select switch (put 1 on position 3 of SWCHB)
+			Memory[SWCHB] |= (1 << 3)
+			fmt.Printf("\tBlack & White mode - Console Switch\n")
+		}
+
+	}
+
 	// Debug
 	if target.JustPressed(pixelgl.Key9) {
 		// if Debug {

@@ -121,7 +121,7 @@ func Run() {
 				}
 				// fmt.Println(riot_timer)
 
-				// fmt.Printf("riot_timer_counter: %d\t\told_timer: %d\triot_timer: %d\tMemory[INTIM] : %d\n", riot_timer_counter, old_timer, riot_timer, Memory[INTIM])
+				// fmt.Printf("riot_timer_counter: %d\t\told_timer: %d\triot_timer: %d\tMemory[INTIM] : %d\tMemory[TIMINT]: %d\n", riot_timer_counter, old_timer, riot_timer, Memory[INTIM], Memory[TIMINT])
 
 
 
@@ -181,7 +181,11 @@ func Run() {
 				}
 
 
-
+				// ---------------- Reset Physical Switches ---------------- //
+				// Reset switch not enabled (put 1 on position 0 of SWCHB)
+				Memory[SWCHB] |= (1 << 0)
+				// Game select switch not enabled (put 1 on position 1 of SWCHB)
+				Memory[SWCHB] |= (1 << 1)
 
 			}
 

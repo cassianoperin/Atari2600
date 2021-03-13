@@ -237,7 +237,15 @@ const (
 	//------------------- 0280-0297 - RIOT (I/O, Timer)
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.
 	//SWACNT      ds 1    ; $281      Port A data direction register (DDR)
-	//SWCHB       ds 1    ; $282		Port B data (console switches)
+	SWCHB			uint16 = 0x282		// Port B data (console switches)
+		// Data			BitSwitchBit		Meaning
+		// D7			P1 difficulty		0 = amateur (B), 1 = pro (A)
+		// D6			P0 difficulty		0 = amateur (B), 1 = pro (A)
+		// D5/D4		(not used)
+		// D3			color - B/W		0 = B/W, 1 = color
+		// D2			(not used)
+		// D1			game select		0 = switch pressed
+		// D0			game reset		0 = switch pressed
 	//SWBCNT      ds 1    ; $283      Port B DDR
 	INTIM			uint16 = 0x284		// Timer output
 	TIMINT			uint16 = 0x285		// Timer interrupt flag, which is 0 if the timer hasn't passed 0 yet, and is set to 128 (bit 7 on)

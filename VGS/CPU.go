@@ -68,6 +68,15 @@ func Initialize() {
 	// RIOT Timer
 	riot_timer = 0
 	riot_timer_counter = 0
+	riot_timer_mult = 1
+
+	// -------------------- Physical Switches -------------------- //
+	// Start in color mode
+	Memory[SWCHB] |= (1 << 3)
+	// Reset switch not enabled (put 1 on position 0 of SWCHB)
+	Memory[SWCHB] |= (1 << 0)
+	// Game select switch not enabled (put 1 on position 1 of SWCHB)
+	Memory[SWCHB] |= (1 << 1)
 }
 
 func InitializeTimers() {

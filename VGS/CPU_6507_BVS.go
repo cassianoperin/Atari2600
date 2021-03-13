@@ -1,6 +1,5 @@
 package VGS
 
-import	"os"
 import	"fmt"
 
 // BVS  Branch on Overflow Set
@@ -24,8 +23,6 @@ func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 			// Add 1 to cycles if page boundery is crossed
 			if MemPageBoundary(PC, PC + uint16(value) + 2 ) {
 				opc_cycle_extra = 1
-				fmt.Println("PAUSA PARA VALIDAR BVS COM PAGE BOUNDARY")
-				Pause = true
 			}
 		}
 
@@ -63,9 +60,6 @@ func opc_BVS(value int8, bytes uint16, opc_cycles byte) {	// value is SIGNED
 
 			// Reset Opcode Extra Cycle counter
 			opc_cycle_extra = 0
-
-			fmt.Println("Controlled exit to validate the branch when overflow is detected. Exiting.")
-			os.Exit(2)
 		}
 
 
