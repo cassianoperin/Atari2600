@@ -14,6 +14,7 @@ import	"fmt"
 //      zeropage      STA oper      85    2     3
 //      absolute,Y    STA oper,Y    99    3     5
 //      absolute      STA oper      8D    3     4
+//      (indirect),Y  STA (oper),Y  91    2     6 
 func opc_STA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 	// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)

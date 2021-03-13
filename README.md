@@ -44,7 +44,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 
 
 ## Missing:
-- Timers
+- Timers not working well
 - BCD Mode SBC
 - Player are not well centralized (horizontal movement)
 - Graphics: Improve P0 and P1 scroll (X and Y)

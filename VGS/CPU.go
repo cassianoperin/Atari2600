@@ -195,6 +195,12 @@ func CPU_Interpreter() {
 			}
 			opc_INC( memAddr, memMode, 2, 5 )
 
+		case 0xF6:	// Instruction INC (zeropage,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_INC( memAddr, memMode, 2, 6 )
+
 		//-------------------------------------------- Branches - just relative ---------------------------------------------//
 
 		case 0xD0:	// Instruction BNE (relative)
@@ -354,6 +360,12 @@ func CPU_Interpreter() {
 			}
 			opc_LDY( memAddr, memMode, 2, 3 )
 
+		case 0xB4:	// Instruction LDY (zeropage,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_LDY( memAddr, memMode, 2, 4 )
+
 		//-------------------------------------------------- STY --------------------------------------------------//
 
 		case 0x84:	// Instruction STY (zeropage)
@@ -412,6 +424,13 @@ func CPU_Interpreter() {
 			}
 			opc_DEC( memAddr, memMode, 2, 5 )
 
+
+		case 0xD6:	// Instruction DEC (zeropage,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_DEC( memAddr, memMode, 2, 6 )
+
 		//-------------------------------------------------- AND --------------------------------------------------//
 
 		case 0x29:	// Instruction AND (immediate)
@@ -440,6 +459,12 @@ func CPU_Interpreter() {
 				memAddr, memMode = addr_mode_IndirectX(PC+1)
 			}
 			opc_ORA( memAddr, memMode, 2, 6 )
+
+		case 0x11:	// Instruction ORA (indirect,Y)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_IndirectY(PC+1)
+			}
+			opc_ORA( memAddr, memMode, 2, 5 )
 
 		//-------------------------------------------------- EOR --------------------------------------------------//
 
@@ -477,6 +502,12 @@ func CPU_Interpreter() {
 			}
 			opc_CMP( memAddr, memMode, 2, 2 )
 
+		case 0xD5:	// Instruction CMP (zeropage,X)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_ZeropageX(PC+1)
+			}
+			opc_CMP( memAddr, memMode, 2, 4 )
+
 		//-------------------------------------------------- STA --------------------------------------------------//
 
 		case 0x95:	// Instruction STA (zeropage,X)
@@ -502,6 +533,12 @@ func CPU_Interpreter() {
 				memAddr, memMode = addr_mode_Absolute(PC+1)
 			}
 			opc_STA( memAddr, memMode, 3, 4 )
+
+		case 0x91:	// Instruction STA (indirect,Y)
+			if opc_cycle_count == 1 {
+				memAddr, memMode = addr_mode_IndirectY(PC+1)
+			}
+			opc_STA( memAddr, memMode, 2, 6 )
 
 		//-------------------------------------------------- ADC --------------------------------------------------//
 

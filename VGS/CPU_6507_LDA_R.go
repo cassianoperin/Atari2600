@@ -27,7 +27,7 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			fmt.Printf("LDA - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
 			os.Exit(2)
 		}
-		// Read from RIOT RO addresses are allowed (0x280(640) - 0x297(663))
+		// Read from RIOT RO addresses are allowed (0x280(640) - 0x29F(671))
 	}
 
 	// Increment the beam
@@ -60,7 +60,7 @@ func opc_LDA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 		// Atari 2600 interpreter mode
 		if CPU_MODE == 0 {
-			// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
+			// Read from TIA RO Registers (0x00-0x0D)
 			if memAddr < 64 {
 				A = Memory_TIA_RO[memAddr]
 			// Read from other reserved TIA registers

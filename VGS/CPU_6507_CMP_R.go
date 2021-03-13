@@ -12,6 +12,7 @@ import	"fmt"
 //      --------------------------------------------
 //      zeropage      CMP oper      C5    2     3
 //      immediate     CMP #oper     C9    2     2
+//      zeropage,X    CMP oper,X    D5    2     4
 func opc_CMP(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 	// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)

@@ -11,6 +11,7 @@ import	"fmt"
 //      addressing    assembler    opc  bytes  cyles
 //      --------------------------------------------
 //      zeropage      DEC oper      C6    2     5
+//      zeropage,X    DEC oper,X    D6    2     6
 func opc_DEC(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
 	// Some tests of instructions that tryes to read from TIA addresses (00 - 127)

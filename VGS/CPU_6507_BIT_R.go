@@ -17,12 +17,16 @@ import	"fmt"
 //      absolute      BIT oper      2C    3     4
 func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 
-	// Some tests of instructions that tryes to read from RIOT addresses (640 - 671)
-	if memAddr > 0x280 &&  memAddr <= 0x29F {
-		fmt.Printf("BIT - Tryed to read from RIOT ADDRESS! Memory[%X]\tEXIT\n", memAddr)
-		os.Exit(2)
+	// Atari 2600 interpreter mode
+	if CPU_MODE == 0 {
+		// Some tests of instructions that tryes to read from TIA addresses (00 - 127)
+		// Bigger than 63 (READ ONLY TIA) is allowed
+		if memAddr > 0x3F && memAddr < 0x80 {
+			fmt.Printf("BIT - Tryed to read from TIA ADDRESS! Memory[%X]\tEXIT\n", memAddr)
+			os.Exit(2)
+		}
+		// Read from RIOT RO addresses are allowed (0x280(640) - 0x29F(671))
 	}
-
 	// Increment the beam
 	beamIndex ++
 
@@ -42,13 +46,28 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 	} else {
 
 		if Debug {
-			if bytes == 2 {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
-				fmt.Println(dbg_show_message)
-			} else if bytes == 3 {
-				dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
-				fmt.Println(dbg_show_message)
+			// Show TIA RO Registers instead Memory
+			if memAddr < 64 {
+				if bytes == 2 {
+					dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory_TIA_RO[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory_TIA_RO[memAddr], A & Memory_TIA_RO[memAddr] )
+					fmt.Println(dbg_show_message)
+				} else if bytes == 3 {
+					dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory_TIA_RO[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory_TIA_RO[memAddr], A & Memory_TIA_RO[memAddr] )
+					fmt.Println(dbg_show_message)
+				}
+				os.Exit(2)
+			// Show Memory
+			} else {
+				if bytes == 2 {
+					dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X [2 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+					fmt.Println(dbg_show_message)
+				} else if bytes == 3 {
+					dbg_show_message = fmt.Sprintf("\n\tOpcode %02X %02X%02X [3 bytes] [Mode: %s]\tBIT  Test Bits in Memory with Accumulator.\tA (%08b) AND Memory[%04X] (%08b) = %08b \tM7 -> N, M6 -> V\n", opcode, Memory[PC+2], Memory[PC+1], mode, A, memAddr, Memory[memAddr], A & Memory[memAddr] )
+					fmt.Println(dbg_show_message)
+				}
 			}
+
+
 
 			// Collect data for debug interface after finished running the opcode
 			dbg_opcode_message("BIT", bytes, opc_cycle_count + opc_cycle_extra)
@@ -72,16 +91,22 @@ func opc_BIT(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 			fmt.Printf("%d\n",P[6])
 		}
 
-		// FIRST ATTEMPT TO DETECT ACCESS TO A TIA READ ONLY REGISTER (0x00-0x0D)
-		if memAddr < 14 {
-			flags_Z(A & Memory_TIA_RO[memAddr])
-		// Read from other reserved TIA registers
-		} else if memAddr < 128 {
-			fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
-			os.Exit(2)
-		// Read from RIOT Memory Map (> 0x280)
+		// Atari 2600 interpreter mode
+		if CPU_MODE == 0 {
+			// Read from TIA RO Registers (0x00-0x0D)
+			if memAddr < 64 {
+				flags_Z(A & Memory_TIA_RO[memAddr])
+			// Read from other reserved TIA registers
+			} else if memAddr < 128 {
+				fmt.Printf("BIT - Controlled Exit to map access to TIA Write Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
+				os.Exit(2)
+			// Read from RIOT Memory Map (> 0x280)
+			} else {
+				flags_Z(A & Memory[memAddr])
+			}
+		// 6507 interpreter mode
 		} else {
-			flags_Z(A & Memory[memAddr])
+			A = Memory[memAddr]
 		}
 
 		// Increment PC
