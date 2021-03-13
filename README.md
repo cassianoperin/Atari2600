@@ -80,6 +80,14 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 		D6 - M0–M1: Not started
 		D7 - P0-P1: DONE
 
+## Keys:
+- Key 6: Console Color switch
+- Key 7: Console Game Select switch
+- Key 8: Console Reset switch
+- Key 9: Enable/Disable Debug
+- Key 0: Reset emulation
+
+
 ## Documentation:
 
 
