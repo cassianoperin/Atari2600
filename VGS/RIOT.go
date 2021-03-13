@@ -265,6 +265,10 @@ func Keyboard(target *pixelgl.Window) {
 	if target.Pressed(pixelgl.KeyUp) {
 		Memory[SWCHA] &= 0xEF // 1110 1111
 	}
+	// P0 Button
+	if target.Pressed(pixelgl.KeySpace) {
+		Memory[INPT4] &= 0x7F // 0111 1111
+	}
 
 	// -------------- PLAYER 1 -------------- //
 	// P1 Right
@@ -282,6 +286,10 @@ func Keyboard(target *pixelgl.Window) {
 	// P1 Up
 	if target.Pressed(pixelgl.KeyW) {
 		Memory[SWCHA] &= 0xFE // 1111 1110
+	}
+	// P1 Button
+	if target.Pressed(pixelgl.KeySpace) {
+		Memory[INPT5] &= 0x7F // 0111 1111
 	}
 }
 

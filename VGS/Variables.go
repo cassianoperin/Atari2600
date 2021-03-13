@@ -225,14 +225,22 @@ const (
 	// 			ORG TIA_BASE_READ_ADDRESS
 	//
 	// ;															bit 7   bit 6
-	CXM0P			byte = 0x00		//xx00 0000     Read Collision  M0-P1   M0-P0
-	CXM1P			byte = 0x01		//xx00 0000                     M1-P0   M1-P1
-	CXP0FB			byte = 0x02		//xx00 0000                     P0-PF   P0-BL
-	CXP1FB			byte = 0x03		//xx00 0000                     P1-PF   P1-BL
-	CXM0FB			byte = 0x04		//xx00 0000                     M0-PF   M0-BL
-	CXM1FB			byte = 0x05		//xx00 0000                     M1-PF   M1-BL
-	CXBLPF			byte = 0x06		//x000 0000                     BL-PF   -----
-	CXPPMM			byte = 0x07		//xx00 0000                     P0-P1   M0-M1
+	CXM0P			byte = 0x00		// xx00 0000     Read Collision  M0-P1   M0-P0
+	CXM1P			byte = 0x01		// xx00 0000                     M1-P0   M1-P1
+	CXP0FB			byte = 0x02		// xx00 0000                     P0-PF   P0-BL
+	CXP1FB			byte = 0x03		// xx00 0000                     P1-PF   P1-BL
+	CXM0FB			byte = 0x04		// xx00 0000                     M0-PF   M0-BL
+	CXM1FB			byte = 0x05		// xx00 0000                     M1-PF   M1-BL
+	CXBLPF			byte = 0x06		// x000 0000                     BL-PF   -----
+	CXPPMM			byte = 0x07		// xx00 0000                     P0-P1   M0-M1
+	INPT0			byte = 0x08		// x000 0000       Read Pot Port 0
+	INPT1			byte = 0x09		// x000 0000       Read Pot Port 1
+	INPT2			byte = 0x0A		// x000 0000       Read Pot Port 2
+	INPT3			byte = 0x0B		// x000 0000       Read Pot Port 3
+	// P0 action Button  INPT4.7   Button (0=Pressed, 1=Not pressed)
+	INPT4			byte = 0x0C		// x000 0000       Read Input (Trigger) 0
+	// P1 action Button  INPT5.7   Button (0=Pressed, 1=Not pressed)
+	INPT5			byte = 0x0D		// x000 0000       Read Input (Trigger) 1
 
 	//------------------- 0280-0297 - RIOT (I/O, Timer)
 	SWCHA			uint16 = 0x280		// Port A data register for joysticks: Bits 4-7 for player 1.  Bits 0-3 for player 2.

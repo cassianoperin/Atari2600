@@ -54,6 +54,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 - Scoreboard multi digit
 - Sound
 - Implement ISB "Opcode"
+- Return from Black and White mode has incorrect collors
 - Implement TIA Collision Detection:
 	a) CXM0P:
 		D6 - M0-P0: Not started

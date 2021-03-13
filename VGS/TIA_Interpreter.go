@@ -355,7 +355,12 @@ func newFrame(win_3nd_level *pixelgl.Window) {
 
 		// Reset Controllers Buttons to 1 (not pressed)
 		Memory[SWCHA] = 0xFF //1111 11111
-
+		// Memory[INPT0] = 0xFF //1111 11111
+		// Memory[INPT1] = 0xFF //1111 11111
+		// Memory[INPT2] = 0xFF //1111 11111
+		// Memory[INPT3] = 0xFF //1111 11111
+		Memory[INPT4] = 0xFF //1111 11111
+		Memory[INPT5] = 0xFF //1111 11111
 
 
 		if debugGraphics {
