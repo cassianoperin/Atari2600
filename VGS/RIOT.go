@@ -267,7 +267,8 @@ func Keyboard(target *pixelgl.Window) {
 	}
 	// P0 Button
 	if target.Pressed(pixelgl.KeySpace) {
-		Memory[INPT4] &= 0x7F // 0111 1111
+		// Memory[INPT4] &= 0x7F // 0111 1111
+		update_Memory_TIA_RO(INPT4, Memory[INPT4] & 0x7F)
 	}
 
 	// -------------- PLAYER 1 -------------- //
@@ -288,8 +289,9 @@ func Keyboard(target *pixelgl.Window) {
 		Memory[SWCHA] &= 0xFE // 1111 1110
 	}
 	// P1 Button
-	if target.Pressed(pixelgl.KeySpace) {
-		Memory[INPT5] &= 0x7F // 0111 1111
+	if target.Pressed(pixelgl.KeyX) {
+		// Memory[INPT5] &= 0x7F // 0111 1111
+		update_Memory_TIA_RO(INPT5, Memory[INPT5] & 0x7F)
 	}
 }
 

@@ -122,7 +122,7 @@ func main() {
 	// Read ROM to the memory
 	// readROM(os.Args[1])
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/2colorbg.bin")
-	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/3rainbow.bin")
+	 // readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/3rainbow.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/4playfieldborder.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/5playerscoreboard.bin")
 	// readROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/6vertical.bin")

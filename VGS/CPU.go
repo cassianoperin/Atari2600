@@ -59,9 +59,8 @@ func Initialize() {
 	// Memory[INPT1] = 0xFF //1111 11111
 	// Memory[INPT2] = 0xFF //1111 11111
 	// Memory[INPT3] = 0xFF //1111 11111
-	Memory[INPT4] = 0xFF //1111 11111
-	Memory[INPT5] = 0xFF //1111 11111
-
+	update_Memory_TIA_RO(INPT4, 0xFF) //1111 11111
+	update_Memory_TIA_RO(INPT5, 0xFF) //1111 11111
 
 	// Debug screen opcode message Slice
 	dbg_opc_messages = dbg_opc_messages[:0]
