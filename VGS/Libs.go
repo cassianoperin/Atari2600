@@ -1,65 +1,95 @@
 package VGS
 
-import	"os"
-import	"fmt"
+import (
+	"fmt"
+	"log"
+	"os"
+
+	CPU_6502 "github.com/cassianoperin/6502"
+)
 
 // ---------------------------- Library Function ---------------------------- //
 
-// Memory Page Boundary cross detection
-func MemPageBoundary(Address1, Address2 uint16) bool {
+// Function used by readROM to avoid 'bytesread' return
+func ReadContent(file *os.File, bytes_number int) []byte {
 
-	var cross bool = false
+	bytes := make([]byte, bytes_number)
 
-	// Get the High byte only to compare
-	// Page Boundary Cross detected
-	if Address1 >> 8 != Address2 >> 8 {
-		cross = true
+	_, err := file.Read(bytes)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		if Debug {
-			fmt.Printf("\tMemory Page Boundary Cross detected! Add 1 cycle.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
-		}
-	// NO Page Boundary Cross detected
-	} else {
-		if Debug {
-			fmt.Printf("\tNo Memory Page Boundary Cross detected.\tPC High byte: %02X\tBranch High byte: %02X\n",Address1 >>8, Address2 >>8)
+	return bytes
+}
+
+// Read ROM and write it to the RAM
+func ReadROM(filename string) {
+
+	var (
+		fileInfo os.FileInfo
+		err      error
+	)
+
+	// Get ROM info
+	fileInfo, err = os.Stat(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Loading ROM:", filename)
+	romsize := fileInfo.Size()
+	fmt.Printf("Size in bytes: %d\n", romsize)
+
+	// Open ROM file, insert all bytes into memory
+	file, err := os.Open(filename)
+	defer file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Call ReadContent passing the total size of bytes
+	data := ReadContent(file, int(romsize))
+	// Print raw data
+	//fmt.Printf("%d\n", data)
+	//fmt.Printf("%X\n", data)
+
+	// 4KB roms
+	if romsize == 4096 {
+		// Load ROM to memory
+		for i := 0; i < len(data); i++ {
+			// F000 - FFFF // Cartridge ROM
+			CPU_6502.Memory[0xF000+i] = data[i]
 		}
 	}
 
-	return cross
-}
-
-
-// Decode Two's Complement
-func DecodeTwoComplement(num byte) int8 {
-
-	var sum int8 = 0
-
-	for i := 0 ; i < 8 ; i++ {
-		// Sum each bit and sum the value of the bit power of i (<<i)
-		sum += (int8(num) >> i & 0x01) << i
+	// 2KB roms (needs to duplicate it in memory)
+	if romsize == 2048 {
+		// Load ROM to memory
+		for i := 0; i < len(data); i++ {
+			// F000 - F7FF (2KB Cartridge ROM)
+			CPU_6502.Memory[0xF000+i] = data[i]
+			// F800 - FFFF (2KB Mirror Cartridge ROM)
+			CPU_6502.Memory[0xF800+i] = data[i]
+		}
 	}
 
-	return sum
+	// // Print Memory -  Fist 2kb
+	// for i := 0xF7F0; i <= 0xF7FF; i++ {
+	// 	fmt.Printf("%X ", VGS.Memory[i])
+	// }
+	// fmt.Println()
+	// //
+	// for i := 0xFFF0; i <= 0xFFFF; i++ {
+	// 	fmt.Printf("%X ", VGS.Memory[i])
+	// }
+	// fmt.Println()
+
+	//Print Memory
+	// for i := 0; i < len(VGS.Memory); i++ {
+	// 	fmt.Printf("%X ", VGS.Memory[i])
+	// }
+	// os.Exit(2)
 }
-
-// BCD - Binary Coded Decimal
-func BCD(number byte) byte {
-
-	var tmp_hundreds, tmp_tens, tmp_ones, bcd	byte
-
-	// Split the Decimal Value
-	tmp_hundreds = number / 100		// Hundreds
-	tmp_tens = (number / 10)  % 10	// Tens
-	tmp_ones = (number % 100) % 10	// Ones
-
-	fmt.Printf("H: %d\tT: %d\tO: %d\n", tmp_hundreds, tmp_tens, tmp_ones)
-
-	// Combine in one decimal number
-	bcd = (tmp_hundreds * 100) + (tmp_tens * 10) + tmp_ones
-
-	return bcd
-}
-
 
 // Memory Bus - Used by INC, STA, STY and STX to update memory and sinalize TIA about the actions
 func memUpdate(memAddr uint16, value byte) {
@@ -76,9 +106,9 @@ func memUpdate(memAddr uint16, value byte) {
 
 		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
 		// Update RIOT RW
-		Memory_RIOT_RW[ memAddr - 0x280] = value
+		Memory_RIOT_RW[memAddr-0x280] = value
 		// Update RIOT RW Mirror
-		Memory_RIOT_RW[ memAddr - 0x280 + 8] = value
+		Memory_RIOT_RW[memAddr-0x280+8] = value
 
 		// Print RIOT RW Memory values
 		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
@@ -88,13 +118,12 @@ func memUpdate(memAddr uint16, value byte) {
 		// Update the Timer
 		riot_update_timer(memAddr)
 
-	// All other addresses uses regular Memory array
+		// All other addresses uses regular Memory array
 	} else {
-		Memory[ memAddr ] = value
+		CPU_6502.Memory[memAddr] = value
 	}
 
 }
-
 
 // Just TIA can update the Read-only memory space
 func update_Memory_TIA_RO(TIAmemAddress, value byte) {
@@ -106,8 +135,8 @@ func update_Memory_TIA_RO(TIAmemAddress, value byte) {
 	}
 
 	// TIA RO Memory has 4 mirror in its 64 bits
-	for i := 0 ; i < 4 ; i++ {
-		Memory_TIA_RO[TIAmemAddress + (byte(i) * 16)] = value
+	for i := 0; i < 4; i++ {
+		Memory_TIA_RO[TIAmemAddress+(byte(i)*16)] = value
 	}
 
 	// // Print TIA Read Only Memory values
@@ -198,7 +227,6 @@ func update_Memory_TIA_RO(TIAmemAddress, value byte) {
 	// $003F = TIA Address $3F - (UNDEFINED)..(UNDEFINED)
 }
 
-
 // Update RIOT
 func update_Memory_RIOT_RO(TIAmemAddress, value byte) {
 
@@ -212,7 +240,6 @@ func update_Memory_RIOT_RO(TIAmemAddress, value byte) {
 	// for i := 0 ; i < 4 ; i++ {
 	// 	Memory_TIA_RO[TIAmemAddress + (byte(i) * 16)] = value
 	// }
-
 
 	// --------------------------------
 	// RIOT Addresses: names taken from
