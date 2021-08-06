@@ -133,6 +133,17 @@ func Run() {
 
 					CPU_6502.CPU_Interpreter()
 
+					// Set it all the times to be ignored
+					TIA_Update = -1
+
+					fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", CPU_6502.AddressBUS)
+
+					if CPU_6502.Opc_cycle_count == CPU_6502.Opc_cycles+CPU_6502.Opc_cycle_extra {
+						fmt.Println("Update TIAAA (add extra")
+						// EXPORTAR MEMADDR, e no último ciclo, atualizar tia?
+						TIA_Update = int16(CPU_6502.AddressBUS)
+					}
+
 					fmt.Printf("\n\tBeam Index: %d\n", beamIndex)
 					win.Update()
 

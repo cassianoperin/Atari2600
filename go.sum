@@ -1,5 +1,9 @@
 github.com/cassianoperin/6502 v1.0.0 h1:bAA6JSKBuOc2uRclcAus8UhHUPhZLdnhSYxxslf2zZU=
 github.com/cassianoperin/6502 v1.0.0/go.mod h1:uEU5ddBRR1WComk1/leifrKACuPnaGHW3VmA7YU3nu4=
+github.com/cassianoperin/6502 v1.0.1 h1:jGdV9oZFng640HM8JOl/WXSV0Um9RwwlcrUzX+NwLME=
+github.com/cassianoperin/6502 v1.0.1/go.mod h1:uEU5ddBRR1WComk1/leifrKACuPnaGHW3VmA7YU3nu4=
+github.com/cassianoperin/6502 v1.0.2 h1:4ylpJnBQp2b/7a1hnD1QNP9l9xWEbZGTfXOGR0refl0=
+github.com/cassianoperin/6502 v1.0.2/go.mod h1:uEU5ddBRR1WComk1/leifrKACuPnaGHW3VmA7YU3nu4=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/faiface/glhf v0.0.0-20181018222622-82a6317ac380 h1:FvZ0mIGh6b3kOITxUnxS3tLZMh7yEoHo75v3/AgUqg0=
