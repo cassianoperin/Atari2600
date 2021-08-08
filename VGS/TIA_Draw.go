@@ -955,8 +955,8 @@ func TIA_draw() {
 			// imd.Color = color.RGBA{uint8(rand.Intn(255)), uint8(rand.Intn(255)), uint8(rand.Intn(255)), 255}
 
 			// Draw
-			imd.Push(pixel.V(float64(pixel_position-1)*width, (screenHeight*(1-sizeYused))+float64(232-line)*height))
-			imd.Push(pixel.V(float64(pixel_position)*width, (screenHeight*(1-sizeYused))+float64(232-line)*height+height))
+			imd.Push(pixel.V(float64(pixel_position-1)*width, float64(232-line)*height))
+			imd.Push(pixel.V(float64(pixel_position)*width, float64(232-line)*height+height))
 			imd.Rectangle(0)
 
 			// Count draw operations number per second

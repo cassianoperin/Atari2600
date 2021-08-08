@@ -16,10 +16,8 @@ type Setting struct {
 var (
 	// ------------------------------ Graphics ------------------------------ //
 	// Screen Size
-	sizeX     float64 = 160.0 // 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
-	sizeY     float64 = 192.0 // 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
-	sizeYused float64 = 1.0   // Percentage of the Screen Heigh used by the emulator // 1.0 = 100%, 0.0 = 0%
-	sizeXused float64 = 1.0   // Percentage of the Screen Width used by the emulator // 1.0 = 100%, 0.0 = 0%
+	sizeX float64 = 160.0 // 68 color clocks (Horizontal Blank) + 160 color clocks (pixels)
+	sizeY float64 = 192.0 // 3 Vertical Sync, 37 Vertical Blank, 192 Visible Area and 30 Overscan
 	// Window Resolution
 	screenWidth  float64 = 1024
 	screenHeight float64 = 768
@@ -106,7 +104,7 @@ var (
 	pf2_mirror_bit byte = 7 // PF2 bit index
 
 	// Debug
-	debugGraphics bool = false // Graphics Debug mode
+	debugGraphics bool = true  // Graphics Debug mode
 	debugRIOT     bool = false // RIOT Debug mode
 )
 

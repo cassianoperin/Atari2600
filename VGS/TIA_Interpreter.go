@@ -375,3 +375,35 @@ func newFrame(win_3nd_level *pixelgl.Window) {
 	}
 
 }
+
+// Initialize TIA Variables
+func TIA_Initialize() {
+
+	// TIA
+	line = 1
+	line_max = 262
+	TIA_Update = -1
+	// VSYNC_passed	= false	// Workaround for WSYNC before VSYNC
+
+	// Debug Timing
+	// debugTiming_Limit = 0.00001
+
+	// Player Vertical Positioning
+	// If a program doesn't use RESP0 or RESP1, set Initial Player Position
+	XPositionP0 = 23
+	XFinePositionP0 = 0
+	XPositionP1 = 30
+	XFinePositionP1 = 0
+
+	// Reset Controllers Buttons to 1 (not pressed)
+	CPU_6502.Memory[SWCHA] = 0xFF //1111 11111
+
+	// Initialize CPU
+	CPU_6502.CPU_Enabled = true
+
+	// RIOT Timer
+	riot_timer = 0
+	riot_timer_counter = 0
+
+	counter_VSYNC = 1
+}

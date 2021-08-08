@@ -9,14 +9,6 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	// "Atari2600/CPU_6502"
-)
-
-var (
-// second_timer		= time.Tick(time.Nanosecond)			// 1 second to track FPS and draws
-// second_timer		= time.Tick(time.Second / 30)			// 1 second to track FPS and draws
-// second_timer		= time.NewTicker(time.Nanosecond)			// 1 second to track FPS and draws
-// cycle int = 0
 )
 
 func Run() {
@@ -45,28 +37,8 @@ func Run() {
 
 	// renderGraphics(win)
 
-	// if CPU_6502.Debug {
-	// 	// XXX
-	// 	// startDebug(win)
-	// }
-
-	// limpa(win)
-	// win.Clear(colornames.Skyblue)
-
-	// for !win.Closed() {
-	//
-	// 	select {
-	// 		case <- second_timer: // Second
-	// 			win.Update()
-	// 			fmt.Println(cycle)
-	// 			cycle = 0
-	//
-	// 		default:
-	// 		// No timer to handle
-	// 	}
-	//
-	// 	cycle++
-	// }
+	// Initialize TIA Variables
+	TIA_Initialize()
 
 	for !win.Closed() {
 
@@ -131,20 +103,25 @@ func Run() {
 					// Increment the beam
 					beamIndex++
 
-					CPU_6502.CPU_Interpreter()
-
 					// Set it all the times to be ignored
 					TIA_Update = -1
 
-					fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", CPU_6502.AddressBUS)
+					CPU_6502.CPU_Interpreter()
+
+					// fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", CPU_6502.AddressBUS)
+
+					fmt.Println(CPU_6502.Opc_cycle_count, CPU_6502.Opc_cycles, CPU_6502.Opc_cycle_extra)
 
 					if CPU_6502.Opc_cycle_count == CPU_6502.Opc_cycles+CPU_6502.Opc_cycle_extra {
-						fmt.Println("Update TIAAA (add extra")
+						// fmt.Println("Update TIAAA (add extra")
 						// EXPORTAR MEMADDR, e no último ciclo, atualizar tia?
 						TIA_Update = int16(CPU_6502.AddressBUS)
 					}
 
-					fmt.Printf("\n\tBeam Index: %d\n", beamIndex)
+					// fmt.Printf("\n\tBeam Index: %d\n", beamIndex)
+
+					// MOVE IT TO JUST DRAW ON EACH FRAMEEEE
+					imd.Draw(win)
 					win.Update()
 
 				} else {
