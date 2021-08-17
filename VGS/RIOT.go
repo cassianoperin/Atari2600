@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	CPU_6502 "github.com/cassianoperin/6502"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 )
@@ -22,7 +21,7 @@ func Keyboard(target *pixelgl.Window) {
 	if target.Pressed(pixelgl.Key8) {
 
 		// Set Reset switch (put 0 on position 0 of SWCHB)
-		CPU_6502.Memory[SWCHB] &^= (1 << 0)
+		Memory[SWCHB] &^= (1 << 0)
 		fmt.Printf("\tReset - Console Switch\n")
 	}
 
@@ -30,7 +29,7 @@ func Keyboard(target *pixelgl.Window) {
 	if target.Pressed(pixelgl.Key7) {
 
 		// Set Game Select switch (put 0 on position 1 of SWCHB)
-		CPU_6502.Memory[SWCHB] &^= (1 << 1)
+		Memory[SWCHB] &^= (1 << 1)
 		fmt.Printf("\tGame Select - Console Switch\n")
 	}
 
@@ -38,15 +37,15 @@ func Keyboard(target *pixelgl.Window) {
 	if target.JustPressed(pixelgl.Key6) {
 
 		// Test if bit 3 is set or not (val = 0 no, val = 1 yes)
-		bit := CPU_6502.Memory[SWCHB] & (1 << 3)
+		bit := Memory[SWCHB] & (1 << 3)
 
 		if bit > 0 {
 			// Set Game Select switch (put 0 on position 3 of SWCHB)
-			CPU_6502.Memory[SWCHB] &^= (1 << 3)
+			Memory[SWCHB] &^= (1 << 3)
 			fmt.Printf("\tColor mode - Console Switch\n")
 		} else {
 			// Disable Game Select switch (put 1 on position 3 of SWCHB)
-			CPU_6502.Memory[SWCHB] |= (1 << 3)
+			Memory[SWCHB] |= (1 << 3)
 			fmt.Printf("\tBlack & White mode - Console Switch\n")
 		}
 
@@ -59,11 +58,11 @@ func Keyboard(target *pixelgl.Window) {
 		// } else {
 		// 	startDebug()
 		// }
-		if CPU_6502.Debug {
-			CPU_6502.Debug = false
+		if Debug {
+			Debug = false
 
 		} else {
-			CPU_6502.Debug = true
+			Debug = true
 
 		}
 	}
@@ -75,18 +74,18 @@ func Keyboard(target *pixelgl.Window) {
 
 		// Dump the rom from memory prior to clear all information
 		for i := 0; i < 4096; i++ {
-			ROM_dump[i] = CPU_6502.Memory[0xF000+i]
+			ROM_dump[i] = Memory[0xF000+i]
 		}
 
-		CPU_6502.Initialize()
+		Initialize()
 
 		// Restore ROM to memory
 		for i := 0; i < 4096; i++ {
-			CPU_6502.Memory[0xF000+i] = ROM_dump[i]
+			Memory[0xF000+i] = ROM_dump[i]
 		}
 
 		// Reset PC
-		CPU_6502.Reset()
+		Reset()
 		// Restart CPU
 		// CPU_Interpreter()
 
@@ -101,13 +100,13 @@ func Keyboard(target *pixelgl.Window) {
 
 	// Pause Key
 	if target.Pressed(pixelgl.KeyP) {
-		if CPU_6502.Pause {
-			CPU_6502.Pause = false
+		if Pause {
+			Pause = false
 			fmt.Printf("\t\tPAUSE mode Disabled\n")
 			// Control repetition
 			target.UpdateInputWait(time.Second)
 		} else {
-			CPU_6502.Pause = true
+			Pause = true
 			fmt.Printf("\t\tPAUSE mode Enabled\n")
 			target.UpdateInputWait(time.Second)
 		}
@@ -115,15 +114,15 @@ func Keyboard(target *pixelgl.Window) {
 
 	// Step Forward
 	if target.Pressed(pixelgl.KeyI) {
-		if CPU_6502.Pause {
+		if Pause {
 			// if Debug {
 			// for dbg_running_opc == true {
 			fmt.Printf("\t\tStep Forward\n")
 
 			target.UpdateInput()
 			// Runs the interpreter
-			if CPU_6502.CPU_Enabled {
-				CPU_6502.CPU_Interpreter()
+			if CPU_Enabled {
+				CPU_Interpreter()
 			}
 
 			// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
@@ -148,11 +147,11 @@ func Keyboard(target *pixelgl.Window) {
 
 	// // Breakpoint
 	// if target.Pressed(pixelgl.KeyO) {
-	// 	if CPU_6502.Debug {
-	// 		if CPU_6502.Pause {
-	// 			CPU_6502.Pause = false
-	// 			CPU_6502.dbg_break = true
-	// 			CPU_6502.dbg_break_cycle = CPU_6502.counter_F_Cycle + 1000
+	// 	if Debug {
+	// 		if Pause {
+	// 			Pause = false
+	// 			dbg_break = true
+	// 			dbg_break_cycle = counter_F_Cycle + 1000
 	// 			fmt.Printf("\t\tBREAKPOINT set to cycle %d\n", counter_F_Cycle+1000)
 	// 			// Control repetition
 	// 			target.UpdateInputWait(time.Second)
@@ -163,7 +162,7 @@ func Keyboard(target *pixelgl.Window) {
 	// // Change video resolution
 	// if target.JustPressed(pixelgl.KeyM) {
 
-	// 	if !CPU_6502.Debug {
+	// 	if !Debug {
 	// 		// If the mode is smaller than the number of resolutions available increment (-4 to avoid the biggest ones)
 	// 		if resolutionCounter < len(settings)-4 {
 	// 			resolutionCounter++
@@ -181,7 +180,7 @@ func Keyboard(target *pixelgl.Window) {
 	// 		target.SetBounds(pixel.R(0, 0, float64(activeSetting.Mode.Width), float64(activeSetting.Mode.Height)))
 
 	// 		// // Show messages
-	// 		// if CPU_6502.Debug {
+	// 		// if Debug {
 	// 		// 	fmt.Printf("\t\tResolution mode[%d]: %dx%d @ %dHz\n", resolutionCounter, activeSetting.Mode.Width, activeSetting.Mode.Height, activeSetting.Mode.RefreshRate)
 	// 		// }
 	// 		// TextMessageStr = fmt.Sprintf("Resolution mode[%d]: %dx%d @ %dHz", resolutionCounter, activeSetting.Mode.Width, activeSetting.Mode.Height, activeSetting.Mode.RefreshRate)
@@ -238,47 +237,47 @@ func Keyboard(target *pixelgl.Window) {
 	// -------------- PLAYER 0 -------------- //
 	// P0 Right
 	if target.Pressed(pixelgl.KeyRight) {
-		CPU_6502.Memory[SWCHA] &= 0x7F // 0111 1111
+		Memory[SWCHA] &= 0x7F // 0111 1111
 	}
 	// P0 Left
 	if target.Pressed(pixelgl.KeyLeft) {
-		CPU_6502.Memory[SWCHA] &= 0xBF // 1011 1111
+		Memory[SWCHA] &= 0xBF // 1011 1111
 	}
 	// P0 Down
 	if target.Pressed(pixelgl.KeyDown) {
-		CPU_6502.Memory[SWCHA] &= 0xDF // 1101 1111
+		Memory[SWCHA] &= 0xDF // 1101 1111
 	}
 	// P0 Up
 	if target.Pressed(pixelgl.KeyUp) {
-		CPU_6502.Memory[SWCHA] &= 0xEF // 1110 1111
+		Memory[SWCHA] &= 0xEF // 1110 1111
 	}
 	// P0 Button
 	if target.Pressed(pixelgl.KeySpace) {
 		// Memory[INPT4] &= 0x7F // 0111 1111
-		update_Memory_TIA_RO(INPT4, CPU_6502.Memory[INPT4]&0x7F)
+		update_Memory_TIA_RO(INPT4, Memory[INPT4]&0x7F)
 	}
 
 	// -------------- PLAYER 1 -------------- //
 	// P1 Right
 	if target.Pressed(pixelgl.KeyD) {
-		CPU_6502.Memory[SWCHA] &= 0xF7 // 1111 0111
+		Memory[SWCHA] &= 0xF7 // 1111 0111
 	}
 	// P1 Left
 	if target.Pressed(pixelgl.KeyA) {
-		CPU_6502.Memory[SWCHA] &= 0xFB // 1111 1011
+		Memory[SWCHA] &= 0xFB // 1111 1011
 	}
 	// P1 Down
 	if target.Pressed(pixelgl.KeyS) {
-		CPU_6502.Memory[SWCHA] &= 0xFD // 1111 1101
+		Memory[SWCHA] &= 0xFD // 1111 1101
 	}
 	// P1 Up
 	if target.Pressed(pixelgl.KeyW) {
-		CPU_6502.Memory[SWCHA] &= 0xFE // 1111 1110
+		Memory[SWCHA] &= 0xFE // 1111 1110
 	}
 	// P1 Button
 	if target.Pressed(pixelgl.KeyX) {
 		// Memory[INPT5] &= 0x7F // 0111 1111
-		update_Memory_TIA_RO(INPT5, CPU_6502.Memory[INPT5]&0x7F)
+		update_Memory_TIA_RO(INPT5, Memory[INPT5]&0x7F)
 	}
 }
 
@@ -297,15 +296,15 @@ func riot_update_timer(addr uint16) {
 		// Clear TIMINT (interrupt flag)
 		for i := 0; i < 4; i++ {
 			// Address and Mirrors
-			CPU_6502.Memory[(TIMINT-0x280)+uint16(i)*8] = 0
+			Memory[(TIMINT-0x280)+uint16(i)*8] = 0
 			// Address + 2 and Mirrors
-			CPU_6502.Memory[(TIMINT-0x280+2)+uint16(i)*8] = 0
+			Memory[(TIMINT-0x280+2)+uint16(i)*8] = 0
 			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
 		}
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		CPU_6502.Memory[INTIM] = riot_timer
+		Memory[INTIM] = riot_timer
 
 		// TIM8T
 	} else if addr == 0x295 {
@@ -316,15 +315,15 @@ func riot_update_timer(addr uint16) {
 		// Clear TIMINT (interrupt flag)
 		for i := 0; i < 4; i++ {
 			// Address and Mirrors
-			CPU_6502.Memory[(TIM8T-0x280)+uint16(i)*8] = 0
+			Memory[(TIM8T-0x280)+uint16(i)*8] = 0
 			// Address + 2 and Mirrors
-			CPU_6502.Memory[(TIM8T-0x280+2)+uint16(i)*8] = 0
+			Memory[(TIM8T-0x280+2)+uint16(i)*8] = 0
 			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
 		}
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		CPU_6502.Memory[INTIM] = riot_timer
+		Memory[INTIM] = riot_timer
 
 		// TIM64T
 	} else if addr == 0x296 {
@@ -335,15 +334,15 @@ func riot_update_timer(addr uint16) {
 		// Clear TIMINT (interrupt flag)
 		for i := 0; i < 4; i++ {
 			// Address and Mirrors
-			CPU_6502.Memory[(TIM64T-0x280)+uint16(i)*8] = 0
+			Memory[(TIM64T-0x280)+uint16(i)*8] = 0
 			// Address + 2 and Mirrors
-			CPU_6502.Memory[(TIM64T-0x280+2)+uint16(i)*8] = 0
+			Memory[(TIM64T-0x280+2)+uint16(i)*8] = 0
 			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
 		}
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		CPU_6502.Memory[INTIM] = riot_timer
+		Memory[INTIM] = riot_timer
 
 		// T1024T
 	} else if addr == 0x297 {
@@ -354,14 +353,14 @@ func riot_update_timer(addr uint16) {
 		// Clear TIMINT (interrupt flag)
 		for i := 0; i < 4; i++ {
 			// Address and Mirrors
-			CPU_6502.Memory[(T1024T-0x280)+uint16(i)*8] = 0
+			Memory[(T1024T-0x280)+uint16(i)*8] = 0
 			// Address + 2 and Mirrors
-			CPU_6502.Memory[(T1024T-0x280+2)+uint16(i)*8] = 0
+			Memory[(T1024T-0x280+2)+uint16(i)*8] = 0
 		}
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		CPU_6502.Memory[INTIM] = riot_timer
+		Memory[INTIM] = riot_timer
 
 	} else {
 		fmt.Printf("\nriot_update_timer() - Memory address not mapped: %02X! Exiting!\n", addr)

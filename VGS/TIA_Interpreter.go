@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	CPU_6502 "github.com/cassianoperin/6502"
+	//CPU_6502 "github.com/cassianoperin/6502"
+
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 )
@@ -34,7 +35,7 @@ func TIA(action int16, win_2nd_level *pixelgl.Window) {
 		}
 
 		// Disable CPU
-		CPU_6502.CPU_Enabled = false
+		CPU_Enabled = false
 
 		// Increment beam index until the end of the line to re-enable CPU
 		beamIndex++
@@ -43,17 +44,17 @@ func TIA(action int16, win_2nd_level *pixelgl.Window) {
 	case int16(VBLANK): //0x01
 
 		// Enable VBLANK
-		if CPU_6502.Memory[VBLANK] == 0x02 {
+		if Memory[VBLANK] == 0x02 {
 			if debugGraphics {
 				fmt.Printf("\tVBLANK Enabled\n")
 			}
-		} else if CPU_6502.Memory[VBLANK] == 0x00 {
+		} else if Memory[VBLANK] == 0x00 {
 			if debugGraphics {
 				fmt.Printf("\tVBLANK Disabled\n")
 			}
 		} else {
 			if debugGraphics {
-				fmt.Printf("\tVBLANK VALUE !=0 !=2 exiting\t%d\n", CPU_6502.Memory[VBLANK])
+				fmt.Printf("\tVBLANK VALUE !=0 !=2 exiting\t%d\n", Memory[VBLANK])
 			}
 		}
 
@@ -61,21 +62,21 @@ func TIA(action int16, win_2nd_level *pixelgl.Window) {
 	case int16(VSYNC): //0x00
 
 		// Enable VSYNC
-		if CPU_6502.Memory[VSYNC] == 0x02 {
+		if Memory[VSYNC] == 0x02 {
 			if debugGraphics {
 				fmt.Printf("\tVSYNC Enabled\n")
 			}
-		} else if CPU_6502.Memory[VSYNC] == 0x00 {
+		} else if Memory[VSYNC] == 0x00 {
 			if debugGraphics {
 				fmt.Printf("\tVSYNC Disabled\n")
 			}
 			// NOT MAPPED WHY 42 (2A) YET!!! surroundings game
-		} else if CPU_6502.Memory[VSYNC] == 0x2A {
+		} else if Memory[VSYNC] == 0x2A {
 			if debugGraphics {
 				fmt.Printf("\tVSYNC Enabled (VSYNC = 42) !!!!\n")
 			}
 		} else {
-			fmt.Printf("\tVSYNC VALUE !=0 !=2 !=42 exiting\t%d\n", CPU_6502.Memory[VSYNC])
+			fmt.Printf("\tVSYNC VALUE !=0 !=2 !=42 exiting\t%d\n", Memory[VSYNC])
 			os.Exit(2)
 		}
 
@@ -86,23 +87,23 @@ func TIA(action int16, win_2nd_level *pixelgl.Window) {
 
 	case int16(GRP0): //0x1B
 		if debugGraphics {
-			fmt.Printf("\tCycle: %d\tGRP0 SET\tGRP0: %b\n", counter_F_Cycle, CPU_6502.Memory[GRP0])
+			fmt.Printf("\tCycle: %d\tGRP0 SET\tGRP0: %b\n", counter_F_Cycle, Memory[GRP0])
 		}
 
 	case int16(GRP1): //0x1C
 		if debugGraphics {
-			fmt.Printf("\tCycle: %d\tGRP1 SET\tGRP1: %b\n", counter_F_Cycle, CPU_6502.Memory[GRP1])
+			fmt.Printf("\tCycle: %d\tGRP1 SET\tGRP1: %b\n", counter_F_Cycle, Memory[GRP1])
 		}
 
 	case int16(RESP0): //0x1B
 		if debugGraphics {
-			fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tGRP0: %b\n", counter_F_Cycle, beamIndex, CPU_6502.Memory[GRP0])
+			fmt.Printf("\t%d - RESP0 SET - DRAW P0 SPRITE!\tBeam: %d\tGRP0: %b\n", counter_F_Cycle, beamIndex, Memory[GRP0])
 		}
 		XPositionP0 = beamIndex
 
 	case int16(RESP1): //0x11
 		if debugGraphics {
-			fmt.Printf("\t%d - RESP1 SET - DRAW P1 SPRITE!\tBeam: %d\tGRP1: %b\n", counter_F_Cycle, beamIndex, CPU_6502.Memory[GRP1])
+			fmt.Printf("\t%d - RESP1 SET - DRAW P1 SPRITE!\tBeam: %d\tGRP1: %b\n", counter_F_Cycle, beamIndex, Memory[GRP1])
 		}
 		XPositionP1 = beamIndex
 
@@ -122,19 +123,19 @@ func TIA(action int16, win_2nd_level *pixelgl.Window) {
 		if debugGraphics {
 			fmt.Printf("\tHMCLR SET - Clear Horizontal Move Registers\n")
 		}
-		CPU_6502.Memory[HMP0] = 0x00
-		CPU_6502.Memory[HMP1] = 0x00
-		CPU_6502.Memory[HMM0] = 0x00
-		CPU_6502.Memory[HMM1] = 0x00
-		CPU_6502.Memory[HMBL] = 0x00
+		Memory[HMP0] = 0x00
+		Memory[HMP1] = 0x00
+		Memory[HMM0] = 0x00
+		Memory[HMM1] = 0x00
+		Memory[HMBL] = 0x00
 
 	case int16(HMOVE): //0x2A
 		if debugGraphics {
 			fmt.Printf("\tHMOVE SET - Apply Horizontal Motion\n")
 		}
 		// Check if will be necessary to keep the HMP values in some cache
-		XFinePositionP0 = FinePositioning(CPU_6502.Memory[HMP0])
-		XFinePositionP1 = FinePositioning(CPU_6502.Memory[HMP1])
+		XFinePositionP0 = FinePositioning(Memory[HMP0])
+		XFinePositionP1 = FinePositioning(Memory[HMP1])
 
 	case int16(CXCLR): //0x2C
 		if debugGraphics {
@@ -200,18 +201,18 @@ func check_VSYNC_VBLANK(win_2nd_level *pixelgl.Window) {
 	} else {
 
 		// Test if in Vertical Blank (do not draw anything)
-		if CPU_6502.Memory[VBLANK] == 2 {
+		if Memory[VBLANK] == 2 {
 
 			// During Vertical Blank, if vsync is set
-			if CPU_6502.Memory[VSYNC] == 2 {
+			if Memory[VSYNC] == 2 {
 				newFrame(win_2nd_level)
 				// win_2nd_level.Clear(colornames.Black)
 				// win_2nd_level.Update()
 
 				// ENABLE VSYNC
-				if CPU_6502.Memory[VSYNC] == 0x02 {
+				if Memory[VSYNC] == 0x02 {
 
-					if CPU_6502.Memory[VBLANK] == 2 {
+					if Memory[VBLANK] == 2 {
 						if debugGraphics {
 							fmt.Printf("\tLine: %d\tCRT - VSYNC\n\n", line)
 						}
@@ -222,7 +223,7 @@ func check_VSYNC_VBLANK(win_2nd_level *pixelgl.Window) {
 					}
 
 					// DISABLE VSYNC
-				} else if CPU_6502.Memory[VSYNC] == 0x00 {
+				} else if Memory[VSYNC] == 0x00 {
 					if debugGraphics {
 						fmt.Printf("\tCRT - VSYNC DISABLED\n")
 					}
@@ -233,9 +234,9 @@ func check_VSYNC_VBLANK(win_2nd_level *pixelgl.Window) {
 				}
 
 				// 37 lines VBLANK
-			} else if CPU_6502.Memory[VBLANK] == 2 {
+			} else if Memory[VBLANK] == 2 {
 				if debugGraphics {
-					fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line, CPU_6502.Memory[VBLANK], CPU_6502.Memory[VSYNC])
+					fmt.Printf("\tLine: %d\tVBLANK\t\t(vblank: %02X\tvsync: %02X)\n\n", line, Memory[VBLANK], Memory[VSYNC])
 				}
 			}
 
@@ -255,7 +256,7 @@ func newLine(win_2nd_level *pixelgl.Window) {
 	beamIndex = 0
 	line++
 
-	CPU_6502.CPU_Enabled = true
+	CPU_Enabled = true
 	// // Reset to default value
 	// TIA_Update = -1
 	check_VSYNC_VBLANK(win_2nd_level)
@@ -345,7 +346,7 @@ func newFrame(win_3nd_level *pixelgl.Window) {
 		counter_Frame++
 
 		// Reset Controllers Buttons to 1 (not pressed)
-		CPU_6502.Memory[SWCHA] = 0xFF //1111 11111
+		Memory[SWCHA] = 0xFF //1111 11111
 		// Memory[INPT0] = 0xFF //1111 11111
 		// Memory[INPT1] = 0xFF //1111 11111
 		// Memory[INPT2] = 0xFF //1111 11111
@@ -396,10 +397,10 @@ func TIA_Initialize() {
 	XFinePositionP1 = 0
 
 	// Reset Controllers Buttons to 1 (not pressed)
-	CPU_6502.Memory[SWCHA] = 0xFF //1111 11111
+	Memory[SWCHA] = 0xFF //1111 11111
 
 	// Initialize CPU
-	CPU_6502.CPU_Enabled = true
+	// CPU_Enabled = true
 
 	// RIOT Timer
 	riot_timer = 0

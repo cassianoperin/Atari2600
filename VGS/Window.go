@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	CPU_6502 "github.com/cassianoperin/6502"
+	// CPU_6502 "github.com/cassianoperin/6502"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -57,8 +57,8 @@ func Run() {
 
 			select {
 			case <-second_timer: // Second
-				win.SetTitle(fmt.Sprintf("%s IPS: %d| FPS: %d | Draws: %d", cfg.Title, CPU_6502.IPS, counter_FPS, counter_DPS))
-				CPU_6502.IPS = 0
+				win.SetTitle(fmt.Sprintf("%s IPS: %d| FPS: %d | Draws: %d", cfg.Title, IPS, counter_FPS, counter_DPS))
+				IPS = 0
 				counter_FPS = 0
 				counter_DPS = 0
 
@@ -76,10 +76,10 @@ func Run() {
 
 				if riot_timer > old_timer {
 					// fmt.Println("Zerou!")
-					CPU_6502.Memory[TIMINT] = 128
+					Memory[TIMINT] = 128
 					riot_timer_mult = 1
 				}
-				CPU_6502.Memory[INTIM] = riot_timer
+				Memory[INTIM] = riot_timer
 			}
 			// fmt.Println(riot_timer)
 
@@ -91,14 +91,14 @@ func Run() {
 			// select {
 			// case <- clock_timer.C:
 
-			if !CPU_6502.Pause {
+			if !Pause {
 				// Time measurement - CPU Cycle
 				if debugTiming {
 					debugTiming_StartCycle = time.Now()
 				}
 
 				// Runs the interpreter
-				if CPU_6502.CPU_Enabled {
+				if CPU_Enabled {
 
 					// Increment the beam
 					beamIndex++
@@ -106,32 +106,32 @@ func Run() {
 					// Set it all the times to be ignored
 					TIA_Update = -1
 
-					CPU_6502.CPU_Interpreter()
+					CPU_Interpreter()
 
-					// fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", CPU_6502.AddressBUS)
+					// fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", AddressBUS)
 
-					fmt.Println(CPU_6502.Opc_cycle_count, CPU_6502.Opc_cycles, CPU_6502.Opc_cycle_extra)
+					// fmt.Println(Opc_cycle_count, Opc_cycles, Opc_cycle_extra)
 
-					if CPU_6502.Opc_cycle_count == CPU_6502.Opc_cycles+CPU_6502.Opc_cycle_extra {
-						// fmt.Println("Update TIAAA (add extra")
-						// EXPORTAR MEMADDR, e no último ciclo, atualizar tia?
-						TIA_Update = int16(CPU_6502.AddressBUS)
-					}
+					// if Opc_cycle_count == Opc_cycles+Opc_cycle_extra {
+					// 	TIA_Update = int16(AddressBUS)
+					// }
 
 					// fmt.Printf("\n\tBeam Index: %d\n", beamIndex)
 
 					// MOVE IT TO JUST DRAW ON EACH FRAMEEEE
-					imd.Draw(win)
-					win.Update()
+					// imd.Draw(win)
+					// win.Update()
 
 				} else {
 					// Increment Cycle
 					counter_F_Cycle++
 				}
 
+				// fmt.Printf("Cycle: %d\t\tLine: %d\n", counter_F_Cycle, line)
+
+				// fmt.Println(TIA_Update)
 				// Draw the pixels on the monitor accordingly to beam update (1 CPU cycle = 3 TIA color clocks)
 				TIA(TIA_Update, win)
-				// fmt.Printf("Cycle: %d\t\tLine: %d\n", counter_F_Cycle, line)
 
 				// // Update Debug Screen
 				// if Debug {
@@ -146,6 +146,7 @@ func Run() {
 
 				// Refresh screen if in Pause mode
 			} else {
+				fmt.Println("UPDATE")
 				win.Update()
 			}
 
@@ -163,9 +164,9 @@ func Run() {
 
 			// ---------------- Reset Physical Switches ---------------- //
 			// Reset switch not enabled (put 1 on position 0 of SWCHB)
-			CPU_6502.Memory[SWCHB] |= (1 << 0)
+			Memory[SWCHB] |= (1 << 0)
 			// Game select switch not enabled (put 1 on position 1 of SWCHB)
-			CPU_6502.Memory[SWCHB] |= (1 << 1)
+			Memory[SWCHB] |= (1 << 1)
 
 		}
 

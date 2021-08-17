@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	CPU_6502 "github.com/cassianoperin/6502"
-
+	//CPU_6502 "github.com/cassianoperin/6502"
 	"image/color"
 
 	"github.com/faiface/pixel"
@@ -23,23 +22,23 @@ func TIA_draw() {
 		if pixel_position > 0 {
 
 			// Set the background color as default
-			R, G, B := NTSC(CPU_6502.Memory[COLUBK])
+			R, G, B := NTSC(Memory[COLUBK])
 			imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 			// ----------------------------------------- PF0 ----------------------------------------- //
 			if pixel_position <= 16 {
 
 				// If the bit is 1, set the color of the playfield
-				if (CPU_6502.Memory[PF0]>>byte(pf0_bit))&0x01 == 1 {
+				if (Memory[PF0]>>byte(pf0_bit))&0x01 == 1 {
 
 					// Check D1 status to use color of players in the sCPU_6502
-					if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+					if (Memory[CTRLPF]&0x02)>>1 == 0 {
 						// Playfield color
-						R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+						R, G, B := NTSC(Memory[COLUPF])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					} else {
 						// Player 0 Color (SCPU_6502)
-						R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+						R, G, B := NTSC(Memory[COLUP0])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
 
@@ -62,16 +61,16 @@ func TIA_draw() {
 			} else if pixel_position <= 48 {
 
 				// If the bit is 1, set the color of the playfield
-				if (CPU_6502.Memory[PF1]>>byte(pf1_bit))&0x01 == 1 {
+				if (Memory[PF1]>>byte(pf1_bit))&0x01 == 1 {
 
 					// Check D1 status to use color of players in the sCPU_6502
-					if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+					if (Memory[CTRLPF]&0x02)>>1 == 0 {
 						// Playfield color
-						R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+						R, G, B := NTSC(Memory[COLUPF])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					} else {
 						// Player 0 Color (SCPU_6502)
-						R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+						R, G, B := NTSC(Memory[COLUP0])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
 
@@ -94,16 +93,16 @@ func TIA_draw() {
 			} else if pixel_position <= 80 {
 
 				// If the bit is 1, set the color of the playfield
-				if (CPU_6502.Memory[PF2]>>byte(pf2_bit))&0x01 == 1 {
+				if (Memory[PF2]>>byte(pf2_bit))&0x01 == 1 {
 
 					// Check D1 status to use color of players in the sCPU_6502
-					if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+					if (Memory[CTRLPF]&0x02)>>1 == 0 {
 						// Playfield color
-						R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+						R, G, B := NTSC(Memory[COLUPF])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					} else {
 						// Player 0 Color (SCPU_6502)
-						R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+						R, G, B := NTSC(Memory[COLUP0])
 						imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 					}
 
@@ -127,21 +126,21 @@ func TIA_draw() {
 			if pixel_position > 80 {
 
 				// --------------------------------- PF0 Reflected Normal -------------------------------- //
-				if (CPU_6502.Memory[CTRLPF] & 0x01) == 0 {
+				if (Memory[CTRLPF] & 0x01) == 0 {
 
 					if pixel_position <= 96 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF0]>>byte(pf0_bit))&0x01 == 1 {
+						if (Memory[PF0]>>byte(pf0_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -164,16 +163,16 @@ func TIA_draw() {
 					} else if pixel_position <= 128 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF1]>>byte(pf1_bit))&0x01 == 1 {
+						if (Memory[PF1]>>byte(pf1_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -196,16 +195,16 @@ func TIA_draw() {
 					} else if pixel_position <= 160 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF2]>>byte(pf2_bit))&0x01 == 1 {
+						if (Memory[PF2]>>byte(pf2_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -233,16 +232,16 @@ func TIA_draw() {
 					if pixel_position <= 112 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF2]>>byte(pf2_mirror_bit))&0x01 == 1 {
+						if (Memory[PF2]>>byte(pf2_mirror_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -265,16 +264,16 @@ func TIA_draw() {
 					} else if pixel_position <= 144 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF1]>>byte(pf1_mirror_bit))&0x01 == 1 {
+						if (Memory[PF1]>>byte(pf1_mirror_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -297,16 +296,16 @@ func TIA_draw() {
 					} else if pixel_position <= 160 {
 
 						// If the bit is 1, set the color of the playfield
-						if (CPU_6502.Memory[PF0]>>byte(pf0_mirror_bit))&0x01 == 1 {
+						if (Memory[PF0]>>byte(pf0_mirror_bit))&0x01 == 1 {
 
 							// Check D1 status to use color of players in the sCPU_6502
-							if (CPU_6502.Memory[CTRLPF]&0x02)>>1 == 0 {
+							if (Memory[CTRLPF]&0x02)>>1 == 0 {
 								// Playfield color
-								R, G, B := NTSC(CPU_6502.Memory[COLUPF])
+								R, G, B := NTSC(Memory[COLUPF])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							} else {
 								// Player 1 Color (SCPU_6502)
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 							}
 
@@ -340,22 +339,22 @@ func TIA_draw() {
 			// ---------------------------------- Draw Player 0 ----------------------------------- //
 
 			// Check if GRP0 was set and draw the sprite
-			if CPU_6502.Memory[GRP0] != 0 {
+			if Memory[GRP0] != 0 {
 
 				// Determine the initial position of the player on the line
 				P0_base_position := (int(XPositionP0) * 3) - 68 + int(XFinePositionP0)
 
 				// ----------------------------------------------- NUSIZ0 = 0x00 ----------------------------------------------- //
-				if CPU_6502.Memory[NUSIZ0] == 0x00 {
+				if Memory[NUSIZ0] == 0x00 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -363,9 +362,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -383,16 +382,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x01 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x01 {
+				} else if Memory[NUSIZ0] == 0x01 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) || pixel_position == P0_base_position+int(P0_bit)+16 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -400,9 +399,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -420,16 +419,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x02 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x02 {
+				} else if Memory[NUSIZ0] == 0x02 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) || pixel_position == P0_base_position+int(P0_bit)+32 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -437,9 +436,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -457,16 +456,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x03 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x03 {
+				} else if Memory[NUSIZ0] == 0x03 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) || pixel_position == P0_base_position+int(P0_bit)+16 || pixel_position == P0_base_position+int(P0_bit)+32 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -474,9 +473,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -494,16 +493,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x04 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x04 {
+				} else if Memory[NUSIZ0] == 0x04 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) || pixel_position == P0_base_position+int(P0_bit)+64 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -511,9 +510,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -531,16 +530,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x05 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x05 {
+				} else if Memory[NUSIZ0] == 0x05 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-(P0_bit/2))&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-(P0_bit/2))&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -548,9 +547,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit/2)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit/2)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -568,16 +567,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ0 = 0x06 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x06 {
+				} else if Memory[NUSIZ0] == 0x06 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) || pixel_position == P0_base_position+int(P0_bit)+32 || pixel_position == P0_base_position+int(P0_bit)+64 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -585,9 +584,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -604,16 +603,16 @@ func TIA_draw() {
 						}
 					}
 					// ----------------------------------------------- NUSIZ0 = 0x07 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ0] == 0x07 {
+				} else if Memory[NUSIZ0] == 0x07 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P0_base_position+int(P0_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP0] == 0x00 {
-							if CPU_6502.Memory[GRP0]>>(7-(P0_bit/4))&0x01 == 1 {
+						if Memory[REFP0] == 0x00 {
+							if Memory[GRP0]>>(7-(P0_bit/4))&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -621,9 +620,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP0]>>(P0_bit/4)&0x01 == 1 {
+							if Memory[GRP0]>>(P0_bit/4)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP0])
+								R, G, B := NTSC(Memory[COLUP0])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -646,22 +645,22 @@ func TIA_draw() {
 			// ---------------------------------- Draw Player 1 ----------------------------------- //
 
 			// Check if GRP1 was set and draw the sprite
-			if CPU_6502.Memory[GRP1] != 0 {
+			if Memory[GRP1] != 0 {
 
 				// Determine the initial position of the player on the line
 				P1_base_position := (int(XPositionP1) * 3) - 68 + int(XFinePositionP1)
 
 				// ----------------------------------------------- NUSIZ1 = 0x00 ----------------------------------------------- //
-				if CPU_6502.Memory[NUSIZ1] == 0x00 {
+				if Memory[NUSIZ1] == 0x00 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -669,9 +668,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -689,16 +688,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x01 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x01 {
+				} else if Memory[NUSIZ1] == 0x01 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) || pixel_position == P1_base_position+int(P1_bit)+16 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -706,9 +705,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -726,16 +725,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x02 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x02 {
+				} else if Memory[NUSIZ1] == 0x02 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) || pixel_position == P1_base_position+int(P1_bit)+32 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -743,9 +742,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -763,16 +762,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x03 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x03 {
+				} else if Memory[NUSIZ1] == 0x03 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) || pixel_position == P1_base_position+int(P1_bit)+16 || pixel_position == P1_base_position+int(P1_bit)+32 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -780,9 +779,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -800,16 +799,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x04 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x04 {
+				} else if Memory[NUSIZ1] == 0x04 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) || pixel_position == P1_base_position+int(P1_bit)+64 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -817,9 +816,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -837,16 +836,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x05 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x05 {
+				} else if Memory[NUSIZ1] == 0x05 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit/2)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit/2)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -854,9 +853,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit/2)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit/2)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -874,16 +873,16 @@ func TIA_draw() {
 					}
 
 					// ----------------------------------------------- NUSIZ1 = 0x06 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x06 {
+				} else if Memory[NUSIZ1] == 0x06 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) || pixel_position == P1_base_position+int(P1_bit)+32 || pixel_position == P1_base_position+int(P1_bit)+64 {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -891,9 +890,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -910,16 +909,16 @@ func TIA_draw() {
 						}
 					}
 					// ----------------------------------------------- NUSIZ1 = 0x07 ----------------------------------------------- //
-				} else if CPU_6502.Memory[NUSIZ1] == 0x07 {
+				} else if Memory[NUSIZ1] == 0x07 {
 
 					// Check the initial draw position (set by RESP1)
 					if pixel_position == P1_base_position+int(P1_bit) {
 
 						// handle the order of the bits (normal or inverted)
-						if CPU_6502.Memory[REFP1] == 0x00 {
-							if CPU_6502.Memory[GRP1]>>(7-P1_bit/4)&0x01 == 1 {
+						if Memory[REFP1] == 0x00 {
+							if Memory[GRP1]>>(7-P1_bit/4)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection
@@ -927,9 +926,9 @@ func TIA_draw() {
 							}
 							// If Reflect Player Enabled (REFP1), invert the order of GRPn
 						} else {
-							if CPU_6502.Memory[GRP1]>>(P1_bit/4)&0x01 == 1 {
+							if Memory[GRP1]>>(P1_bit/4)&0x01 == 1 {
 								// READ COLUP0 - Set Player color
-								R, G, B := NTSC(CPU_6502.Memory[COLUP1])
+								R, G, B := NTSC(Memory[COLUP1])
 								imd.Color = color.RGBA{uint8(R), uint8(G), uint8(B), 255}
 
 								// Update the slice with Player0 pixel positions for collision detection

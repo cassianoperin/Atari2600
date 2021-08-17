@@ -104,7 +104,7 @@ var (
 	pf2_mirror_bit byte = 7 // PF2 bit index
 
 	// Debug
-	debugGraphics bool = true  // Graphics Debug mode
+	debugGraphics bool = false // Graphics Debug mode
 	debugRIOT     bool = false // RIOT Debug mode
 )
 

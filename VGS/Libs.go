@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	CPU_6502 "github.com/cassianoperin/6502"
 )
 
 // ---------------------------- Library Function ---------------------------- //
@@ -58,7 +56,7 @@ func ReadROM(filename string) {
 		// Load ROM to memory
 		for i := 0; i < len(data); i++ {
 			// F000 - FFFF // Cartridge ROM
-			CPU_6502.Memory[0xF000+i] = data[i]
+			Memory[0xF000+i] = data[i]
 		}
 	}
 
@@ -67,9 +65,9 @@ func ReadROM(filename string) {
 		// Load ROM to memory
 		for i := 0; i < len(data); i++ {
 			// F000 - F7FF (2KB Cartridge ROM)
-			CPU_6502.Memory[0xF000+i] = data[i]
+			Memory[0xF000+i] = data[i]
 			// F800 - FFFF (2KB Mirror Cartridge ROM)
-			CPU_6502.Memory[0xF800+i] = data[i]
+			Memory[0xF800+i] = data[i]
 		}
 	}
 
@@ -120,7 +118,7 @@ func memUpdate(memAddr uint16, value byte) {
 
 		// All other addresses uses regular Memory array
 	} else {
-		CPU_6502.Memory[memAddr] = value
+		Memory[memAddr] = value
 	}
 
 }
