@@ -38,14 +38,15 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | Controller Input | OK |
 | Memory page boundary cross detection | OK |
 | CPU Stack | OK |
-| Decimal Mode (BCD) - ADC opcode | OK |
+| Decimal Mode (BCD) | OK |
 | TIA RO Memory Mirrors (64 bytes) | OK |
-| 6507 CPU Opcodes | 46 / 56 |
-
+| ROM Memory Mirrors | OK |
+| RAM Memory Mirrors | OK |
+| 6502 / 6507 CPU Opcodes | OK |
 
 ## Missing:
+
 - Timers not working well
-- BCD Mode SBC
 - Player are not well centralized (horizontal movement)
 - Graphics: Improve P0 and P1 scroll (X and Y)
 - Graphics: Ball

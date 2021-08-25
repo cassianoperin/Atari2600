@@ -243,7 +243,7 @@ func dataBUS_Read(memAddr uint16) byte {
 	// Read from TIA (14 bits + 2 unused, mirrored 3 more times)
 	if memAddr < 64 {
 		data_value = Memory_TIA_RO[memAddr]
-		// Read from other reserved TIA registers
+		// TEMP - Read from other reserved TIA registers
 	} else if memAddr < 128 {
 		fmt.Printf("dataBUS_Read - Controlled Exit to map access to TIA READ Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
 		os.Exit(2)
@@ -262,13 +262,52 @@ func dataBUS_Write(memAddr uint16, data_value byte) byte {
 
 	Memory[memAddr] = data_value
 
-	// TIA and RIOT
+	// Update TIA and RIOT
 	if memAddr < 128 || memAddr > 0x280 && memAddr <= 0x29F {
 		TIA_Update = int16(memAddr)
 	}
 
-	// RIOT WRITE ADDRESS
-	if memAddr > 0x280 && memAddr <= 0x29F {
+	// RIOT RAM
+	if memAddr >= 0x80 && memAddr <= 0xFF {
+
+		// Define the ram base position
+		ram_base := memAddr - 0x80
+
+		// fmt.Printf("ORIGINAL: %02X\t\tBASE: %02X\n", memAddr, ram_base)
+
+		// RAM Mirrors
+		// **************************************
+		// * $0080-$00FF = RIOT RAM (zero page) *
+		// * ---------------------------------- *
+		// *                                    *
+		// *     mirror: $xy80                  *
+		// *                                    *
+		// *     x = {even}                     *
+		// *     y = {0,1,4,5,8,9,$C,$D}        *
+		// *                                    *
+		// **************************************
+		var ram_mirrors = []uint16{0x0080, 0x0180, 0x0480, 0x0580, 0x0880, 0x0980,
+			0x0C80, 0x0D80, 0x2080, 0x2180, 0x2480, 0x2580, 0x2880, 0x2980, 0x2C80,
+			0x2D80, 0x4080, 0x4180, 0x4480, 0x4580, 0x4880, 0x4980, 0x4C80, 0x4D80,
+			0x6080, 0x6180, 0x6480, 0x6580, 0x6880, 0x6980, 0x6C80, 0x6D80, 0x8080,
+			0x8180, 0x8480, 0x8580, 0x8880, 0x8980, 0x8C80, 0x8D80, 0xA080, 0xA180,
+			0xA480, 0xA580, 0xA880, 0xA980, 0xAC80, 0xAD80, 0xC080, 0xC180, 0xC480,
+			0xC580, 0xC880, 0xC980, 0xCC80, 0xCD80, 0xE080, 0xE180, 0xE480, 0xE580,
+			0xE880, 0xE980, 0xEC80, 0xED80}
+
+		// Update RAM (0x0080-0x00FF) and its mirrors
+		for _, mirror := range ram_mirrors {
+			// fmt.Printf("2**%d = %d\n", i, value)
+			// fmt.Printf("%02X\n", mirror)
+
+			Memory[mirror+ram_base] = data_value
+
+			// fmt.Printf("%02X %02X\n\n", Memory[0x83], Memory[0x183])
+
+		}
+
+		// RIOT WRITE ADDRESS
+	} else if memAddr > 0x280 && memAddr <= 0x29F {
 
 		// fmt.Printf("RIOT addr: %02X\n", memAddr)
 
