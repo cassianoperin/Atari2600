@@ -43,6 +43,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | TIA RW Memory Mirrors (64 bytes) | OK |
 | ROM Memory Mirrors | OK |
 | RAM Memory Mirrors | OK |
+| RIOT RW Memory Mirrors | OK |
 | 6502 / 6507 CPU Opcodes | OK |
 
 ## Missing:

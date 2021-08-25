@@ -319,7 +319,7 @@ func dataBUS_Write(memAddr uint16, data_value byte) byte {
 
 		// Memory[memAddr] = data_value
 
-		// RIOT RAM $80-$FF
+		// RAM $80-$FF
 	} else if memAddr >= 0x80 && memAddr <= 0xFF {
 
 		// Define the ram base position
@@ -361,21 +361,39 @@ func dataBUS_Write(memAddr uint16, data_value byte) byte {
 		// RIOT WRITE ADDRESS
 	} else if memAddr > 0x280 && memAddr <= 0x29F {
 
-		// fmt.Printf("RIOT addr: %02X\n", memAddr)
+		// // First 4 addresses repeats 4 times
+		// if memAddr > 0x280 && memAddr <= 0x283 {
+		// 	Memory_RIOT_RW[memAddr-0x280] = data_value
+		// 	Memory_RIOT_RW[memAddr-0x280+8] = data_value
+		// 	Memory_RIOT_RW[memAddr-0x280+16] = data_value
+		// 	Memory_RIOT_RW[memAddr-0x280+24] = data_value
+		// 	os.Exit(2)
 
-		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
-		// Update RIOT RW
-		Memory_RIOT_RW[memAddr-0x280] = data_value
-		// Update RIOT RW Mirror
-		Memory_RIOT_RW[memAddr-0x280+8] = data_value
-
-		// Print RIOT RW Memory values
-		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
-		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
+		// 	// These 4 repeats 2 times
+		// } else if memAddr > 0x284 && memAddr <= 0x287 {
+		// 	Memory_RIOT_RW[memAddr-0x280] = data_value
+		// 	Memory_RIOT_RW[memAddr-0x280+8] = data_value
+		// 	os.Exit(2)
 		// }
 
-		// Update the Timer
-		riot_update_timer(memAddr)
+		// Timers are the only TIA addresses updated by CPU
+		if memAddr > 0x294 && memAddr <= 0x297 {
+
+			// Update TIA RW
+			Memory_RIOT_RW[memAddr-0x280] = data_value
+			Memory_RIOT_RW[memAddr-0x280+8] = data_value
+
+			// Update timers and mirrors
+			riot_update_timer(memAddr)
+		} else {
+			fmt.Printf("Exit! dataBUS_Write tried to write to an unmapped TIA Address: %02X\n", memAddr)
+			os.Exit(2)
+		}
+
+		// // Print RIOT RW Memory values
+		// for i := 0; i < len(Memory_RIOT_RW); i++ {
+		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
+		// }
 
 		// All other addresses uses regular Memory array
 	} else {

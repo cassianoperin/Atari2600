@@ -295,16 +295,20 @@ func riot_update_timer(addr uint16) {
 		riot_timer_mult = 1
 		// Clear TIMINT (interrupt flag)
 		for i := 0; i < 4; i++ {
-			// Address and Mirrors
+			// TIMINT Address and Mirrors
 			Memory[(TIMINT-0x280)+uint16(i)*8] = 0
-			// Address + 2 and Mirrors
+			// TIMINT Address + 2 and Mirrors
 			Memory[(TIMINT-0x280+2)+uint16(i)*8] = 0
-			// fmt.Println( ( TIMINT - 0x280 + 2) + uint16(i) * 8 )
 		}
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		Memory[INTIM] = riot_timer
+		for i := 0; i < 4; i++ {
+			// INTIM Address and Mirrors
+			Memory[INTIM+uint16(i)*8] = riot_timer
+			// INTIM Address + 2 and Mirrors
+			Memory[(INTIM+2)+uint16(i)*8] = riot_timer
+		}
 
 		// TIM8T
 	} else if addr == 0x295 {
@@ -323,7 +327,12 @@ func riot_update_timer(addr uint16) {
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		Memory[INTIM] = riot_timer
+		for i := 0; i < 4; i++ {
+			// INTIM Address and Mirrors
+			Memory[INTIM+uint16(i)*8] = riot_timer
+			// INTIM Address + 2 and Mirrors
+			Memory[(INTIM+2)+uint16(i)*8] = riot_timer
+		}
 
 		// TIM64T
 	} else if addr == 0x296 {
@@ -342,7 +351,12 @@ func riot_update_timer(addr uint16) {
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		Memory[INTIM] = riot_timer
+		for i := 0; i < 4; i++ {
+			// INTIM Address and Mirrors
+			Memory[INTIM+uint16(i)*8] = riot_timer
+			// INTIM Address + 2 and Mirrors
+			Memory[(INTIM+2)+uint16(i)*8] = riot_timer
+		}
 
 		// T1024T
 	} else if addr == 0x297 {
@@ -360,7 +374,12 @@ func riot_update_timer(addr uint16) {
 		// Reset the internal cycle counter
 		riot_timer_counter = 0
 		// Update Timer Output
-		Memory[INTIM] = riot_timer
+		for i := 0; i < 4; i++ {
+			// INTIM Address and Mirrors
+			Memory[INTIM+uint16(i)*8] = riot_timer
+			// INTIM Address + 2 and Mirrors
+			Memory[(INTIM+2)+uint16(i)*8] = riot_timer
+		}
 
 	} else {
 		fmt.Printf("\nriot_update_timer() - Memory address not mapped: %02X! Exiting!\n", addr)
