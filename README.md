@@ -40,6 +40,7 @@ Initial stage Atari 2600 VCS Emulator writen in GO.
 | CPU Stack | OK |
 | Decimal Mode (BCD) | OK |
 | TIA RO Memory Mirrors (64 bytes) | OK |
+| TIA RW Memory Mirrors (64 bytes) | OK |
 | ROM Memory Mirrors | OK |
 | RAM Memory Mirrors | OK |
 | 6502 / 6507 CPU Opcodes | OK |
