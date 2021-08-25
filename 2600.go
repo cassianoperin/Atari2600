@@ -44,14 +44,16 @@ func main() {
 	// Read ROM to the memory
 	// VGS.ReadROM(os.Args[1])
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/2colorbg.bin")
-	VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/3rainbow.bin")
+	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/3rainbow.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/4playfieldborder.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/5playerscoreboard.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/6vertical.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/7horizontal-fixed.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/8input.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Bomber/105bomber-collision-fixed.bin")
-	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Surround.bin")
+	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Combat.a26")
+	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/PosWidth2.bin")
+	VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Surround.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/Pac-Man.bin")
 	// VGS.ReadROM("/Users/cassiano/go/src/Atari2600/TestPrograms/cart.bin")
 

@@ -106,15 +106,18 @@ func Run() {
 					// Set it all the times to be ignored
 					TIA_Update = -1
 
+					// // Update TIA on last cycle of opcodes STA || STX
+					// if opcode == 0x85 || opcode == 0x95 || opcode == 0x8D || opcode == 0x9D || opcode == 0x99 || opcode == 0x81 || opcode == 0x91 || opcode == 0x86 || opcode == 0x96 || opcode == 0x8E {
+					// 	if Opc_cycle_count == Opc_cycles+Opc_cycle_extra {
+					// 		TIA_Update = int16(AddressBUS)
+					// 	}
+					// }
+
 					CPU_Interpreter()
 
 					// fmt.Printf("\n\n\n\n\n\n\tAddress BUS: %d\n\n\n\n", AddressBUS)
 
 					// fmt.Println(Opc_cycle_count, Opc_cycles, Opc_cycle_extra)
-
-					// if Opc_cycle_count == Opc_cycles+Opc_cycle_extra {
-					// 	TIA_Update = int16(AddressBUS)
-					// }
 
 					// fmt.Printf("\n\tBeam Index: %d\n", beamIndex)
 
@@ -146,7 +149,6 @@ func Run() {
 
 				// Refresh screen if in Pause mode
 			} else {
-				fmt.Println("UPDATE")
 				win.Update()
 			}
 

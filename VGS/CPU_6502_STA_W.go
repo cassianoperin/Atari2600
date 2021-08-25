@@ -37,9 +37,6 @@ func opc_STA(memAddr uint16, mode string, bytes uint16, opc_cycles byte) {
 		// Write data to Memory (adress in Memory Bus) and update the value in Data BUS
 		memData := dataBUS_Write(memAddr, A)
 
-		TIA_Update = int16(memAddr)
-		// memUpdate(memAddr, A)
-
 		// Print Opcode Debug Message
 		opc_STA_DebugMsg(bytes, mode, memAddr, memData)
 

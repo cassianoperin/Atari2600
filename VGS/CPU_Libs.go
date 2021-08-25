@@ -2,6 +2,7 @@ package VGS
 
 import (
 	"fmt"
+	"os"
 )
 
 // ---------------------------- Library Function ---------------------------- //
@@ -236,7 +237,22 @@ func resetIntOpcCycleCounters() {
 
 // Data Bus - READ from Memory Operations
 func dataBUS_Read(memAddr uint16) byte {
-	data_value := Memory[memAddr]
+
+	var data_value byte
+
+	// Read from TIA (14 bits + 2 unused, mirrored 3 more times)
+	if memAddr < 64 {
+		data_value = Memory_TIA_RO[memAddr]
+		// Read from other reserved TIA registers
+	} else if memAddr < 128 {
+		fmt.Printf("dataBUS_Read - Controlled Exit to map access to TIA READ Addresses. COULD BE MIRRORS!!!!!.\t EXITING\n")
+		os.Exit(2)
+		// Read from RIOT Memory Map (> 0x280)
+	} else {
+		data_value = Memory[memAddr]
+	}
+
+	// data_value := Memory[memAddr]
 
 	return data_value
 }
@@ -245,6 +261,35 @@ func dataBUS_Read(memAddr uint16) byte {
 func dataBUS_Write(memAddr uint16, data_value byte) byte {
 
 	Memory[memAddr] = data_value
+
+	// TIA and RIOT
+	if memAddr < 128 || memAddr > 0x280 && memAddr <= 0x29F {
+		TIA_Update = int16(memAddr)
+	}
+
+	// RIOT WRITE ADDRESS
+	if memAddr > 0x280 && memAddr <= 0x29F {
+
+		// fmt.Printf("RIOT addr: %02X\n", memAddr)
+
+		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
+		// Update RIOT RW
+		Memory_RIOT_RW[memAddr-0x280] = data_value
+		// Update RIOT RW Mirror
+		Memory_RIOT_RW[memAddr-0x280+8] = data_value
+
+		// Print RIOT RW Memory values
+		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
+		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
+		// }
+
+		// Update the Timer
+		riot_update_timer(memAddr)
+
+		// All other addresses uses regular Memory array
+	} else {
+		Memory[memAddr] = data_value
+	}
 
 	return data_value
 }

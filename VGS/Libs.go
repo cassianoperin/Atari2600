@@ -71,57 +71,70 @@ func ReadROM(filename string) {
 		}
 	}
 
-	// // Print Memory -  Fist 2kb
-	// for i := 0xF7F0; i <= 0xF7FF; i++ {
-	// 	fmt.Printf("%X ", VGS.Memory[i])
-	// }
-	// fmt.Println()
-	// //
-	// for i := 0xFFF0; i <= 0xFFFF; i++ {
-	// 	fmt.Printf("%X ", VGS.Memory[i])
-	// }
-	// fmt.Println()
+	// ROM Mirrors
+	// *****************************************
+	// * $1000-$1FFF = ROM Addresses $000-$FFF *
+	// * ------------------------------------- *
+	// *                                       *
+	// *     mirror: $x000                     *
+	// *                                       *
+	// *     x = {odd}                         *
+	// *                                       *
+	// *****************************************
 
-	//Print Memory
-	// for i := 0; i < len(VGS.Memory); i++ {
-	// 	fmt.Printf("%X ", VGS.Memory[i])
-	// }
-	// os.Exit(2)
-}
+	for i := 0x1000; i <= 0xF000; i += 0x2000 {
 
-// Memory Bus - Used by INC, STA, STY and STX to update memory and sinalize TIA about the actions
-func memUpdate(memAddr uint16, value byte) {
+		// $1000-$1FFF = ROM Addresses $000-$FFF
+		// $3000-$3FFF = ROM Addresses $000-$FFF (mirror)
+		// $5000-$5FFF = ROM Addresses $000-$FFF (mirror)
+		// $7000-$7FFF = ROM Addresses $000-$FFF (mirror)
+		// $9000-$9FFF = ROM Addresses $000-$FFF (mirror)
+		// $B000-$BFFF = ROM Addresses $000-$FFF (mirror)
+		// $D000-$DFFF = ROM Addresses $000-$FFF (mirror)
+		// $F000-$FFFF = ROM Addresses $000-$FFF (mirror)
 
-	// TIA and RIOT
-	if memAddr < 128 || memAddr > 0x280 && memAddr <= 0x29F {
-		TIA_Update = int16(memAddr)
-	}
+		// Load ROM to memory mirrors
+		for j := 0; j < 4096; j++ {
+			Memory[i+j] = Memory[0xF000+j]
+		}
 
-	// RIOT WRITE ADDRESS
-	if memAddr > 0x280 && memAddr <= 0x29F {
-
-		// fmt.Printf("RIOT addr: %02X\n", memAddr)
-
-		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
-		// Update RIOT RW
-		Memory_RIOT_RW[memAddr-0x280] = value
-		// Update RIOT RW Mirror
-		Memory_RIOT_RW[memAddr-0x280+8] = value
-
-		// Print RIOT RW Memory values
-		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
-		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
-		// }
-
-		// Update the Timer
-		riot_update_timer(memAddr)
-
-		// All other addresses uses regular Memory array
-	} else {
-		Memory[memAddr] = value
 	}
 
 }
+
+// // Memory Bus - Used by INC, STA, STY and STX to update memory and sinalize TIA about the actions
+// func memUpdate(memAddr uint16, value byte) {
+
+// 	// TIA and RIOT
+// 	if memAddr < 128 || memAddr > 0x280 && memAddr <= 0x29F {
+// 		TIA_Update = int16(memAddr)
+// 	}
+
+// 	// RIOT WRITE ADDRESS
+// 	if memAddr > 0x280 && memAddr <= 0x29F {
+
+// 		// fmt.Printf("RIOT addr: %02X\n", memAddr)
+
+// 		// Just update these 2 addresses because I'm filtering the Timer opcodes on STA, STX and STY
+// 		// Update RIOT RW
+// 		Memory_RIOT_RW[memAddr-0x280] = value
+// 		// Update RIOT RW Mirror
+// 		Memory_RIOT_RW[memAddr-0x280+8] = value
+
+// 		// Print RIOT RW Memory values
+// 		// for i := 0 ; i < len(Memory_RIOT_RW) ; i++ {
+// 		// 	fmt.Printf("%d: %02X\n", i, Memory_RIOT_RW[i])
+// 		// }
+
+// 		// Update the Timer
+// 		riot_update_timer(memAddr)
+
+// 		// All other addresses uses regular Memory array
+// 	} else {
+// 		Memory[memAddr] = value
+// 	}
+
+// }
 
 // Just TIA can update the Read-only memory space
 func update_Memory_TIA_RO(TIAmemAddress, value byte) {
@@ -138,8 +151,8 @@ func update_Memory_TIA_RO(TIAmemAddress, value byte) {
 	}
 
 	// // Print TIA Read Only Memory values
-	// for i := 0 ; i < len(Memory_TIA_RO) ; i++ {
-	// 	fmt.Printf("%d: %02X\n", i, Memory_TIA_RO[i])
+	// for i := 0; i < len(Memory_TIA_RO); i++ {
+	// 	fmt.Printf("%02X: %02X\n", i, Memory_TIA_RO[i])
 	// }
 
 	// *********************
